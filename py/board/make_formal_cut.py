@@ -36,12 +36,12 @@ if __name__ == "__main__":
         cuts_type2.append(make_type2_cut(2**i))
         cuts_type3.append(make_type3_cut(2**i))
 
-    formal_cut = [cuts_type1[0]]
+    formal_cuts = [cuts_type1[0]]
 
     for i in range(1, N):
-        formal_cut.append(cuts_type1[i])
-        formal_cut.append(cuts_type2[i])
-        formal_cut.append(cuts_type3[i])
+        formal_cuts.append(cuts_type1[i])
+        formal_cuts.append(cuts_type2[i])
+        formal_cuts.append(cuts_type3[i])
 
     with open("./board/formal_cut.pickle", "wb") as f:
         pickle.dump(formal_cut, f)
