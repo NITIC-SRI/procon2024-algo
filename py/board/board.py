@@ -27,21 +27,30 @@ class Board:
     def op_right(self, cut: np.ndarray[int, 2], x: int, y: int) -> Self:
         height = len(cut)
         width = len(cut[0])
+
         new_board = copy.deepcopy(self._board)
         for h in range(y, y + height):
+            # 　範囲外の場合はスキップ
             if not 0 <= h < self._height:
                 continue
-            s = set()
-            lst = list()
+
+            s = set()  # 型抜きした場所を記録
+            lst = list()  # 新しい行
             for w in range(x, x + width):
                 if not 0 <= w < self._width:
                     continue
+
+                # 型抜きしたものを先頭に追加していく
                 if cut[h - y][w - x] == 1:
                     lst.append(self._board[h][w])
                     s.add(w)
+
+            # 型抜きしていないものを後ろに追加
             for w in range(self._width):
                 if w not in s:
                     lst.append(self._board[h][w])
+
+            # 新しい行を代入
             new_board[h] = lst
 
         return Board(np.array(new_board))
@@ -119,6 +128,7 @@ class Board:
 
         return Board(np.array(new_board))
 
+    # 0番の型で操作するメソッド
     def one_up(self, x: int, y: int) -> Self:
         new_board = copy.deepcopy(self._board)
         h, hp = 0, 0
