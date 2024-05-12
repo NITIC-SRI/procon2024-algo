@@ -1,4 +1,5 @@
-import pickle
+import os
+import json
 
 
 def make_type1_cut(size):
@@ -18,6 +19,15 @@ def make_type3_cut(size):
             tmp2[i][j] = tmp[j][i]
 
     return tmp2
+
+
+def cut2dict(index, cut: list[list]):
+    width = len(cut[0])
+    height = len(cut)
+
+    cells = ["".join(map(str, c)) for c in cut]
+
+    return {"p": index, "width": width, "height": height, "cells": cells}
 
 
 if __name__ == "__main__":
@@ -43,5 +53,10 @@ if __name__ == "__main__":
         formal_cuts.append(cuts_type2[i])
         formal_cuts.append(cuts_type3[i])
 
-    with open("./board/formal_cut.pickle", "wb") as f:
-        pickle.dump(formal_cut, f)
+    # jsonにするため各型抜きを辞書に変換
+    formal_cut_dict_list = [
+        cut2dict(i, fc) for i, fc in enumerate(formal_cuts)
+    ]
+
+    with open(f"{os.path.dirname(__file__)}/formal_cuts.json", "w") as f:
+        json.dump({"formal": formal_cut_dict_list}, f, indent=4)
