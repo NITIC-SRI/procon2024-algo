@@ -129,7 +129,7 @@ def test_op_down_over2():
 
 
 def test_one_up():
-    new = board.one_up(1, 2)
+    new = board.get_one_up(1, 2)
     answer = Board(
         [
             [1, 0, 1, 1, 2, 2, 1],
@@ -145,7 +145,7 @@ def test_one_up():
 
 
 def test_one_down():
-    new = board.one_down(0, 4)
+    new = board.get_one_down(0, 4)
     answer = Board(
         [
             [2, 0, 1, 1, 2, 2, 1],
@@ -160,7 +160,7 @@ def test_one_down():
 
 
 def test_one_left():
-    new = board.one_left(1, 2)
+    new = board.get_one_left(1, 2)
     answer = Board(
         [
             [1, 0, 1, 1, 2, 2, 1],
@@ -175,7 +175,7 @@ def test_one_left():
 
 
 def test_one_right():
-    new = board.one_right(5, 3)
+    new = board.get_one_right(5, 3)
     answer = Board(
         [
             [1, 0, 1, 1, 2, 2, 1],
@@ -187,3 +187,40 @@ def test_one_right():
         ]
     )
     assert new == answer
+
+
+def test_row_up():
+    new = board.clone()
+    new._row_up()
+    answer = Board(
+        [
+            [1, 0, 1, 1, 2, 2, 1],
+            [2, 3, 1, 1, 0, 0, 2],
+            [3, 0, 2, 1, 1, 1, 1],
+            [3, 0, 0, 2, 2, 3, 1],
+            [2, 2, 3, 2, 0, 2, 2],
+            [3, 3, 1, 0, 3, 2, 3],
+        ]
+    )
+    assert new == answer
+
+
+def test_fillone():
+    end = Board(
+        [
+            [2, 0, 1, 1, 0, 0, 2],
+            [1, 3, 1, 1, 2, 2, 1],
+            [3, 0, 2, 1, 1, 1, 1],
+            [3, 3, 0, 0, 2, 2, 1],
+            [2, 2, 3, 2, 0, 2, 2],
+            [3, 3, 1, 0, 3, 2, 3],
+        ]
+    )
+
+    new, action = board.fillone(end)
+    print("---------------")
+    print(new.board)
+    print("---------------")
+    print(action, len(action))
+
+    assert new == end

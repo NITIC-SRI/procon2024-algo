@@ -1,5 +1,5 @@
 import copy
-from typing import Self
+from typing import List, Self, Tuple
 
 import numpy as np
 
@@ -129,7 +129,7 @@ class Board:
         return Board(np.array(new_board))
 
     # 0番の型で操作するメソッド
-    def one_up(self, x: int, y: int) -> Self:
+    def get_one_up(self, x: int, y: int) -> Self:
         new_board = copy.deepcopy(self._board)
         h, hp = 0, 0
         while h < self._height:
@@ -142,7 +142,7 @@ class Board:
 
         return Board(np.array(new_board))
 
-    def one_down(self, x: int, y: int) -> Self:
+    def get_one_down(self, x: int, y: int) -> Self:
         new_board = copy.deepcopy(self._board)
         h, hp = self._height - 1, self._height - 1
         while h >= 0:
@@ -155,7 +155,7 @@ class Board:
 
         return Board(np.array(new_board))
 
-    def one_left(self, x: int, y: int) -> Self:
+    def get_one_left(self, x: int, y: int) -> Self:
         new_board = copy.deepcopy(self._board)
         w, wp = 0, 0
         while w < self._width:
@@ -168,7 +168,7 @@ class Board:
 
         return Board(np.array(new_board))
 
-    def one_right(self, x: int, y: int) -> Self:
+    def get_one_right(self, x: int, y: int) -> Self:
         new_board = copy.deepcopy(self._board)
         w, wp = self._width - 1, self._width - 1
         while w >= 0:
@@ -180,6 +180,114 @@ class Board:
         new_board[y][0] = self._board[y][x]
 
         return Board(np.array(new_board))
+
+    def _one_up(self, x: int, y: int) -> None:
+        e = self.board[y][x]
+        h, hp = 0, 0
+        while h < self._height:
+            if h == y:
+                h += 1
+            self._board[hp][x] = self._board[h][x]
+            h += 1
+            hp += 1
+        self._board[-1][x] = e
+
+    def _one_down(self, x: int, y: int) -> None:
+        e = self.board[y][x]
+        h, hp = self._height - 1, self._height - 1
+        while h >= 0:
+            if h == y:
+                h -= 1
+            self._board[hp][x] = self._board[h][x]
+            h -= 1
+            hp -= 1
+        self._board[0][x] = e
+
+    def _one_left(self, x: int, y: int) -> None:
+        e = self.board[y][x]
+        w, wp = 0, 0
+        while w < self._width:
+            if w == x:
+                w += 1
+            self._board[y][wp] = self._board[y][w]
+            w += 1
+            wp += 1
+        self._board[y][-1] = e
+
+    def _one_right(self, x: int, y: int) -> None:
+        e = self.board[y][x]
+        w, wp = self._width - 1, self._width - 1
+        while w >= 0:
+            if w == x:
+                w -= 1
+            self._board[y][wp] = self._board[y][w]
+            w -= 1
+            wp -= 1
+        self._board[y][0] = e
+
+    def _row_up(self):
+        last = self._board[0].copy()
+        for h in range(self._height - 1):
+            self._board[h] = self._board[h + 1]
+        self._board[-1] = last
+        return (0, 0, "rowup")
+
+    def fillone(self, end: Self) -> List:
+        new = self.clone()
+        actions = []
+        for y in range(self._height):
+            # TODO: すでに1行完成している場合はスキップ
+            for x in range(self._width):
+                print(x)
+                print(new.board)
+
+                is_break = False
+                for w in range(self._width - x):
+                    if end.board[y][x] == new.board[0][w]:
+                        new._one_left(w, 0)
+                        actions.append((w, 0, "left"))
+                        print(actions)
+                        is_break = True
+                        break
+
+                if is_break:
+                    continue
+
+                for h in range(1, self._height - y):
+                    for w in range(self._width - x):
+                        if end.board[y][x] == new.board[h][w]:
+                            new._one_down(w, h)
+                            actions.append((w, h, "down"))
+                            new._one_left(w, 0)
+                            actions.append((w, 0, "left"))
+                            is_break = True
+                            print(actions)
+                            break
+                    if is_break:
+                        break
+
+                if is_break:
+                    continue
+
+                for h in range(1, self._height - y):
+                    for w in range(self.width - x, self._width):
+                        if end.board[y][x] == new.board[h][w]:
+                            new._one_right(w, h)
+                            actions.append((w, h, "right"))
+                            new._one_down(0, h)
+                            actions.append((0, h, "down"))
+                            new._one_left(0, 0)
+                            actions.append((0, 0, "left"))
+                            is_break = True
+                            print(actions)
+                            break
+
+                    if is_break:
+                        break
+
+            actions.append(new._row_up())
+
+        return new, actions
 
     def __eq__(self, other: Self) -> bool:
         return np.array_equal(self._board, other.board)
