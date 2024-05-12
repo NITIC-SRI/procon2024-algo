@@ -29,9 +29,13 @@ class Board:
         width = len(cut[0])
         new_board = copy.deepcopy(self._board)
         for h in range(y, y + height):
+            if not 0 <= h < self._height:
+                continue
             s = set()
             lst = list()
             for w in range(x, x + width):
+                if not 0 <= w < self._width:
+                    continue
                 if cut[h - y][w - x] == 1:
                     lst.append(self._board[h][w])
                     s.add(w)
@@ -47,9 +51,13 @@ class Board:
         width = len(cut[0])
         new_board = copy.deepcopy(self._board)
         for h in range(y, y + height):
+            if not 0 <= h < self._height:
+                continue
             s = set()
             lst = list()
             for w in range(x + width - 1, x - 1, -1):
+                if not 0 <= w < self._width:
+                    continue
                 if cut[h - y][w - x] == 1:
                     lst.append(self._board[h][w])
                     s.add(w)
@@ -66,9 +74,13 @@ class Board:
         new_board = copy.deepcopy(self._board)
 
         for w in range(x, x + width):
+            if not 0 <= w < self._width:
+                continue
             s = set()
             lst = list()
             for h in range(y, y + height):
+                if not 0 <= h < self._height:
+                    continue
                 if cut[h - y][w - x] == 1:
                     lst.append(self._board[h][w])
                     s.add(h)
@@ -87,9 +99,13 @@ class Board:
         new_board = copy.deepcopy(self._board)
 
         for w in range(x, x + width):
+            if not 0 <= w < self._width:
+                continue
             s = set()
             lst = list()
             for h in range(y + height - 1, y - 1, -1):
+                if not 0 <= h < self._height:
+                    continue
                 if cut[h - y][w - x] == 1:
                     lst.append(self._board[h][w])
                     s.add(h)

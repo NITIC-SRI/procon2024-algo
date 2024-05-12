@@ -83,6 +83,51 @@ def test_op_up():
     assert new == answer
 
 
+def test_op_up_over1():
+    cut = np.array(
+        [
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1],
+        ]
+    )
+    new = board.op_up(cut, -1, -2)
+    answer = Board(
+        [
+            [2, 3, 1, 1, 2, 2, 1],
+            [3, 0, 1, 1, 0, 0, 2],
+            [3, 0, 2, 1, 1, 1, 1],
+            [2, 2, 0, 2, 2, 3, 1],
+            [3, 3, 3, 2, 0, 2, 2],
+            [1, 0, 1, 0, 3, 2, 3],
+        ]
+    )
+    assert new == answer
+
+
+def test_op_down_over2():
+    cut = np.array(
+        [
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1],
+        ]
+    )
+    new = board.op_down(cut, 5, 4)
+    answer = Board(
+        [
+            [1, 0, 1, 1, 2, 2, 2],
+            [2, 3, 1, 1, 0, 2, 3],
+            [3, 0, 2, 1, 1, 2, 1],
+            [3, 0, 0, 2, 2, 0, 2],
+            [2, 2, 3, 2, 0, 1, 1],
+            [3, 3, 1, 0, 3, 3, 1],
+        ]
+    )
+    print(new.board)
+    assert new == answer
+
+
 def test_one_up():
     new = board.one_up(1, 2)
     answer = Board(
