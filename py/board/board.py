@@ -238,15 +238,12 @@ class Board:
         for y in range(self._height):
             # TODO: すでに1行完成している場合はスキップ
             for x in range(self._width):
-                print(x)
-                print(new.board)
 
                 is_break = False
                 for w in range(self._width - x):
                     if end.board[y][x] == new.board[0][w]:
                         new._one_left(w, 0)
                         actions.append((w, 0, "left"))
-                        print(actions)
                         is_break = True
                         break
 
@@ -261,7 +258,6 @@ class Board:
                             new._one_left(w, 0)
                             actions.append((w, 0, "left"))
                             is_break = True
-                            print(actions)
                             break
                     if is_break:
                         break
@@ -279,7 +275,6 @@ class Board:
                             new._one_left(0, 0)
                             actions.append((0, 0, "left"))
                             is_break = True
-                            print(actions)
                             break
 
                     if is_break:
