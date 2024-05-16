@@ -12,6 +12,11 @@ class Board:
         self._height = len(board)
         self._width = len(board[0])
 
+    @classmethod
+    def random_board(cls, height: int, width: int) -> Self:
+        board = np.random.randint(4, size=(height, width))
+        return cls(board)
+
     @property
     def board(self) -> np.ndarray[int, 2]:
         return self._board
@@ -131,6 +136,8 @@ class Board:
     # 0番の型で操作するメソッド
     def get_one_up(self, x: int, y: int) -> Self:
         new_board = copy.deepcopy(self._board)
+        if y == self._height - 1:
+            return Board(np.array(new_board))
         h, hp = 0, 0
         while h < self._height:
             if h == y:
@@ -144,6 +151,8 @@ class Board:
 
     def get_one_down(self, x: int, y: int) -> Self:
         new_board = copy.deepcopy(self._board)
+        if y == 0:
+            return Board(np.array(new_board))
         h, hp = self._height - 1, self._height - 1
         while h >= 0:
             if h == y:
@@ -157,6 +166,8 @@ class Board:
 
     def get_one_left(self, x: int, y: int) -> Self:
         new_board = copy.deepcopy(self._board)
+        if x == self._width - 1:
+            return Board(np.array(new_board))
         w, wp = 0, 0
         while w < self._width:
             if w == x:
@@ -170,6 +181,8 @@ class Board:
 
     def get_one_right(self, x: int, y: int) -> Self:
         new_board = copy.deepcopy(self._board)
+        if x == 0:
+            return Board(np.array(new_board))
         w, wp = self._width - 1, self._width - 1
         while w >= 0:
             if w == x:
@@ -182,6 +195,8 @@ class Board:
         return Board(np.array(new_board))
 
     def _one_up(self, x: int, y: int) -> None:
+        if y == self._height - 1:
+            return
         e = self.board[y][x]
         h, hp = 0, 0
         while h < self._height:
@@ -193,6 +208,8 @@ class Board:
         self._board[-1][x] = e
 
     def _one_down(self, x: int, y: int) -> None:
+        if y == 0:
+            return
         e = self.board[y][x]
         h, hp = self._height - 1, self._height - 1
         while h >= 0:
@@ -204,6 +221,8 @@ class Board:
         self._board[0][x] = e
 
     def _one_left(self, x: int, y: int) -> None:
+        if x == self._width - 1:
+            return
         e = self.board[y][x]
         w, wp = 0, 0
         while w < self._width:
@@ -215,6 +234,8 @@ class Board:
         self._board[y][-1] = e
 
     def _one_right(self, x: int, y: int) -> None:
+        if x == 0:
+            return
         e = self.board[y][x]
         w, wp = self._width - 1, self._width - 1
         while w >= 0:
@@ -232,7 +253,7 @@ class Board:
         self._board[-1] = last
         return (0, 0, "rowup")
 
-    def fillone(self, end: Self) -> List:
+    def fillone(self, end: Self) -> Tuple[Self, List]:
         new = self.clone()
         actions = []
         for y in range(self._height):
