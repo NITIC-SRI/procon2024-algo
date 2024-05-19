@@ -246,25 +246,23 @@ class Board:
             wp -= 1
         self._board[y][0] = e
 
-    def _row_up(self):
+    def _row_up(self) -> None:
         last = self._board[0].copy()
         for h in range(self._height - 1):
             self._board[h] = self._board[h + 1]
         self._board[-1] = last
-        return (0, 0, "rowup")
 
     def fillone(self, end: Self) -> Tuple[Self, List]:
         new = self.clone()
         actions = []
         for y in range(self._height):
-            # TODO: すでに1行完成している場合はスキップ
             for x in range(self._width):
 
                 is_break = False
                 for w in range(self._width - x):
                     if end.board[y][x] == new.board[0][w]:
                         new._one_left(w, 0)
-                        actions.append((w, 0, "left"))
+                        actions.append((w, 0, 0, "left"))
                         is_break = True
                         break
 
@@ -275,9 +273,9 @@ class Board:
                     for w in range(self._width - x):
                         if end.board[y][x] == new.board[h][w]:
                             new._one_down(w, h)
-                            actions.append((w, h, "down"))
+                            actions.append((w, h, 0, "down"))
                             new._one_left(w, 0)
-                            actions.append((w, 0, "left"))
+                            actions.append((w, 0, 0, "left"))
                             is_break = True
                             break
                     if is_break:
@@ -290,18 +288,19 @@ class Board:
                     for w in range(self.width - x, self._width):
                         if end.board[y][x] == new.board[h][w]:
                             new._one_right(w, h)
-                            actions.append((w, h, "right"))
+                            actions.append((w, h, 0, "right"))
                             new._one_down(0, h)
-                            actions.append((0, h, "down"))
+                            actions.append((0, h, 0, "down"))
                             new._one_left(0, 0)
-                            actions.append((0, 0, "left"))
+                            actions.append((0, 0, 0, "left"))
                             is_break = True
                             break
 
                     if is_break:
                         break
 
-            actions.append(new._row_up())
+            new._row_up()
+            actions.append((0, -255, 22, 'rowup'))
 
         return new, actions
 
