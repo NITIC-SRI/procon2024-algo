@@ -47,7 +47,7 @@ def train_model(model, train_loader, criterion, optimizer, device):
         outputs = model(inputs)
 
         # 損失を計算
-        loss = criterion(outputs, targets.view(-1, 1))
+        loss = criterion(outputs, targets.view(-1, 1)).float()
 
         # 逆伝播
         loss.backward()
@@ -69,14 +69,14 @@ def validate_model(model, val_loader, criterion, device):
     with torch.no_grad():
         for inputs, targets in val_loader:
             # データをデバイスに転送
-            inputs = torch.stack(inputs, dim=1).to(device)
+            inputs = torch.stack(inputs, dim=1).to(device).float()
             targets = targets.to(device)
 
             # 順伝播
             outputs = model(inputs)
 
             # 損失を計算
-            loss = criterion(outputs, targets.view(-1, 1))
+            loss = criterion(outputs, targets.view(-1, 1)).float()
 
             # 損失を蓄積
             running_loss += loss.item()

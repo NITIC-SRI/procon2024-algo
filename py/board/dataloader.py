@@ -19,7 +19,7 @@ ELEMS = [i for i in range(0, 101)]
 
 # 0 padding
 def zero_board_padding(board: Board) -> list:
-    b = np.zeros((256, 256))
+    b = np.zeros((256, 256), dtype=np.float32)
     for y in range(board.height):
         for x in range(board.width):
             b[y][x] = board.board[y][x]
@@ -27,10 +27,10 @@ def zero_board_padding(board: Board) -> list:
 
 # mask board
 def mask_board(h, w):
-    b = np.zeros((256, 256))
+    b = np.zeros((256, 256), dtype=np.float32)
     for y in range(h):
         for x in range(w):
-            b[y][x] = 1
+            b[y][x] = 1.0
     return b
 
 def split_layers(board: Board):
@@ -79,14 +79,15 @@ class FillOneDataset(Dataset):
 
         score = len(actions) / (W * H)
 
-        return [mask_s, b0s, b1s, b2s, b3s, b0e, b1e, b2e, b3e], score
+        return [mask_s, b0s, b1s, b2s, b3s, b0e, b1e, b2e, b3e], float(score)
     
     def __len__(self):
-        return 320000
+        return 1000
     
-dataset = FillOneDataset()
-dataloader = DataLoader(dataset, batch_size=32, num_workers=24)
 
 if __name__=="__main__":
+    dataset = FillOneDataset()
+    dataloader = DataLoader(dataset, batch_size=32, num_workers=24)
+
     for (x, y) in dataloader:
         print(x, y)
