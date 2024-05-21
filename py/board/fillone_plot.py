@@ -5,20 +5,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ray
 from board import Board
+from fillone_minimal import compress_actions
 
 ray.init()
 
 
-sample = 100
+sample = 1
 H, W = 256, 256
 tests = []
 for _ in range(sample):
     start = Board.random_board(H, W)
     end = start.clone()
     for cnt in range(random.randint(0, 100)):
-        cut = np.random.randint(
-            0, 2, (random.randint(1, 256), random.randint(1, 256))
-        )
+        cut = np.array([
+            [0]
+        ])
         to = random.randint(0, 4)
         x, y = np.random.randint(-1 * H // 2, H // 2), np.random.randint(
             -1 * W // 2, W // 2
@@ -42,26 +43,34 @@ def make_test(sample):
     new, actions = start.fillone(end)
     assert new == end
     # print(f"Test {i} passed. action length: {len(actions)}, cnt: {cnt}")
-    return len(actions), cnt
+
+    com = compress_actions(H, W, actions)
+    print(com)
+    return len(actions), cnt, len(com)
 
 
 res = [make_test.remote(test) for test in tests]
 
 begin_time = time.time()
 
-x = [r[0] for r in ray.get(res)]
-y = [r[1] for r in ray.get(res)]
+x = []
+y = []
+z = []
+
+for r in ray.get(res):
+    x.append(r[0])
+    y.append(r[1])
+    z.append(r[2])
+
+print(min(z))
 
 end_time = time.time()
 
 print(f"Time: {end_time - begin_time}")
-xs = []
-ys = []
-for s, t in zip(x, y):
-    if s > 70000:
-        xs.append(s)
-        ys.append(t)
 
-print(np.corrcoef(np.array([xs, ys])))
-plt.scatter(xs, ys)
-plt.show()
+# print(np.corrcoef(np.array([xs, ys])))
+# plt.scatter(x, z)
+# plt.savefig("fillone_plot.png")
+
+plt.scatter(y, z)
+plt.savefig("fillone_plot2.png")

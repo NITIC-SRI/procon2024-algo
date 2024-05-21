@@ -70,7 +70,7 @@ class FillOneDataset(Dataset):
                 end = end.op_left(cut, x, y)
             elif to == 3:
                 end = end.op_right(cut, x, y)
-        
+
         _, actions = start.fillone(end)
         actions = compress_actions(H, W, actions)
 
@@ -79,11 +79,11 @@ class FillOneDataset(Dataset):
 
         score = len(actions) / (W * H)
 
-        return [mask_s, b0s, b1s, b2s, b3s, b0e, b1e, b2e, b3e], float(score)
-    
+        return [mask_s, b0s, b1s, b2s, b3s, b0e, b1e, b2e, b3e], float(10*score)
+
     def __len__(self):
         return 1000
-    
+
 
 if __name__=="__main__":
     dataset = FillOneDataset()
