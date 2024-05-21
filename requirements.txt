@@ -1,4 +1,8 @@
 numpy==1.24.1
 sympy==1.11.1
 more-itertools==9.0.0
-git+https://github.com/not522/ac-library-python
+pytest
+pytk
+matplotlib==3.8.4
+ray
+scipy
