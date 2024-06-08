@@ -10,3 +10,11 @@
 │   └── utils # その他の便利集
 └── strategy # 戦略を記述するフォルダ
 ```
+
+## ドキュメント
+
+- rust
+```bash
+cd rs
+cargo doc --open
+```

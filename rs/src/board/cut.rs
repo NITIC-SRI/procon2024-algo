@@ -55,6 +55,10 @@ impl Cuts {
 	pub fn push(&mut self, cut: Cut) {
 		self.cuts.push(cut);
 	}
+
+    pub fn len(&self) -> usize {
+        self.cuts.len()
+    }
 }
 
 impl Index<u32> for Cuts {
