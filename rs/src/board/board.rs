@@ -338,6 +338,28 @@ impl Board {
         self.board[last_index] = last
     }
 
+    fn calc_complesed_action_num(
+        &self,
+        count: usize,
+        action: Action,
+        continue_count: usize,
+    ) -> usize {
+        if action.y() == 0 {
+            match action.x() {
+                0 => {
+                    if continue_count == self.width {
+                        count - continue_count
+                    } else {
+                        count - continue_count + 1
+                    }
+                }
+                _ => count - continue_count + continue_count.count_ones() as usize,
+            }
+        } else {
+            count
+        }
+    }
+
     pub fn absolute_distance(&self, end: &Self) -> u64 {
         let mut d = 0;
         for h in 0..self.height {
