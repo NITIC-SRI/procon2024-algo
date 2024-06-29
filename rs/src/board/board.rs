@@ -62,10 +62,8 @@ impl Board {
             action::Direction::Right => {
                 self.op_right(&Cut::new(vec![vec![true]]), action.x(), action.y())
             }
-            _ => panic!("Invalid direction"),
-
+            _ => unreachable!(),
         }
-
     }
 
     pub fn op_left(&mut self, cut: &Cut, x: i32, y: i32) {
