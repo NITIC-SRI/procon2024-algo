@@ -360,6 +360,111 @@ impl Board {
         }
     }
 
+    pub fn get_fillone_action_score(&self, end: &Self) -> usize {
+        let mut count: usize = 0;
+        let mut continue_count: usize = 0;
+        let mut rowup_continue_count: usize = 0;
+        let mut before_action = Action::new(256, 256, 0, action::Direction::Up);
+
+        let mut new = self.clone();
+        if cfg!(debug_assertion) {}
+
+        // 終盤面についてのループ
+        for y in 0..self.height() {
+            'loop_x: for x in 0..self.width() {
+                // 一番上の行についてのループ
+                for w in 0..(self.width() - x) {
+                    if end.board[y][x] == new.board[0][w] {
+                        new.op_one_left(w as i32, 0 as i32);
+                        count += 1;
+
+                        let tmp = Action::new(w as i32, 0, 0, action::Direction::Left);
+
+                        if tmp == before_action {
+                            continue_count += 1;
+                        } else {
+                            count = self.calc_complesed_action_num(
+                                count,
+                                before_action,
+                                continue_count,
+                            );
+                            continue_count = 1;
+                            before_action = tmp;
+                        }
+
+                        continue 'loop_x;
+                    };
+                }
+
+                // 移動させたい場所より左下についてのループ
+                for h in 1..(self.height() - y) {
+                    for w in 0..(self.width() - x) {
+                        if end.board[y][x] == new.board[h][w] {
+                            new.op_one_down(w as i32, h as i32);
+                            new.op_one_left(w as i32, 0 as i32);
+                            count += 2;
+
+                            count = self.calc_complesed_action_num(
+                                count,
+                                before_action,
+                                continue_count,
+                            );
+
+                            continue_count = 1;
+                            before_action = Action::new(w as i32, 0, 0, action::Direction::Left);
+
+                            continue 'loop_x;
+                        }
+                    }
+                }
+
+                // それ以外の場所についてのループ
+                for h in 1..(self.height() - y) {
+                    for w in (self.width - x)..self.width() {
+                        if end.board[y][x] == new.board[h][w] {
+                            new.op_one_right(w as i32, h as i32);
+                            new.op_one_down(0 as i32, h as i32);
+                            new.op_one_left(0 as i32, 0 as i32);
+                            count += 3;
+
+                            count = self.calc_complesed_action_num(
+                                count,
+                                before_action,
+                                continue_count,
+                            );
+
+                            continue_count = 1;
+                            before_action = Action::new(w as i32, 0, 0, action::Direction::Left);
+
+                            continue 'loop_x;
+                        }
+                    }
+                }
+            }
+            new.op_row_up();
+            count += 1;
+
+            // 結局continue_countのifを外に出さなきゃいけないのは違和感があるけど思いつかなかった
+            if continue_count == self.width {
+                rowup_continue_count += 1;
+            } else {
+                count = count - rowup_continue_count + 1;
+                rowup_continue_count = 0;
+            }
+
+            count = self.calc_complesed_action_num(count, before_action, continue_count);
+
+            continue_count = 1;
+            before_action = Action::new(0 as i32, -255, 22, action::Direction::Up);
+        }
+        if rowup_continue_count == new.height {
+            count = count - rowup_continue_count
+        } else {
+            count = count - rowup_continue_count + 1;
+        }
+        return count;
+    }
+
     pub fn absolute_distance(&self, end: &Self) -> u64 {
         let mut d = 0;
         for h in 0..self.height {
