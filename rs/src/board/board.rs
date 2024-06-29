@@ -242,6 +242,102 @@ impl Board {
         assert!(q.is_empty());
     }
 
+    fn op_one_up(&mut self, x: i32, y: i32) {
+        // 操作後に盤面が変わらない操作を判定
+        if y == self.height() as i32 - 1 {
+            return;
+        }
+
+        let e = self.board[y as usize][x as usize];
+
+        let mut h: usize = 0;
+        let mut hp: usize = 0;
+        while h < self.height() {
+            if h as i32 == y {
+                h += 1
+            }
+            self.board[hp][x as usize] = self.board[h][x as usize];
+            h += 1;
+            hp += 1;
+        }
+        let tmp: usize = self.height() - 1;
+        self.board[tmp][x as usize] = e
+    }
+
+    fn op_one_down(&mut self, x: i32, y: i32) {
+        // 操作後に盤面が変わらない操作を判定
+        if y == 0 {
+            return;
+        }
+
+        let e = self.board[y as usize][x as usize];
+
+        let mut h = self.height() as i32 - 1;
+        let mut hp = self.height() as i32 - 1;
+        while h >= 0 {
+            if h == y {
+                h -= 1;
+            }
+            self.board[hp as usize][x as usize] = self.board[h as usize][x as usize];
+            h -= 1;
+            hp -= 1;
+        }
+        self.board[0][x as usize] = e;
+    }
+
+    fn op_one_left(&mut self, x: i32, y: i32) {
+        // 操作後に盤面が変わらない操作を判定
+        if x == self.width() as i32 - 1 {
+            return;
+        }
+
+        let e = self.board[y as usize][x as usize];
+
+        let mut w: usize = 0;
+        let mut wp: usize = 0;
+        while w < self.width() {
+            if w as i32 == x {
+                w += 1;
+            }
+            self.board[y as usize][wp] = self.board[y as usize][w];
+            w += 1;
+            wp += 1;
+        }
+        let tmp: usize = self.width() - 1;
+        self.board[y as usize][tmp] = e;
+    }
+
+    fn op_one_right(&mut self, x: i32, y: i32) {
+        // 操作後に盤面が変わらない操作を判定
+        if x == 0 {
+            return;
+        }
+
+        let e = self.board[y as usize][x as usize];
+
+        let mut w = self.width() as i32 - 1;
+        let mut wp = self.width() as i32 - 1;
+        while w >= 0 {
+            if w == x {
+                w -= 1;
+            }
+            self.board[y as usize][wp as usize] = self.board[y as usize][w as usize];
+            w -= 1;
+            wp -= 1;
+        }
+        self.board[y as usize][0] = e;
+    }
+
+    fn op_row_up(&mut self) {
+        let last = self.board[0].clone();
+        for h in 0..(self.height() - 1) {
+            self.board[h] = self.board[h + 1].clone();
+        }
+        let last_index = { self.height() - 1 };
+
+        self.board[last_index] = last
+    }
+
     pub fn absolute_distance(&self, end: &Self) -> u64 {
         let mut d = 0;
         for h in 0..self.height {
