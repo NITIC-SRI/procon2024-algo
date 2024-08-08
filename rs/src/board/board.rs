@@ -4,7 +4,7 @@ use std::fmt::Display;
 use crate::board::action::Action;
 use crate::board::cut::Cut;
 
-use super::action;
+use super::action::{self, Direction};
 
 #[derive(Debug, Clone)]
 pub struct Board {
@@ -350,7 +350,7 @@ impl Board {
                     if continue_count == self.width {
                         count - continue_count
                     } else {
-                        count - continue_count + 1
+                        count + 1 - continue_count
                     }
                 }
                 _ => count - continue_count + continue_count.count_ones() as usize,
@@ -362,81 +362,101 @@ impl Board {
 
     pub fn get_fillone_action_score(&self, end: &Self) -> usize {
         let mut count: usize = 0;
-        let mut continue_count: usize = 0;
-        let mut rowup_continue_count: usize = 0;
+        let mut continue_count: usize = 1;
+        let mut rowup_continue_count: usize = 1;
         let mut before_action = Action::new(256, 256, 0, action::Direction::Up);
 
         let mut new = self.clone();
-        if cfg!(debug_assertion) {}
 
         // 終盤面についてのループ
         for y in 0..self.height() {
-            'loop_x: for x in 0..self.width() {
-                // 一番上の行についてのループ
-                for w in 0..(self.width() - x) {
-                    if end.board[y][x] == new.board[0][w] {
-                        new.op_one_left(w as i32, 0 as i32);
-                        count += 1;
-
-                        let tmp = Action::new(w as i32, 0, 0, action::Direction::Left);
-
-                        if tmp == before_action {
-                            continue_count += 1;
-                        } else {
-                            count = self.calc_complesed_action_num(
-                                count,
-                                before_action,
-                                continue_count,
-                            );
-                            continue_count = 1;
-                            before_action = tmp;
-                        }
-
-                        continue 'loop_x;
-                    };
-                }
-
-                // 移動させたい場所より左下についてのループ
-                for h in 1..(self.height() - y) {
+            // skip_flag: 上の行がすでにそろっていたらtrue
+            let mut skip_flag = true;
+            if end.board[y] != new.board[0] {
+                skip_flag = false;
+                'loop_x: for x in 0..self.width() {
+                    // 一番上の行についてのループ
                     for w in 0..(self.width() - x) {
-                        if end.board[y][x] == new.board[h][w] {
-                            new.op_one_down(w as i32, h as i32);
+                        if end.board[y][x] == new.board[0][w] {
                             new.op_one_left(w as i32, 0 as i32);
-                            count += 2;
+                            count += 1;
+                            if cfg!(debug_assertions) {
+                                println!("Action left {}, {}", w, 0);
+                            }
 
-                            count = self.calc_complesed_action_num(
-                                count,
-                                before_action,
-                                continue_count,
-                            );
+                            let tmp = Action::new(w as i32, 0, 0, action::Direction::Left);
 
-                            continue_count = 1;
-                            before_action = Action::new(w as i32, 0, 0, action::Direction::Left);
+                            if tmp == before_action {
+                                continue_count += 1;
+                            } else {
+                                count = self.calc_complesed_action_num(
+                                    count,
+                                    before_action,
+                                    continue_count,
+                                );
+                                continue_count = 1;
+                                before_action = tmp;
+                            }
 
                             continue 'loop_x;
+                        };
+                    }
+
+                    // 移動させたい場所より左下についてのループ
+                    for h in 1..(self.height() - y) {
+                        for w in 0..(self.width() - x) {
+                            if end.board[y][x] == new.board[h][w] {
+                                new.op_one_down(w as i32, h as i32);
+                                new.op_one_left(w as i32, 0 as i32);
+                                count += 2;
+
+                                if cfg!(debug_assertions) {
+                                    println!("Action down {}, {}", w, h);
+                                    println!("Action left {}, {}", w, 0);
+                                }
+
+                                count = self.calc_complesed_action_num(
+                                    count,
+                                    before_action,
+                                    continue_count,
+                                );
+
+                                continue_count = 1;
+                                before_action =
+                                    Action::new(w as i32, 0, 0, action::Direction::Left);
+
+                                continue 'loop_x;
+                            }
                         }
                     }
-                }
 
-                // それ以外の場所についてのループ
-                for h in 1..(self.height() - y) {
-                    for w in (self.width - x)..self.width() {
-                        if end.board[y][x] == new.board[h][w] {
-                            new.op_one_right(w as i32, h as i32);
-                            new.op_one_down(0 as i32, h as i32);
-                            new.op_one_left(0 as i32, 0 as i32);
-                            count += 3;
+                    // それ以外の場所についてのループ
+                    for h in 1..(self.height() - y) {
+                        for w in (self.width - x)..self.width() {
+                            if end.board[y][x] == new.board[h][w] {
+                                new.op_one_right(w as i32, h as i32);
+                                new.op_one_down(0 as i32, h as i32);
+                                new.op_one_left(0 as i32, 0 as i32);
+                                count += 3;
 
-                            count = self.calc_complesed_action_num(
-                                count,
-                                before_action,
-                                continue_count,
-                            );
+                                if cfg!(debug_assertions) {
+                                    println!("Action right {}, {}", w, h);
+                                    println!("Action down {}, {}", 0, h);
+                                    println!("Action left {}, {}", 0, 0);
+                                }
 
-                            continue_count = 1;
-                            before_action = Action::new(w as i32, 0, 0, action::Direction::Left);
+                                count = self.calc_complesed_action_num(
+                                    count,
+                                    before_action,
+                                    continue_count,
+                                );
 
-                            continue 'loop_x;
+                                continue_count = 1;
+                                before_action =
+                                    Action::new(0 as i32, 0, 0, action::Direction::Left);
+
+                                continue 'loop_x;
+                            }
                         }
                     }
                 }
@@ -444,24 +464,30 @@ impl Board {
             new.op_row_up();
             count += 1;
 
-            // 結局continue_countのifを外に出さなきゃいけないのは違和感があるけど思いつかなかった
-            if continue_count == self.width {
-                rowup_continue_count += 1;
-            } else {
-                count = count - rowup_continue_count + 1;
-                rowup_continue_count = 0;
+            if cfg!(debug_assertions) {
+                println!("Action row_up {}, {}", 0, 0);
+                println!();
             }
 
             count = self.calc_complesed_action_num(count, before_action, continue_count);
 
             continue_count = 1;
             before_action = Action::new(0 as i32, -255, 22, action::Direction::Up);
+
+            if skip_flag {
+                rowup_continue_count += 1;
+            } else {
+                count = count + 1 - rowup_continue_count;
+                rowup_continue_count = 1;
+            }
         }
+
         if rowup_continue_count == new.height {
-            count = count - rowup_continue_count
+            count = count - rowup_continue_count;
         } else {
-            count = count - rowup_continue_count + 1;
+            count = count + 1 - rowup_continue_count;
         }
+
         return count;
     }
 
