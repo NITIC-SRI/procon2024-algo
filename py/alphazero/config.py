@@ -21,3 +21,7 @@ class MCTConfig:
     noise_alpha: float = 0.9
     noise_frac: float = 0.25
     cpuct: float = 1.1
+
+
+rule_config = RuleConfig()
+mct_config = MCTConfig()
