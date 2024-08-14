@@ -30,3 +30,17 @@ def split_layers(board: Board, s: int = 256):
     b3 = (b == 3).astype(np.float32)
 
     return mask, b0, b1, b2, b3
+
+
+if __name__ == "__main__":
+    import pprint
+
+    board = Board.random_board(8, 8)
+
+    mask, b0, b1, b2, b3 = split_layers(board, 10)
+
+    pprint.pprint(mask)
+    pprint.pprint(b0)
+    pprint.pprint(b1)
+    pprint.pprint(b2)
+    pprint.pprint(b3)
