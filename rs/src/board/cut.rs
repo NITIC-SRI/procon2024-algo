@@ -2,24 +2,24 @@ use std::ops::Index;
 
 pub struct Cut {
     pub cut: Vec<Vec<bool>>,
-	width: usize,
-	height: usize,
+    width: usize,
+    height: usize,
 }
 
 impl Cut {
     pub fn new(cut: Vec<Vec<bool>>) -> Cut {
         let height = cut.len();
-		let width = cut[0].len();
-		Cut { cut, width, height }
+        let width = cut[0].len();
+        Cut { cut, width, height }
     }
 
     pub fn get_formal_cut(cut_num: u32) -> Cut {
         // TODO: jsonから読み込むようにする．
-		Cut {
-			cut: Vec::new(),
-			width: 0,
-			height: 0,
-		}
+        Cut {
+            cut: Vec::new(),
+            width: 0,
+            height: 0,
+        }
     }
 
     pub fn width(&self) -> usize {
@@ -32,11 +32,11 @@ impl Cut {
 }
 
 impl Index<usize> for Cut {
-	type Output = Vec<bool>;
+    type Output = Vec<bool>;
 
-	fn index(&self, index: usize) -> &Self::Output {
-		&self.cut[index]
-	}
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.cut[index]
+    }
 }
 
 pub struct Cuts {
@@ -52,9 +52,9 @@ impl Cuts {
         Cuts { cuts }
     }
 
-	pub fn push(&mut self, cut: Cut) {
-		self.cuts.push(cut);
-	}
+    pub fn push(&mut self, cut: Cut) {
+        self.cuts.push(cut);
+    }
 
     pub fn len(&self) -> usize {
         self.cuts.len()
@@ -62,9 +62,9 @@ impl Cuts {
 }
 
 impl Index<u32> for Cuts {
-	type Output = Cut;
+    type Output = Cut;
 
-	fn index(&self, index: u32) -> &Self::Output {
-		&self.cuts[index as usize]
-	}
+    fn index(&self, index: u32) -> &Self::Output {
+        &self.cuts[index as usize]
+    }
 }
