@@ -50,10 +50,19 @@ impl Board {
 
     pub fn operate(&mut self, action: &Action) {
         match action.direction() {
-          action::Direction::Up => self.op_up(action.cut(), action.x(), action.y()),
-          action::Direction::Down => self.op_down(action.cut(), action.x(), action.y()),
-          action::Direction::Left => self.op_left(action.cut(), action.x(), action.y()),
-          action::Direction::Right => self.op_right(action.cut(), action.x(), action.y()),
+            action::Direction::Up => {
+                self.op_up(&Cut::new(vec![vec![true]]), action.x(), action.y())
+            }
+            action::Direction::Down => {
+                self.op_down(&Cut::new(vec![vec![true]]), action.x(), action.y())
+            }
+            action::Direction::Left => {
+                self.op_left(&Cut::new(vec![vec![true]]), action.x(), action.y())
+            }
+            action::Direction::Right => {
+                self.op_right(&Cut::new(vec![vec![true]]), action.x(), action.y())
+            }
+            _ => unreachable!(),
         }
     }
 
