@@ -1,5 +1,9 @@
+use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::prelude::*;
 use std::ops::Index;
 
+#[derive(Debug, Clone)]
 pub struct Cut {
     pub cut: Vec<Vec<bool>>,
     width: usize,
@@ -11,15 +15,6 @@ impl Cut {
         let height = cut.len();
         let width = cut[0].len();
         Cut { cut, width, height }
-    }
-
-    pub fn get_formal_cut(cut_num: u32) -> Cut {
-        // TODO: jsonから読み込むようにする．
-        Cut {
-            cut: Vec::new(),
-            width: 0,
-            height: 0,
-        }
     }
 
     pub fn width(&self) -> usize {
@@ -39,15 +34,31 @@ impl Index<usize> for Cut {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Cuts {
-    cuts: Vec<Cut>,
+    pub cuts: Vec<Cut>,
 }
 
 impl Cuts {
-    pub fn new() -> Cuts {
+    pub fn new(path: String) -> Cuts {
+        let json = get_json(path);
         let mut cuts = Vec::new();
-        for i in 0..25 {
-            cuts.push(Cut::get_formal_cut(i));
+
+        for cells in json.formal {
+            let mut cut = Vec::new();
+            for cell in cells.cells {
+                let mut row = Vec::new();
+                for c in cell.chars() {
+                    if c == '1' {
+                        row.push(true);
+                    } else {
+                        row.push(false);
+                    }
+                }
+                cut.push(row);
+            }
+            let cut = Cut::new(cut);
+            cuts.push(cut);
         }
         Cuts { cuts }
     }
@@ -67,4 +78,22 @@ impl Index<u32> for Cuts {
     fn index(&self, index: u32) -> &Self::Output {
         &self.cuts[index as usize]
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct Json {
+    formal: Vec<Cells>,
+}
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct Cells {
+    p: u32,
+    width: u32,
+    height: u32,
+    cells: Vec<String>,
+}
+
+pub fn get_json(path: String) -> Json {
+    let file = File::open(path).unwrap();
+    let data: Json = serde_json::from_reader(file).unwrap();
+    data
 }
