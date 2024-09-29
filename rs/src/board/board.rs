@@ -50,12 +50,10 @@ impl Board {
 
     pub fn operate(&mut self, action : &Action) {
         match action.direction() {
-            action::UP => self.op_up(&Cut::new(vec![vec![true]]), action.x(), action.y()),
-            action::DOWN => self.op_down(&Cut::new(vec![vec![true]]), action.x(), action.y()),
-            action::LEFT => self.op_left(&Cut::new(vec![vec![true]]), action.x(), action.y()),
-            action::RIGHT => self.op_right(&Cut::new(vec![vec![true]]), action.x(), action.y()),
-            _ => panic!("Invalid direction"),
-
+            action::Direction::Up => self.op_up(action.cut(), action.x(), action.y()),
+            action::Direction::Down => self.op_down(action.cut(), action.x(), action.y()),
+            action::Direction::Left => self.op_left(action.cut(), action.x(), action.y()),
+            action::Direction::Right => self.op_right(action.cut(), action.x(), action.y()),
         }
 
     }
@@ -249,8 +247,8 @@ impl Board {
         d
     }
 
-    pub fn operate_and_absolute_distance(&mut self, cut: &Cut, x: i32, y: i32, direction: u8, end: &Self) -> (Action, u64) {
+    // pub fn operate_and_absolute_distance(&mut self, cut: &Cut, x: i32, y: i32, direction: u8, end: &Self) -> (Action, u64) {
 
-    }
+    // }
 
 }
