@@ -81,11 +81,11 @@ impl Index<u32> for Cuts {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-struct Json {
+pub struct Json {
     formal: Vec<Cells>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
-struct Cells {
+pub struct Cells {
     p: u32,
     width: u32,
     height: u32,
