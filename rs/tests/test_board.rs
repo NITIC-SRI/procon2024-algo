@@ -99,6 +99,35 @@ fn test_get_fillone_action_score(start: Board, end: Board, expected_score: usize
 }
 
 #[test]
+fn test_op_down() {
+    let cut = Cut::new(vec![
+        vec![false, true, false],
+        vec![true, false, true],
+        vec![true, true, false],
+    ]);
+
+    let mut start = Board::new(vec![
+        vec![1, 0, 1, 1, 2, 2, 1],
+        vec![2, 3, 1, 1, 0, 0, 2],
+        vec![3, 0, 2, 1, 1, 1, 1],
+        vec![3, 0, 0, 2, 2, 3, 1],
+        vec![2, 2, 3, 2, 0, 2, 2],
+        vec![3, 3, 1, 0, 3, 2, 3],
+    ]);
+
+    let end = Board::new(vec![
+        vec![1, 0, 2, 2, 2, 2, 1],
+        vec![2, 2, 3, 1, 0, 0, 2],
+        vec![3, 0, 1, 1, 1, 1, 1],
+        vec![3, 3, 1, 1, 2, 3, 1],
+        vec![2, 0, 0, 2, 0, 2, 2],
+        vec![3, 3, 1, 0, 3, 2, 3],
+    ]);
+
+    start.op_down(&cut, 1, 2);
+    assert_eq!(start.board(), end.board());
+  }
+
 fn tests_get_fillone_action_score() {
     let test_cases = vec![
         // (
