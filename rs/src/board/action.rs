@@ -6,12 +6,12 @@ pub enum Direction {
     Left,
     Right,
 }
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Action {
-    x: i32,
-    y: i32,
-    cut_num: u8,
-    direction: Direction,
+    pub x: i32,
+    pub  y: i32,
+    pub cut_num: u8,
+    pub direction: Direction,
 }
 
 /// `Action` 構造体は，型抜き操作を表す．

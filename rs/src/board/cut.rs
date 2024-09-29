@@ -1,4 +1,4 @@
-use std::ops::Index;
+use std::{ops::Index, path::Iter};
 
 pub struct Cut {
     pub cut: Vec<Vec<bool>>,
@@ -40,7 +40,8 @@ impl Index<usize> for Cut {
 }
 
 pub struct Cuts {
-    cuts: Vec<Cut>,
+    pub cuts: Vec<Cut>,
+    curr: usize,
 }
 
 impl Cuts {
@@ -49,7 +50,7 @@ impl Cuts {
         for i in 0..25 {
             cuts.push(Cut::get_formal_cut(i));
         }
-        Cuts { cuts }
+        Cuts { cuts, curr: 0 }
     }
 
     pub fn push(&mut self, cut: Cut) {

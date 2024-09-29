@@ -515,3 +515,22 @@ impl Board {
         unimplemented!()
     }
 }
+
+// boardの比較
+impl PartialEq for Board {
+    fn eq(&self, other: &Self) -> bool {
+        if self.width != other.width || self.height != other.height {
+            return false;
+        }
+
+        for h in 0..self.height {
+            for w in 0..self.width {
+                if self.board[h][w] != other.board[h][w] {
+                    return false;
+                }
+            }
+        }
+
+        true
+    }
+}

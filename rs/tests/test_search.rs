@@ -2,7 +2,8 @@ use rs::board::board::Board;
 use rs::board::cut::{Cut, Cuts};
 use rs::search::greedy::{self, play};
 
-fn main() {
+#[test]
+fn test_greedy_play() {
     println!("start");
 
     let start_board = Board::new(vec![
@@ -23,9 +24,8 @@ fn main() {
         vec![3, 3, 1, 0, 3, 2, 3],
     ]);
 
-    println!("start score: {}", start_board.absolute_distance(&end_board));
     let cuts = Cuts::new();
     let mut greedy_game = greedy::GreedyGame::new(start_board.clone(), cuts, end_board.clone());
     let actinos = play(&mut greedy_game);
-    println!("{:?}", actinos.len());
+    println!("{:?}", actinos);
 }
