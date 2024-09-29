@@ -1,0 +1,54 @@
+.board {
+  display: inline-block;
+  border: 2px solid black;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  position: relative;
+}
+
+.piece {
+  width: 80px;
+  height: 80px;
+  background-color: yellow;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.lifted-piece {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background-color: yellow;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  z-index: 10;
+}
+
+.empty {
+  background-color: #f0f0f0;
+}
+
+.lifted {
+  transform: translateY(-20px);
+  opacity: 0.5;
+}
+
+.moving {
+  transition: transform 1s ease;
+}
