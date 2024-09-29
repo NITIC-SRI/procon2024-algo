@@ -2,10 +2,10 @@ use crate::board::cut::Cut;
 /// `Direction` 列挙型は，型抜き操作の方向を表す．
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
-	Up,
-	Down,
-	Left,
-	Right,
+    Up,
+    Down,
+    Left,
+    Right,
 }
 
 pub struct Action<'a> {
@@ -33,23 +33,23 @@ impl Action<'_> {
 		Action { x, y, cut, direction }
 	}
 
-	/// 型抜き操作の x 座標を返す．
-	///
-	/// # Returns
-	///
-	/// 型抜き操作の x 座標．
-	pub fn x(&self) -> i32 {
-		self.x
-	}
+  /// 型抜き操作の x 座標を返す．
+  ///
+  /// # Returns
+  ///
+  /// 型抜き操作の x 座標．
+  pub fn x(&self) -> i32 {
+      self.x
+  }
 
-	/// 型抜き操作の y 座標を返す．
-	///
-	/// # Returns
-	///
-	/// 型抜き操作の y 座標．
-	pub fn y(&self) -> i32 {
-		self.y
-	}
+  /// 型抜き操作の y 座標を返す．
+  ///
+  /// # Returns
+  ///
+  /// 型抜き操作の y 座標．
+  pub fn y(&self) -> i32 {
+      self.y
+  }
 
 	/// 型抜き操作の抜き型を返す．
 	///
@@ -59,13 +59,21 @@ impl Action<'_> {
 	pub fn cut(&self) -> &Cut {
 		self.cut
 	}
+    /// 型抜き操作で行われた切断の数を返す．
+    ///
+    /// # Returns
+    ///
+    /// 型抜き操作で行われた抜き型の番号．
+    pub fn cut_num(&self) -> u8 {
+        self.cut_num
+    }
 
-	/// 型抜き操作の方向を返す．
-	///
-	/// # Returns
-	///
-	/// 型抜き操作の方向．
-	pub fn direction(&self) -> Direction {
-		self.direction
-	}
+    /// 型抜き操作の方向を返す．
+    ///
+    /// # Returns
+    ///
+    /// 型抜き操作の方向．
+    pub fn direction(&self) -> Direction {
+        self.direction
+    }
 }
