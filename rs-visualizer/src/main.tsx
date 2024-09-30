@@ -19,14 +19,46 @@ const e = [
 ];
 
 const a = [
-  { x: -1, y: 0, cut: [[1, 0, 1], [0, 1, 0]], direction: "left" },
-  { x: 2, y: 3, cut: [[1, 0, 1], [0, 1, 0]], direction: "right" },
-  { x: 0, y: 0, cut: [[1, 0, 1], [0, 1, 0]], direction: "top" },
-  { x: 3, y: 3, cut: [[1, 0, 1], [0, 1, 0]], direction: "bottom" },
+  {
+    x: -1,
+    y: 0,
+    cut: [
+      [1, 0, 1],
+      [0, 1, 0],
+    ],
+    direction: "left",
+  },
+  {
+    x: 2,
+    y: 3,
+    cut: [
+      [1, 0, 1],
+      [0, 1, 0],
+    ],
+    direction: "right",
+  },
+  {
+    x: 0,
+    y: 0,
+    cut: [
+      [1, 0, 1],
+      [0, 1, 0],
+    ],
+    direction: "top",
+  },
+  {
+    x: 3,
+    y: 3,
+    cut: [
+      [1, 0, 1],
+      [0, 1, 0],
+    ],
+    direction: "bottom",
+  },
 ];
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <App start={s} end={e} actions={a} />
-  </React.StrictMode>,
+    <App></App>
+  </React.StrictMode>
 );
