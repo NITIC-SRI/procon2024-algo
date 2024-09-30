@@ -246,11 +246,12 @@ class Board:
             wp -= 1
         self._board[y][0] = e
 
-    def _row_up(self) -> None:
-        last = self._board[0].copy()
-        for h in range(self._height - 1):
-            self._board[h] = self._board[h + 1]
-        self._board[-1] = last
+    def _row_up(self, row_num: int) -> None:
+        head = copy.deepcopy(self._board[0:row_num])
+
+        for h in range(self._height - row_num):
+            self._board[h] = self._board[h + row_num]
+        self._board[-row_num:] = head
 
     def fillone(self, end: Self) -> Tuple[Self, List]:
         new = self.clone()
