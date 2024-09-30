@@ -29,6 +29,7 @@ const Board = ({ start, end, actions }: BoardProps) => {
   const [endboard, _] = useState(end);
   const [liftedPieces, setLiftedPieces] = useState<Piece[]>([]);
   const [cnt, setCnt] = useState(0);
+  const [action_now, setAction_now] = useState(actions[0]);
 
   const applyCut = () => {
     const action = actions[cnt];
@@ -58,7 +59,11 @@ const Board = ({ start, end, actions }: BoardProps) => {
     }
 
     setLiftedPieces(lifted);
-    setTimeout(() => {
+    setAction_now(actions[cnt]);
+  };
+
+  const applyMove = () => {
+    const action = actions[cnt];
       let newBoard;
 
       switch (action.direction) {
@@ -81,7 +86,7 @@ const Board = ({ start, end, actions }: BoardProps) => {
       setBoard(newBoard);
 
       setTimeout(() => {
-        lifted.forEach((piece, _) => {
+        liftedPieces.forEach((piece, _) => {
           if (action.direction === "right") {
             const targetRow = newBoard[piece.y];
             let insertIndex = targetRow.length - 1;
@@ -123,10 +128,9 @@ const Board = ({ start, end, actions }: BoardProps) => {
         setBoard(newBoard);
         setLiftedPieces([]);
       }, 1000);
-    }, 1000);
 
     setCnt(cnt + 1);
-  };
+  }
 
   const leftAlign = (board: Board) => {
     return board.map((row) => {
@@ -192,7 +196,8 @@ const Board = ({ start, end, actions }: BoardProps) => {
             ))}
           </div>
         ))}
-        <button onClick={() => applyCut()}>next</button>
+        <button onClick={() => applyCut()}>cut</button>
+        <button onClick={() => applyMove()}>move</button>
         {liftedPieces.map((piece, index) => (
           <div
             className="lifted-piece"
@@ -207,7 +212,7 @@ const Board = ({ start, end, actions }: BoardProps) => {
         ))}
       </div>
       <div className="board">
-      <span>終盤面</span>
+        <span>終盤面</span>
         {endboard.map((row, rowIndex) => (
           <div className="row" key={rowIndex}>
             {row.map((cell, cellIndex) => (
@@ -228,6 +233,32 @@ const Board = ({ start, end, actions }: BoardProps) => {
             ))}
           </div>
         ))}
+      </div>
+
+      <div className="action-info">
+        {action_now && (
+          <div>
+            <span>action</span>
+            <div>
+              <span>cut</span>
+              {action_now.cut.map((row, rowIndex) => (
+                <div className="row" key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <div
+                      className={`cell ${cell === null ? "empty" : ""}`}
+                      key={cellIndex}
+                    >
+                      {cell !== null && <div className="type">{cell}</div>}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div>direction: {action_now.direction}</div>
+            <div>x: {action_now.x}</div>
+            <div>y: {action_now.y}</div>
+          </div>
+        )}
       </div>
     </div>
   );
