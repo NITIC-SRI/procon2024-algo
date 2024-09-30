@@ -194,7 +194,6 @@ const Board = ({ start, end, actions }: BoardProps) => {
             key={index}
             style={{
               transform: `translate(${piece.x * 40}px, ${piece.y * 40}px)`,
-              transition: "transform 10s ease",
             }}
           >
             {piece.value}

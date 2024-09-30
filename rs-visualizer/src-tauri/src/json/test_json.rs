@@ -25,13 +25,13 @@ fn test_get_json() {
         ],
         actions: vec![
             Action {
-                x: -1,
+                x: 1,
                 y: 0,
                 p: 0,
                 s: "0".to_string(),
             },
             Action {
-                x: 2,
+                x: -2,
                 y: 3,
                 p: 4,
                 s: "1".to_string(),
@@ -67,7 +67,6 @@ fn test_get_cut() {
     ];
 
     assert_eq!(data[5], cut5);
-	println!("{:?}", data);
 }
 
 #[test]
@@ -91,7 +90,7 @@ fn test_get_action() {
 	];
 	let expected_actions = vec![
 		json::ActionJS {
-			x: -1,
+			x: 1,
 			y: 0,
 			cut: vec![
 				vec![1]
@@ -99,7 +98,7 @@ fn test_get_action() {
 			direction: "top".to_string(),
 		},
 		json::ActionJS {
-			x: 2,
+			x: -2,
 			y: 3,
 			cut: vec![
 				vec![1, 1, 1, 1],
@@ -107,7 +106,7 @@ fn test_get_action() {
 				vec![1, 1, 1, 1],
 				vec![1, 1, 1, 1],
 			],
-			direction: "down".to_string(),
+			direction: "bottom".to_string(),
 		},
 		json::ActionJS {
 			x: 0,
