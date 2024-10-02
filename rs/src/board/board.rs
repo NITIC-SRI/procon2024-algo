@@ -66,6 +66,16 @@ impl Board {
         }
     }
 
+    pub fn operate_one(&mut self, action: &Action) {
+        match action.direction() {
+            action::Direction::Up => self.op_one_up(action.x(), action.y()),
+            action::Direction::Down => self.op_one_down(action.x(), action.y()),
+            action::Direction::Left => self.op_one_left(action.x(), action.y()),
+            action::Direction::Right => self.op_one_right(action.x(), action.y()),
+            _ => unreachable!(),
+        }
+    }
+
     pub fn op_left(&mut self, cut: &Cut, x: i32, y: i32) {
         let mut q = VecDeque::new();
         for h in y..(y + cut.height() as i32) {
