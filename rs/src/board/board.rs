@@ -525,7 +525,61 @@ impl Board {
         unimplemented!()
     }
 
-    pub fn swapping(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) -> Action {
-        unimplemented!()
+    fn swapping_one_line(self, x1: i32, y1: i32, x2: i32, y2: i32) -> Vec<Action> {
+        let mut actions = vec![];
+        if x1 == x2 {
+            // 1列での入れ替え
+            let x = x1;
+            let (min, max) = if y1 < y2 { (y1, y2) } else { (y2, y1) };
+            let (dir_min, dir_max) = (Direction::Down, Direction::Up);
+
+            // 逆端に寄せる
+            actions.push(Action::new(x, min, 0, dir_max));
+            actions.push(Action::new(x, max - 1, 0, dir_min));
+
+            // ほかのセルを戻す
+            for _ in 0..min {
+                actions.push(Action::new(x, min, 0, dir_min));
+            }
+            for _ in 0..(self.height as i32 - max - 1) {
+                actions.push(Action::new(x, max, 0, dir_max));
+            }
+        } else if y1 == y2 {
+            // 1行での入れ替え
+            let y = y1;
+            let (min, max) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
+            let (dir_min, dir_max) = (Direction::Right, Direction::Left);
+
+            // 逆端に寄せる
+            actions.push(Action::new(min, y, 0, dir_max));
+            actions.push(Action::new(max - 1, y, 0, dir_min));
+
+            // ほかのセルを戻す
+            for _ in 0..min {
+                actions.push(Action::new(min, y, 0, dir_min));
+            }
+            for _ in 0..(self.width as i32 - max - 1) {
+                actions.push(Action::new(max, y, 0, dir_max));
+            }
+        } else {
+            unreachable!("x1, y1, x2, y2 must be on the same line");
+        }
+
+        actions
+    }
+
+    pub fn swapping(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) -> Vec<Action> {
+        let mut actions = vec![];
+        if x1 == x2 || y1 == y2 {
+            // 1行または1列での入れ替え
+            // まずはスコア比較
+            let new = self.clone();
+            actions.extend(new.swapping_one_line(x1, y1, x2, y2));
+        }
+
+        for action in actions.iter() {
+            self.operate(action);
+        }
+        actions
     }
 }
