@@ -1,5 +1,3 @@
-use std::mem::uninitialized;
-
 use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
@@ -52,14 +50,14 @@ impl<'a> GreedyGame<'a> {
                 for h in
                     (1 - self.cuts[i as u32].height() as i32)..(self.state.board.height() as i32)
                 {
-                    println!("w: {}, h: {}, cut_num: {}", w, h, i);
+                    // println!("w: {}, h: {}, cut_num: {}", w, h, i);
                     for d in vec![
                         Direction::Up,
                         Direction::Down,
                         Direction::Left,
                         Direction::Right,
                     ] {
-                        let action = Action::new(w, h, i as u8, d);
+                        let action = Action::new(w, h, i as u16, d);
                         legal_actions.push(action);
                     }
                 }
@@ -75,7 +73,7 @@ impl<'a> GreedyGame<'a> {
 
         for action in legal_actions {
             let mut board = state.board.clone();
-            board.operate(&action);
+            board.operate(&action, &self.cuts);
             let score = board.absolute_distance(&self.end);
             // println!("score: {}", score);
             // println!(
@@ -101,11 +99,18 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
     let mut actions = Vec::new();
 
     // TODO: タイムキーパーを設定する
-    for _ in 0..100 {
+    for i in 0..100 {
+        println!("i: {}", i);
+        let now_board = game.state.board.clone();
         let action = game.greedy_acion(&game.state);
-        game.state.board.operate(&action);
+        game.state.board.operate(&action, game.cuts);
         actions.push(action.clone());
+        println!("action: {:?}", action);
+        println!("{}", game.state.board);
         if game.state.board == game.end {
+            break;
+        }
+        if *game.state.board == now_board {
             break;
         }
 
