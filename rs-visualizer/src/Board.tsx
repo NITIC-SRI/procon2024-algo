@@ -88,14 +88,7 @@ const Board = ({ start, end, actions }: BoardProps) => {
 
     setTimeout(() => {
       liftedPieces.forEach((piece, _) => {
-        if (action.direction === "right") {
-          const targetRow = newBoard[piece.y];
-          let insertIndex = targetRow.length - 1;
-          while (insertIndex >= 0 && targetRow[insertIndex] !== null) {
-            insertIndex--;
-          }
-          newBoard[piece.y][insertIndex] = piece.value;
-        } else if (action.direction === "left") {
+        if (action.direction === "left" || action.direction === "right") {
           const targetRow = newBoard[piece.y];
           let insertIndex = 0;
           while (
@@ -105,19 +98,13 @@ const Board = ({ start, end, actions }: BoardProps) => {
             insertIndex++;
           }
           newBoard[piece.y][insertIndex] = piece.value;
-        } else if (action.direction === "top") {
+        } else if (action.direction === "top" || action.direction === "bottom") {
           let insertIndex = 0;
           while (
             insertIndex < newBoard.length &&
             newBoard[insertIndex][piece.x] !== null
           ) {
             insertIndex++;
-          }
-          newBoard[insertIndex][piece.x] = piece.value;
-        } else if (action.direction === "bottom") {
-          let insertIndex = newBoard.length - 1;
-          while (insertIndex >= 0 && newBoard[insertIndex][piece.x] !== null) {
-            insertIndex--;
           }
           newBoard[insertIndex][piece.x] = piece.value;
         }
