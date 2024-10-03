@@ -3,7 +3,10 @@ from typing import List, Self, Tuple
 
 import numpy as np
 
+from utils.load_formal_cuts import load_formal_cuts
+
 Direction = {"up": 0, "right": 1, "down": 2, "left": 3}
+FORMAL_CUTS = load_formal_cuts()
 
 
 class Board:
@@ -246,11 +249,12 @@ class Board:
             wp -= 1
         self._board[y][0] = e
 
-    def _row_up(self) -> None:
-        last = self._board[0].copy()
-        for h in range(self._height - 1):
-            self._board[h] = self._board[h + 1]
-        self._board[-1] = last
+    def _row_up(self, row_num: int) -> None:
+        head = copy.deepcopy(self._board[0:row_num])
+
+        for h in range(self._height - row_num):
+            self._board[h] = self._board[h + row_num]
+        self._board[-row_num:] = head
 
     def fillone(self, end: Self) -> Tuple[Self, List]:
         new = self.clone()
@@ -299,10 +303,27 @@ class Board:
                     if is_break:
                         break
 
-            new._row_up()
-            actions.append((0, -255, 22, 'rowup'))
+            new._row_up(1)
+            actions.append((0, -255, 22, "rowup"))
 
         return new, actions
+
+    def operate(self, actions: List[Tuple[int, int, int, str]]) -> Self:
+        new = self.clone()
+        for x, y, cut_id, direction in actions:
+            if direction == "up":
+                new = new.op_up(FORMAL_CUTS[cut_id], x, y)
+            elif direction == "down":
+                new = new.op_down(FORMAL_CUTS[cut_id], x, y)
+            elif direction == "left":
+                new = new.op_left(FORMAL_CUTS[cut_id], x, y)
+            elif direction == "right":
+                new = new.op_right(FORMAL_CUTS[cut_id], x, y)
+            elif direction == "rowup":
+                new = new.op_up(FORMAL_CUTS[cut_id], x, y)
+            else:
+                raise ValueError(f"Invalid direction: {direction}")
+        return new
 
     def __eq__(self, other: Self) -> bool:
         return np.array_equal(self._board, other.board)
