@@ -257,6 +257,8 @@ fn test_formal_cut_operate() {
 
 #[test]
 fn test_swapping() {
+    let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+
     let test_cases = vec![
         (
             // 横一列
@@ -306,7 +308,7 @@ fn test_swapping() {
         let mut board = Board::new(board);
         let mut new = board.clone();
         let actions = board.swapping(x1, y1, x2, y2);
-        new.operate_actions(actions);
+        new.operate_actions(actions, &cuts);
         assert_eq!(board.board(), new.board());
     }
 }

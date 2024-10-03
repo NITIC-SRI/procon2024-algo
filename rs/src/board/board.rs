@@ -1,9 +1,9 @@
 use std::collections::VecDeque;
 use std::fmt::Display;
 
+use crate::board::action;
 use crate::board::action::Action;
 use crate::board::cut::{Cut, Cuts};
-use crate::board::action;
 
 #[derive(Debug, Clone)]
 pub struct Board {
@@ -70,13 +70,12 @@ impl Board {
             action::Direction::Down => self.op_one_down(action.x(), action.y()),
             action::Direction::Left => self.op_one_left(action.x(), action.y()),
             action::Direction::Right => self.op_one_right(action.x(), action.y()),
-            _ => unreachable!(),
         }
     }
 
-    pub fn operate_actions(&mut self, actions: Vec<Action>) {
+    pub fn operate_actions(&mut self, actions: Vec<Action>, cuts: &Cuts) {
         for action in actions {
-            self.operate(&action);
+            self.operate(&action, cuts);
         }
     }
 
@@ -535,7 +534,7 @@ impl Board {
             // 1列での入れ替え
             let x = x1;
             let (min, max) = if y1 < y2 { (y1, y2) } else { (y2, y1) };
-            let (dir_min, dir_max) = (Direction::Down, Direction::Up);
+            let (dir_min, dir_max) = (action::Direction::Down, action::Direction::Up);
 
             // 逆端に寄せる
             actions.push(Action::new(x, min, 0, dir_max));
@@ -552,7 +551,7 @@ impl Board {
             // 1行での入れ替え
             let y = y1;
             let (min, max) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
-            let (dir_min, dir_max) = (Direction::Right, Direction::Left);
+            let (dir_min, dir_max) = (action::Direction::Right, action::Direction::Left);
 
             // 逆端に寄せる
             actions.push(Action::new(min, y, 0, dir_max));
@@ -572,7 +571,14 @@ impl Board {
         actions
     }
 
-    fn swapping_others(self, x1: i32, y1: i32, x2: i32, y2: i32, dir: Direction) -> Vec<Action> {
+    fn swapping_others(
+        self,
+        x1: i32,
+        y1: i32,
+        x2: i32,
+        y2: i32,
+        dir: action::Direction,
+    ) -> Vec<Action> {
         let mut actions = vec![];
 
         // 1. セルを端に寄せる
@@ -581,17 +587,22 @@ impl Board {
 
         // 2. 並べ替えて、交換する
         match dir {
-            Direction::Up | Direction::Down => {
+            action::Direction::Up | action::Direction::Down => {
                 let (min, max) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
-                let y = if dir == Direction::Up {
+                let y = if dir == action::Direction::Up {
                     self.height as i32
                 } else {
                     0
                 };
                 // 端のセルの塊の幅
                 let right_width = self.width() as i32 - max - 1;
-                actions.push(Action::new(max + 1, -255, 22, Direction::Right));
-                actions.push(Action::new(min + right_width, y, 0, Direction::Right));
+                actions.push(Action::new(max + 1, -255, 22, action::Direction::Right));
+                actions.push(Action::new(
+                    min + right_width,
+                    y,
+                    0,
+                    action::Direction::Right,
+                ));
 
                 // 間のセルを２の累乗サイズを使って効率よく並べる
                 {
@@ -605,15 +616,15 @@ impl Board {
                                 min + 1 + right_width,
                                 y,
                                 cut_num,
-                                Direction::Left,
+                                action::Direction::Left,
                             ));
                         }
                     }
                 }
-                actions.push(Action::new(max, y, 0, Direction::Right));
-                actions.push(Action::new(max + 1, -255, 25, Direction::Left));
+                actions.push(Action::new(max, y, 0, action::Direction::Right));
+                actions.push(Action::new(max + 1, -255, 25, action::Direction::Left));
             }
-            Direction::Left | Direction::Right => {
+            action::Direction::Left | action::Direction::Right => {
                 let (min, max) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
             }
         }
@@ -632,15 +643,15 @@ impl Board {
 
         let scores = [
             (
-                Direction::Left,
+                action::Direction::Left,
                 (2 * self.width as i32 - x1 - x2) + self.height() as i32,
             ),
-            (Direction::Right, x1 + x2 + self.height() as i32),
+            (action::Direction::Right, x1 + x2 + self.height() as i32),
             (
-                Direction::Up,
+                action::Direction::Up,
                 2 * self.height as i32 - y1 - y2 + self.width() as i32,
             ),
-            (Direction::Down, y1 + y2 + self.width() as i32),
+            (action::Direction::Down, y1 + y2 + self.width() as i32),
         ];
 
         let new = self.clone();
