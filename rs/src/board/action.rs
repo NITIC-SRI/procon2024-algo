@@ -8,10 +8,10 @@ pub enum Direction {
 }
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Action {
-    pub x: i32,
-    pub  y: i32,
-    pub cut_num: u8,
-    pub direction: Direction,
+    x: i32,
+    y: i32,
+    cut_num: u16,
+    direction: Direction,
 }
 
 /// `Action` 構造体は，型抜き操作を表す．
@@ -28,7 +28,7 @@ impl Action {
     /// # Returns
     ///
     /// 新しい `Action` 構造体．
-    pub fn new(x: i32, y: i32, cut_num: u8, direction: Direction) -> Action {
+    pub fn new(x: i32, y: i32, cut_num: u16, direction: Direction) -> Action {
         Action {
             x,
             y,
@@ -60,7 +60,7 @@ impl Action {
     /// # Returns
     ///
     /// 型抜き操作で行われた抜き型の番号．
-    pub fn cut_num(&self) -> u8 {
+    pub fn cut_num(&self) -> u16 {
         self.cut_num
     }
 
