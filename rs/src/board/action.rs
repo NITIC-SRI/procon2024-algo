@@ -10,7 +10,7 @@ pub enum Direction {
 pub struct Action {
     x: i32,
     y: i32,
-    cut_num: u8,
+    cut_num: u16,
     direction: Direction,
 }
 
@@ -28,7 +28,7 @@ impl Action {
     /// # Returns
     ///
     /// 新しい `Action` 構造体．
-    pub fn new(x: i32, y: i32, cut_num: u8, direction: Direction) -> Action {
+    pub fn new(x: i32, y: i32, cut_num: u16, direction: Direction) -> Action {
         Action {
             x,
             y,
@@ -60,7 +60,7 @@ impl Action {
     /// # Returns
     ///
     /// 型抜き操作で行われた抜き型の番号．
-    pub fn cut_num(&self) -> u8 {
+    pub fn cut_num(&self) -> u16 {
         self.cut_num
     }
 
