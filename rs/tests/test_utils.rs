@@ -10,5 +10,6 @@ fn test_export_actions() {
 	];
 
 	let json = export_actions(actions);
-	println!("{}", json);
+	let collect = r#"{"n":4,"ops":[{"p":1,"x":1,"y":1,"s":"0"},{"p":2,"x":2,"y":2,"s":"1"},{"p":3,"x":3,"y":3,"s":"2"},{"p":4,"x":4,"y":4,"s":"3"}]}"#.to_string();
+	assert_eq!(json, collect);
 }

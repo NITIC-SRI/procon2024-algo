@@ -11,12 +11,14 @@ struct ActionFormat {
 
 #[derive(Serialize, Deserialize)]
 struct ActionsFormat {
-    actions: Vec<ActionFormat>,
+	n: usize,
+    ops: Vec<ActionFormat>,
 }
 
 pub fn export_actions(actions: Vec<Action>) -> String {
     let mut actions_format = ActionsFormat {
-        actions: Vec::new(),
+		n: actions.len(),
+        ops: Vec::new(),
     };
     for action in actions {
         let action_format = ActionFormat {
@@ -30,7 +32,7 @@ pub fn export_actions(actions: Vec<Action>) -> String {
 				Direction::Left => "3".to_string(),
             },
         };
-        actions_format.actions.push(action_format);
+        actions_format.ops.push(action_format);
     }
     let json = serde_json::to_string(&actions_format).unwrap();
 	json
