@@ -14,7 +14,7 @@ struct ActionsFormat {
     actions: Vec<ActionFormat>,
 }
 
-pub fn export_actions(actions: Vec<Action>) {
+pub fn export_actions(actions: Vec<Action>) -> String {
     let mut actions_format = ActionsFormat {
         actions: Vec::new(),
     };
@@ -33,5 +33,5 @@ pub fn export_actions(actions: Vec<Action>) {
         actions_format.actions.push(action_format);
     }
     let json = serde_json::to_string(&actions_format).unwrap();
-    println!("{}", json);
+	json
 }
