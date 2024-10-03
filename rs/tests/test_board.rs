@@ -229,41 +229,56 @@ fn test_get_formal_cut() {
 
 #[test]
 fn test_swapping() {
-    {
-        // 横一列スワップ
-        let mut start = Board::new(vec![vec![1, 1, 3, 0, 0, 2, 1, 1, 1]]);
-
-        let end = Board::new(vec![vec![1, 1, 2, 0, 0, 3, 1, 1, 1]]);
-
-        start.swapping(2, 0, 5, 0);
-        assert_eq!(start.board(), end.board());
-    }
-    {
-        // 縦一列スワップ
-        let mut start = Board::new(vec![
-            vec![1],
-            vec![1],
-            vec![3],
-            vec![0],
-            vec![0],
-            vec![2],
-            vec![1],
-            vec![1],
-            vec![1],
-        ]);
-        let end = Board::new(vec![
-            vec![1],
-            vec![1],
-            vec![2],
-            vec![0],
-            vec![0],
-            vec![3],
-            vec![1],
-            vec![1],
-            vec![1],
-        ]);
-
-        start.swapping(0, 2, 0, 5);
-        assert_eq!(start.board(), end.board());
+    let test_cases = vec![
+        (
+            // 横一列
+            vec![vec![1, 1, 3, 0, 0, 2, 1, 1, 1]],
+            2,
+            0,
+            5,
+            0,
+        ),
+        (
+            // 縦一列
+            vec![
+                vec![1],
+                vec![1],
+                vec![3],
+                vec![0],
+                vec![0],
+                vec![2],
+                vec![1],
+                vec![1],
+                vec![1],
+            ],
+            0,
+            2,
+            0,
+            5,
+        ),
+        (
+            vec![
+                vec![1, 1, 0, 4, 4, 0, 5, 5, 5],
+                vec![0, 0, 3, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 2, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+            ],
+            2,
+            1,
+            5,
+            2,
+        ),
+    ];
+    for (board, x1, y1, x2, y2) in test_cases {
+        let mut board = Board::new(board);
+        let mut new = board.clone();
+        let actions = board.swapping(x1, y1, x2, y2);
+        new.operate_actions(actions);
+        assert_eq!(board.board(), new.board());
     }
 }
