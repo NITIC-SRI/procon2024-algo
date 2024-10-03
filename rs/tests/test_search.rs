@@ -1,6 +1,6 @@
 use rs::board::board::Board;
-use rs::board::cut::{Cut, Cuts};
-use rs::search::greedy::{self, play};
+use rs::board::cut::Cuts;
+use rs::search::greedy;
 
 #[test]
 fn test_greedy_play() {
@@ -28,7 +28,7 @@ fn test_greedy_play() {
     let path = "../data/formal_cuts.json".to_string();
     let cuts = Cuts::new(path);
     let mut greedy_game = greedy::GreedyGame::new(&mut start_board, &cuts, &end_board);
-    let actinos = play(&mut greedy_game);
+    let actinos = greedy::play(&mut greedy_game);
     for action in actinos.iter() {
         println!("{:?}", action);
     }
