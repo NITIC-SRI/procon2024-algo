@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Board.css";
 import { BoardProps, BoardType, Piece, Value } from "./type";
 
@@ -11,6 +11,19 @@ const Board = ({ start, end, actions }: BoardProps) => {
   const [action_next, setAction_next] = useState(actions[1]);
   const [isCutting, setIsCutting] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
+  const [score, setScore] = useState(0);
+
+  useEffect(() => {
+    let newScore = 0;
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[0].length; j++) {
+        if (board[i][j] === end[i][j]) {
+          newScore += 1;
+        }
+      }
+    }
+    setScore(newScore);
+  }, []);
 
   const applyCut = () => {
     if (isCutting) return;
@@ -112,6 +125,16 @@ const Board = ({ start, end, actions }: BoardProps) => {
 
       setBoard(newBoard);
       setLiftedPieces([]);
+
+      let newScore = 0;
+      for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[0].length; j++) {
+          if (newBoard[i][j] === end[i][j]) {
+            newScore += 1;
+          }
+        }
+      }
+      setScore(newScore);
     }, 1000);
 
     setCnt(cnt + 1);
@@ -169,6 +192,7 @@ const Board = ({ start, end, actions }: BoardProps) => {
     <div className="body">
       <div className="board">
         <span>始盤面</span>
+        <span>score: {score}</span>
         {board.map((row, rowIndex) => (
           <div className="row" key={rowIndex}>
             {row.map((cell, cellIndex) => (
@@ -248,7 +272,9 @@ const Board = ({ start, end, actions }: BoardProps) => {
               <div>y: {action_now.y}</div>
             </div>
           )}
-          <p>--------------------------------------------------------------------------------------</p>
+          <p>
+            --------------------------------------------------------------------------------------
+          </p>
           {action_next && (
             <div className="action-next">
               <span>次の操作</span>
