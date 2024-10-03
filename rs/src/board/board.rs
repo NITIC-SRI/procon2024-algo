@@ -62,7 +62,7 @@ impl Board {
             action::Direction::Right => {
                 self.op_right(&Cut::new(vec![vec![true]]), action.x(), action.y())
             }
-            _ => unreachable!(),
+            // _ => unreachable!(),
         }
     }
 

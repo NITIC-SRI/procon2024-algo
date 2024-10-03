@@ -6,7 +6,7 @@ use rs::search::greedy::{self, play};
 fn test_greedy_play() {
     println!("start");
 
-    let start_board = Board::new(vec![
+    let mut start_board = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 2, 1, 1, 1, 1],
@@ -24,8 +24,13 @@ fn test_greedy_play() {
         vec![3, 3, 1, 0, 3, 2, 3],
     ]);
 
-    let cuts = Cuts::new();
-    let mut greedy_game = greedy::GreedyGame::new(start_board.clone(), cuts, end_board.clone());
+    println!("start score: {}", start_board.absolute_distance(&end_board));
+    let path = "../data/formal_cuts.json".to_string();
+    let cuts = Cuts::new(path);
+    let mut greedy_game = greedy::GreedyGame::new(&mut start_board, &cuts, &end_board);
     let actinos = play(&mut greedy_game);
-    println!("{:?}", actinos);
+    for action in actinos.iter() {
+        println!("{:?}", action);
+    }
+    println!("{:?}", actinos.len());
 }

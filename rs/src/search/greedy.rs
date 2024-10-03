@@ -1,19 +1,21 @@
+use std::mem::uninitialized;
+
 use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
 
 pub const SCORE_MAX: u64 = 1000000000;
-pub struct GreedyGame {
-    pub state: GreedyState,
-    pub cuts: Cuts,
-    pub end: Board,
+pub struct GreedyGame<'a> {
+    pub state: GreedyState<'a>,
+    pub cuts: &'a Cuts,
+    pub end: &'a Board,
 }
-pub struct GreedyState {
-    pub board: Board,
+pub struct GreedyState<'a> {
+    pub board: &'a mut Board,
 }
 
-impl GreedyState {
-    pub fn new(board: Board) -> GreedyState {
+impl<'a> GreedyState<'a> {
+    pub fn new(board: &'a mut Board) -> GreedyState<'a> {
         GreedyState { board }
     }
 
@@ -22,8 +24,8 @@ impl GreedyState {
     }
 }
 
-impl GreedyGame {
-    pub fn new(board: Board, cuts: Cuts, end: Board) -> GreedyGame {
+impl<'a> GreedyGame<'a> {
+    pub fn new(board: &'a mut Board, cuts: &'a Cuts, end: &'a Board) -> GreedyGame<'a> {
         GreedyGame {
             state: GreedyState::new(board),
             cuts,
@@ -33,11 +35,24 @@ impl GreedyGame {
 
     pub fn get_all_legal_actions(&self) -> Vec<Action> {
         let mut legal_actions = Vec::new();
-        for i in 0..(self.cuts.len() - 16) {
+        let board_h = self.state.board.height();
+        let board_w = self.state.board.width();
+        for i in 0..(self.cuts.len()) {
+            // 盤面からはみ出す型は無視
+            // ただし、一般型と最初にはみ出た3つの型はそのまま
+            if 25 > i
+                && i >= 3
+                && self.cuts[i as u32 - 3].width() > board_w
+                && self.cuts[i as u32 - 3].height() > board_h
+            {
+                break;
+            }
+
             for w in (1 - self.cuts[i as u32].width() as i32)..(self.state.board.width() as i32) {
                 for h in
                     (1 - self.cuts[i as u32].height() as i32)..(self.state.board.height() as i32)
                 {
+                    println!("w: {}, h: {}, cut_num: {}", w, h, i);
                     for d in vec![
                         Direction::Up,
                         Direction::Down,
@@ -62,15 +77,15 @@ impl GreedyGame {
             let mut board = state.board.clone();
             board.operate(&action);
             let score = board.absolute_distance(&self.end);
-            println!("score: {}", score);
-            println!(
-                "action: x={} y={} cut={} direction={:?}",
-                action.x(),
-                action.y(),
-                action.cut_num(),
-                action.direction()
-            );
-            println!("------------------------------------");
+            // println!("score: {}", score);
+            // println!(
+            //     "action: x={} y={} cut={} direction={:?}",
+            //     action.x(),
+            //     action.y(),
+            //     action.cut_num(),
+            //     action.direction()
+            // );
+            // println!("------------------------------------");
             if score < min_score {
                 min_score = score;
                 min_action = action;
@@ -83,10 +98,10 @@ impl GreedyGame {
 }
 
 pub fn play(game: &mut GreedyGame) -> Vec<Action> {
-    println!("start");
     let mut actions = Vec::new();
-    for i in 0..150 {
-        println!("i: {}", i);
+
+    // TODO: タイムキーパーを設定する
+    for _ in 0..100 {
         let action = game.greedy_acion(&game.state);
         game.state.board.operate(&action);
         actions.push(action.clone());
@@ -94,16 +109,16 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
             break;
         }
 
-        println!(
-            "action: x={} y={} cut={} direction={:?}",
-            action.x(),
-            action.y(),
-            action.cut_num(),
-            action.direction()
-        );
-        println!("score: {}", game.state.evaluate_score(&game.end));
-        println!("board: {}", game.state.board);
-        println!("----------------------------------");
+        // println!(
+        //     "action: x={} y={} cut={} direction={:?}",
+        //     action.x(),
+        //     action.y(),
+        //     action.cut_num(),
+        //     action.direction()
+        // );
+        // println!("score: {}", game.state.evaluate_score(&game.end));
+        // println!("board: {}", game.state.board);
+        // println!("----------------------------------");
     }
     actions
 }
