@@ -1,5 +1,6 @@
 use std::iter::{zip, Enumerate};
 
+use rs::board::action::{Action, Direction};
 use rs::board::board::Board;
 use rs::board::cut::{Cut, Cuts};
 
@@ -30,7 +31,7 @@ fn test_op_left() {
     ]);
 
     start.op_left(&cut, 1, 2);
-    assert_eq!(start.board(), end.board());
+    assert_eq!(start, end);
 }
 
 #[test]
@@ -61,7 +62,7 @@ fn test_op_left_over() {
 
     start.op_left(&cut, -1, -2);
 
-    assert_eq!(start.board, end.board);
+    assert_eq!(start, end);
 }
 
 #[test]
@@ -91,7 +92,7 @@ fn test_op_right() {
     ]);
 
     start.op_right(&cut, 1, 2);
-    assert_eq!(start.board(), end.board());
+    assert_eq!(start, end);
 }
 
 fn test_get_fillone_action_score(start: Board, end: Board, expected_score: usize) {
@@ -201,8 +202,6 @@ fn tests_get_fillone_action_score() {
         // (Board::new(vec![vec![2], vec![3], vec![3], vec![0], vec![2], vec![1], vec![2], vec![3], vec![3], vec![3], vec![1], vec![0], vec![3], vec![2], vec![3], vec![0], vec![2], vec![3], vec![2], vec![0], vec![1], vec![1], vec![0], vec![1], vec![2], vec![0], vec![2], vec![2], vec![2], vec![2], vec![2], vec![3], vec![2], vec![2], vec![3], vec![1], vec![2], vec![3], vec![3], vec![0], vec![2], vec![0], vec![2], vec![2], vec![0], vec![3], vec![2], vec![3], vec![3], vec![1], vec![3], vec![2], vec![1], vec![1], vec![2], vec![2], vec![2], vec![3], vec![2], vec![2], vec![2], vec![3], vec![1], vec![2],]), Board::new(vec![vec![3], vec![3], vec![0], vec![1], vec![2], vec![0], vec![1], vec![0], vec![3], vec![2], vec![2], vec![1], vec![2], vec![3], vec![3], vec![3], vec![0], vec![2], vec![2], vec![3], vec![3], vec![3], vec![2], vec![2], vec![2], vec![2], vec![2], vec![2], vec![1], vec![3], vec![2], vec![2], vec![2], vec![1], vec![0], vec![1], vec![3], vec![3], vec![3], vec![3], vec![1], vec![0], vec![2], vec![0], vec![2], vec![2], vec![3], vec![2], vec![3], vec![1], vec![1], vec![3], vec![1], vec![2], vec![2], vec![0], vec![2], vec![2], vec![3], vec![0], vec![2], vec![2], vec![2], vec![2],]), 174),
 
         // (Board::new(vec![vec![0], vec![0], vec![1], vec![0], vec![0], vec![1], vec![3], vec![0], vec![0], vec![1], vec![3], vec![1], vec![3], vec![1], vec![2], vec![0], vec![2], vec![3], vec![0], vec![3], vec![1], vec![2], vec![3], vec![2], vec![3], vec![0], vec![3], vec![3], vec![0], vec![2], vec![1], vec![1],]), Board::new(vec![vec![1], vec![2], vec![0], vec![2], vec![3], vec![0], vec![3], vec![1], vec![2], vec![3], vec![2], vec![3], vec![0], vec![3], vec![3], vec![0], vec![2], vec![1], vec![1], vec![0], vec![0], vec![1], vec![0], vec![0], vec![1], vec![3], vec![0], vec![0], vec![1], vec![3], vec![1], vec![3],]), 82),
-
-        
     ];
 
     for (start, end, expected_score) in test_cases {
