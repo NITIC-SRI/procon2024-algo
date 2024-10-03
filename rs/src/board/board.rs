@@ -76,6 +76,12 @@ impl Board {
         }
     }
 
+    pub fn operate_actions(&mut self, actions: Vec<Action>) {
+        for action in actions {
+            self.operate(&action);
+        }
+    }
+
     pub fn op_left(&mut self, cut: &Cut, x: i32, y: i32) {
         let mut q = VecDeque::new();
         for h in y..(y + cut.height() as i32) {
