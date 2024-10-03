@@ -61,7 +61,6 @@ impl Board {
             action::Direction::Right => {
                 self.op_right(&cuts[action.cut_num() as u32], action.x(), action.y())
             }
-            // _ => unreachable!(),
         }
     }
 
