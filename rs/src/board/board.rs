@@ -573,6 +573,11 @@ impl Board {
 
         actions
     }
+    fn swap(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) {
+        let tmp = self.board[y1 as usize][x1 as usize];
+        self.board[y1 as usize][x1 as usize] = self.board[y2 as usize][x2 as usize];
+        self.board[y2 as usize][x2 as usize] = tmp;
+    }
 
     pub fn swapping(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) -> Vec<Action> {
         let mut actions = vec![];
@@ -586,6 +591,8 @@ impl Board {
         for action in actions.iter() {
             self.operate(action);
         }
+
+        self.swap(x1, y1, x2, y2);
         actions
     }
 }
