@@ -573,6 +573,56 @@ impl Board {
 
         actions
     }
+
+    fn swapping_others(self, x1: i32, y1: i32, x2: i32, y2: i32, dir: Direction) -> Vec<Action> {
+        let mut actions = vec![];
+
+        // 1. セルを端に寄せる
+        actions.push(Action::new(x1, y1, 0, dir));
+        actions.push(Action::new(x2, y2, 0, dir));
+
+        // 2. 並べ替えて、交換する
+        match dir {
+            Direction::Up | Direction::Down => {
+                let (min, max) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
+                let y = if dir == Direction::Up {
+                    self.height as i32
+                } else {
+                    0
+                };
+                // 端のセルの塊の幅
+                let right_width = self.width() as i32 - max - 1;
+                actions.push(Action::new(max + 1, -255, 22, Direction::Right));
+                actions.push(Action::new(min + right_width, y, 0, Direction::Right));
+
+                // 間のセルを２の累乗サイズを使って効率よく並べる
+                {
+                    let x_diff = max - min;
+                    let binary_str = format!("{:b}", x_diff);
+
+                    for (i, c) in binary_str.chars().rev().enumerate() {
+                        if c == '1' {
+                            let cut_num = if i == 0 { 0 } else { 1 + 3 * (i - 1) } as u8;
+                            actions.push(Action::new(
+                                min + 1 + right_width,
+                                y,
+                                cut_num,
+                                Direction::Left,
+                            ));
+                        }
+                    }
+                }
+                actions.push(Action::new(max, y, 0, Direction::Right));
+                actions.push(Action::new(max + 1, -255, 25, Direction::Left));
+            }
+            Direction::Left | Direction::Right => {
+                let (min, max) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
+            }
+        }
+
+        actions
+    }
+
     fn swap(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) {
         let tmp = self.board[y1 as usize][x1 as usize];
         self.board[y1 as usize][x1 as usize] = self.board[y2 as usize][x2 as usize];
@@ -581,15 +631,56 @@ impl Board {
 
     pub fn swapping(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) -> Vec<Action> {
         let mut actions = vec![];
-        if x1 == x2 || y1 == y2 {
-            // 1行または1列での入れ替え
-            // まずはスコア比較
-            let new = self.clone();
-            actions.extend(new.swapping_one_line(x1, y1, x2, y2));
-        }
 
-        for action in actions.iter() {
-            self.operate(action);
+        let scores = [
+            (
+                Direction::Left,
+                (2 * self.width as i32 - x1 - x2) + self.height() as i32,
+            ),
+            (Direction::Right, x1 + x2 + self.height() as i32),
+            (
+                Direction::Up,
+                2 * self.height as i32 - y1 - y2 + self.width() as i32,
+            ),
+            (Direction::Down, y1 + y2 + self.width() as i32),
+        ];
+
+        let new = self.clone();
+
+        if x1 == x2 {
+            let score_one_line = y1 + (self.height as i32 - y2);
+            // １ラインスコアが小さいなら1行での入れ替えを優先
+
+            let (dir, score) = {
+                // スコアが最小の方向を選択できるらしい
+                let res = scores[..2].iter().min_by_key(|&&(_, score)| score).unwrap();
+                (res.0, res.1)
+            };
+
+            if score_one_line < score {
+                actions.extend(new.swapping_one_line(x1, y1, x2, y2));
+            } else {
+                actions.extend(new.swapping_others(x1, y1, x2, y2, dir))
+            }
+        } else if y1 == y2 {
+            let score_one_line = x1 + (self.width() as i32 - x2);
+
+            let (dir, score) = {
+                // スコアが最小の方向を選択できるらしい
+                let res = scores[2..].iter().min_by_key(|&&(_, score)| score).unwrap();
+                (res.0, res.1)
+            };
+
+            // １ラインスコアが小さいなら1列での入れ替えを優先
+            if score_one_line < score {
+                actions.extend(new.swapping_one_line(x1, y1, x2, y2));
+            } else {
+                actions.extend(new.swapping_others(x1, y1, x2, y2, dir))
+            }
+        } else {
+            // 行と列が異なる場合
+            let dir = scores.iter().min_by_key(|&&(_, score)| score).unwrap().0;
+            actions.extend(new.swapping_others(x1, y1, x2, y2, dir));
         }
 
         self.swap(x1, y1, x2, y2);
