@@ -1,5 +1,6 @@
 use std::iter::{zip, Enumerate};
 
+use rs::board::action::{Action, Direction};
 use rs::board::board::Board;
 use rs::board::cut::{Cut, Cuts};
 
@@ -30,7 +31,7 @@ fn test_op_left() {
     ]);
 
     start.op_left(&cut, 1, 2);
-    assert_eq!(start.board(), end.board());
+    assert_eq!(start, end);
 }
 
 #[test]
@@ -61,7 +62,7 @@ fn test_op_left_over() {
 
     start.op_left(&cut, -1, -2);
 
-    assert_eq!(start.board, end.board);
+    assert_eq!(start, end);
 }
 
 #[test]
@@ -91,7 +92,7 @@ fn test_op_right() {
     ]);
 
     start.op_right(&cut, 1, 2);
-    assert_eq!(start.board(), end.board());
+    assert_eq!(start, end);
 }
 
 fn test_get_fillone_action_score(start: Board, end: Board, expected_score: usize) {
@@ -201,8 +202,6 @@ fn tests_get_fillone_action_score() {
         // (Board::new(vec![vec![2], vec![3], vec![3], vec![0], vec![2], vec![1], vec![2], vec![3], vec![3], vec![3], vec![1], vec![0], vec![3], vec![2], vec![3], vec![0], vec![2], vec![3], vec![2], vec![0], vec![1], vec![1], vec![0], vec![1], vec![2], vec![0], vec![2], vec![2], vec![2], vec![2], vec![2], vec![3], vec![2], vec![2], vec![3], vec![1], vec![2], vec![3], vec![3], vec![0], vec![2], vec![0], vec![2], vec![2], vec![0], vec![3], vec![2], vec![3], vec![3], vec![1], vec![3], vec![2], vec![1], vec![1], vec![2], vec![2], vec![2], vec![3], vec![2], vec![2], vec![2], vec![3], vec![1], vec![2],]), Board::new(vec![vec![3], vec![3], vec![0], vec![1], vec![2], vec![0], vec![1], vec![0], vec![3], vec![2], vec![2], vec![1], vec![2], vec![3], vec![3], vec![3], vec![0], vec![2], vec![2], vec![3], vec![3], vec![3], vec![2], vec![2], vec![2], vec![2], vec![2], vec![2], vec![1], vec![3], vec![2], vec![2], vec![2], vec![1], vec![0], vec![1], vec![3], vec![3], vec![3], vec![3], vec![1], vec![0], vec![2], vec![0], vec![2], vec![2], vec![3], vec![2], vec![3], vec![1], vec![1], vec![3], vec![1], vec![2], vec![2], vec![0], vec![2], vec![2], vec![3], vec![0], vec![2], vec![2], vec![2], vec![2],]), 174),
 
         // (Board::new(vec![vec![0], vec![0], vec![1], vec![0], vec![0], vec![1], vec![3], vec![0], vec![0], vec![1], vec![3], vec![1], vec![3], vec![1], vec![2], vec![0], vec![2], vec![3], vec![0], vec![3], vec![1], vec![2], vec![3], vec![2], vec![3], vec![0], vec![3], vec![3], vec![0], vec![2], vec![1], vec![1],]), Board::new(vec![vec![1], vec![2], vec![0], vec![2], vec![3], vec![0], vec![3], vec![1], vec![2], vec![3], vec![2], vec![3], vec![0], vec![3], vec![3], vec![0], vec![2], vec![1], vec![1], vec![0], vec![0], vec![1], vec![0], vec![0], vec![1], vec![3], vec![0], vec![0], vec![1], vec![3], vec![1], vec![3],]), 82),
-
-        
     ];
 
     for (start, end, expected_score) in test_cases {
@@ -226,4 +225,31 @@ fn test_get_formal_cut() {
             assert_eq!(cuts[5][h][w], cut_5[h][w]);
         }
     }
+}
+
+#[test]
+fn test_formal_cut_operate() {
+    let mut start = Board::new(vec![
+        vec![1, 0, 1, 1, 2, 2, 1],
+        vec![2, 3, 1, 1, 0, 0, 2],
+        vec![3, 0, 2, 1, 1, 1, 1],
+        vec![3, 0, 0, 2, 2, 3, 1],
+        vec![2, 2, 3, 2, 0, 2, 2],
+        vec![3, 3, 1, 0, 3, 2, 3],
+    ]);
+
+    let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+    let action = Action::new(0, 4, 1, Direction::Left);
+
+    let end = Board::new(vec![
+        vec![1, 0, 1, 1, 2, 2, 1],
+        vec![2, 3, 1, 1, 0, 0, 2],
+        vec![3, 0, 2, 1, 1, 1, 1],
+        vec![3, 0, 0, 2, 2, 3, 1],
+        vec![3, 2, 0, 2, 2, 2, 2],
+        vec![1, 0, 3, 2, 3, 3, 3],
+    ]);
+
+    start.operate(&action, &cuts);
+    assert_eq!(start, end);
 }

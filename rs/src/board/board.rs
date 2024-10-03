@@ -2,9 +2,8 @@ use std::collections::VecDeque;
 use std::fmt::Display;
 
 use crate::board::action::Action;
-use crate::board::cut::Cut;
-
-use super::action::{self, Direction};
+use crate::board::cut::{Cut, Cuts};
+use crate::board::action;
 
 #[derive(Debug, Clone)]
 pub struct Board {
@@ -48,21 +47,20 @@ impl Board {
         &self.board
     }
 
-    pub fn operate(&mut self, action: &Action) {
+    pub fn operate(&mut self, action: &Action, cuts: &Cuts) {
         match action.direction() {
             action::Direction::Up => {
-                self.op_up(&Cut::new(vec![vec![true]]), action.x(), action.y())
+                self.op_up(&cuts[action.cut_num() as u32], action.x(), action.y())
             }
             action::Direction::Down => {
-                self.op_down(&Cut::new(vec![vec![true]]), action.x(), action.y())
+                self.op_down(&cuts[action.cut_num() as u32], action.x(), action.y())
             }
             action::Direction::Left => {
-                self.op_left(&Cut::new(vec![vec![true]]), action.x(), action.y())
+                self.op_left(&cuts[action.cut_num() as u32], action.x(), action.y())
             }
             action::Direction::Right => {
-                self.op_right(&Cut::new(vec![vec![true]]), action.x(), action.y())
+                self.op_right(&cuts[action.cut_num() as u32], action.x(), action.y())
             }
-            _ => unreachable!(),
         }
     }
 
@@ -513,5 +511,24 @@ impl Board {
         end: &Self,
     ) -> (Action, u64) {
         unimplemented!()
+    }
+}
+
+// boardの比較
+impl PartialEq for Board {
+    fn eq(&self, other: &Self) -> bool {
+        if self.width != other.width || self.height != other.height {
+            return false;
+        }
+
+        for h in 0..self.height {
+            for w in 0..self.width {
+                if self.board[h][w] != other.board[h][w] {
+                    return false;
+                }
+            }
+        }
+
+        true
     }
 }
