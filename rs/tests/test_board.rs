@@ -103,27 +103,27 @@ fn test_get_fillone_action_score(start: Board, end: Board, expected_score: usize
 #[test]
 fn tests_get_fillone_action_score() {
     let test_cases = vec![
-        // (
-        //     Board::new(vec![
-        //         vec![1, 0, 1, 1, 2, 2, 0, 0],
-        //         vec![2, 3, 0, 1, 0, 0, 1, 3],
-        //         vec![2, 0, 3, 1, 0, 3, 3, 0],
-        //         vec![0, 3, 1, 2, 1, 1, 2, 0],
-        //         vec![2, 2, 1, 1, 3, 1, 1, 2],
-        //         vec![2, 1, 0, 2, 0, 3, 1, 1],
-        //         vec![2, 2, 2, 0, 2, 0, 2, 2],
-        //     ]),
-        //     Board::new(vec![
-        //         vec![3, 1, 2, 0, 3, 2, 1, 0],
-        //         vec![2, 0, 3, 2, 1, 2, 0, 0],
-        //         vec![1, 1, 0, 0, 1, 0, 1, 3],
-        //         vec![2, 1, 2, 1, 2, 2, 3, 0],
-        //         vec![3, 2, 2, 0, 1, 1, 3, 2],
-        //         vec![1, 2, 0, 2, 2, 2, 1, 0],
-        //         vec![0, 1, 2, 1, 0, 3, 1, 0],
-        //     ]),
-        //     74,
-        // ),
+        (
+            Board::new(vec![
+                vec![1, 0, 1, 1, 2, 2, 0, 0],
+                vec![2, 3, 0, 1, 0, 0, 1, 3],
+                vec![2, 0, 3, 1, 0, 3, 3, 0],
+                vec![0, 3, 1, 2, 1, 1, 2, 0],
+                vec![2, 2, 1, 1, 3, 1, 1, 2],
+                vec![2, 1, 0, 2, 0, 3, 1, 1],
+                vec![2, 2, 2, 0, 2, 0, 2, 2],
+            ]),
+            Board::new(vec![
+                vec![3, 1, 2, 0, 3, 2, 1, 0],
+                vec![2, 0, 3, 2, 1, 2, 0, 0],
+                vec![1, 1, 0, 0, 1, 0, 1, 3],
+                vec![2, 1, 2, 1, 2, 2, 3, 0],
+                vec![3, 2, 2, 0, 1, 1, 3, 2],
+                vec![1, 2, 0, 2, 2, 2, 1, 0],
+                vec![0, 1, 2, 1, 0, 3, 1, 0],
+            ]),
+            74,
+        ),
         // (
         //     Board::new(vec![
         //         vec![2, 1, 2, 1, 0, 0, 0, 2],
@@ -198,7 +198,7 @@ fn tests_get_fillone_action_score() {
         //     ]]),
         //     134,
         // ),
-        (Board::new(vec![vec![2], vec![3], vec![3], vec![0], vec![2], vec![1], vec![2], vec![3], vec![3], vec![3], vec![1], vec![0], vec![3], vec![2], vec![3], vec![0], vec![2], vec![3], vec![2], vec![0], vec![1], vec![1], vec![0], vec![1], vec![2], vec![0], vec![2], vec![2], vec![2], vec![2], vec![2], vec![3], vec![2], vec![2], vec![3], vec![1], vec![2], vec![3], vec![3], vec![0], vec![2], vec![0], vec![2], vec![2], vec![0], vec![3], vec![2], vec![3], vec![3], vec![1], vec![3], vec![2], vec![1], vec![1], vec![2], vec![2], vec![2], vec![3], vec![2], vec![2], vec![2], vec![3], vec![1], vec![2],]), Board::new(vec![vec![3], vec![3], vec![0], vec![1], vec![2], vec![0], vec![1], vec![0], vec![3], vec![2], vec![2], vec![1], vec![2], vec![3], vec![3], vec![3], vec![0], vec![2], vec![2], vec![3], vec![3], vec![3], vec![2], vec![2], vec![2], vec![2], vec![2], vec![2], vec![1], vec![3], vec![2], vec![2], vec![2], vec![1], vec![0], vec![1], vec![3], vec![3], vec![3], vec![3], vec![1], vec![0], vec![2], vec![0], vec![2], vec![2], vec![3], vec![2], vec![3], vec![1], vec![1], vec![3], vec![1], vec![2], vec![2], vec![0], vec![2], vec![2], vec![3], vec![0], vec![2], vec![2], vec![2], vec![2],]), 174),
+        // (Board::new(vec![vec![2], vec![3], vec![3], vec![0], vec![2], vec![1], vec![2], vec![3], vec![3], vec![3], vec![1], vec![0], vec![3], vec![2], vec![3], vec![0], vec![2], vec![3], vec![2], vec![0], vec![1], vec![1], vec![0], vec![1], vec![2], vec![0], vec![2], vec![2], vec![2], vec![2], vec![2], vec![3], vec![2], vec![2], vec![3], vec![1], vec![2], vec![3], vec![3], vec![0], vec![2], vec![0], vec![2], vec![2], vec![0], vec![3], vec![2], vec![3], vec![3], vec![1], vec![3], vec![2], vec![1], vec![1], vec![2], vec![2], vec![2], vec![3], vec![2], vec![2], vec![2], vec![3], vec![1], vec![2],]), Board::new(vec![vec![3], vec![3], vec![0], vec![1], vec![2], vec![0], vec![1], vec![0], vec![3], vec![2], vec![2], vec![1], vec![2], vec![3], vec![3], vec![3], vec![0], vec![2], vec![2], vec![3], vec![3], vec![3], vec![2], vec![2], vec![2], vec![2], vec![2], vec![2], vec![1], vec![3], vec![2], vec![2], vec![2], vec![1], vec![0], vec![1], vec![3], vec![3], vec![3], vec![3], vec![1], vec![0], vec![2], vec![0], vec![2], vec![2], vec![3], vec![2], vec![3], vec![1], vec![1], vec![3], vec![1], vec![2], vec![2], vec![0], vec![2], vec![2], vec![3], vec![0], vec![2], vec![2], vec![2], vec![2],]), 174),
 
         // (Board::new(vec![vec![0], vec![0], vec![1], vec![0], vec![0], vec![1], vec![3], vec![0], vec![0], vec![1], vec![3], vec![1], vec![3], vec![1], vec![2], vec![0], vec![2], vec![3], vec![0], vec![3], vec![1], vec![2], vec![3], vec![2], vec![3], vec![0], vec![3], vec![3], vec![0], vec![2], vec![1], vec![1],]), Board::new(vec![vec![1], vec![2], vec![0], vec![2], vec![3], vec![0], vec![3], vec![1], vec![2], vec![3], vec![2], vec![3], vec![0], vec![3], vec![3], vec![0], vec![2], vec![1], vec![1], vec![0], vec![0], vec![1], vec![0], vec![0], vec![1], vec![3], vec![0], vec![0], vec![1], vec![3], vec![1], vec![3],]), 82),
 
