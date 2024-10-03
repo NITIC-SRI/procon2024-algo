@@ -1,4 +1,3 @@
-
 use crate::board::action::{Action, Direction};
 use serde::{Deserialize, Serialize};
 
@@ -12,13 +11,13 @@ struct ActionFormat {
 
 #[derive(Serialize, Deserialize)]
 struct ActionsFormat {
-	n: usize,
+    n: usize,
     ops: Vec<ActionFormat>,
 }
 
 pub fn export_actions(actions: Vec<Action>) -> String {
     let mut actions_format = ActionsFormat {
-		n: actions.len(),
+        n: actions.len(),
         ops: Vec::new(),
     };
     for action in actions {
@@ -27,14 +26,14 @@ pub fn export_actions(actions: Vec<Action>) -> String {
             x: action.x(),
             y: action.y(),
             s: match action.direction() {
-				Direction::Up => "0".to_string(),
-				Direction::Down => "1".to_string(),
-				Direction::Right => "2".to_string(),
-				Direction::Left => "3".to_string(),
+                Direction::Up => "0".to_string(),
+                Direction::Down => "1".to_string(),
+                Direction::Right => "2".to_string(),
+                Direction::Left => "3".to_string(),
             },
         };
         actions_format.ops.push(action_format);
     }
     let json = serde_json::to_string(&actions_format).unwrap();
-	json
+    json
 }
