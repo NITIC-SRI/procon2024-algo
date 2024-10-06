@@ -1,12 +1,14 @@
+use serde::{Deserialize, Serialize};
+
 /// `Direction` 列挙型は，型抜き操作の方向を表す．
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Direction {
     Up,
     Down,
     Left,
     Right,
 }
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct Action {
     x: i32,
     y: i32,
