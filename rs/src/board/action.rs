@@ -56,8 +56,8 @@ impl Action {
         direction: Direction,
     ) -> Action {
         let (x, y) = match direction {
-            Direction::Up | Direction::Down => (point, base_line),
-            Direction::Left | Direction::Right => (base_line, point),
+            Direction::Up | Direction::Down => (base_line, point),
+            Direction::Left | Direction::Right => (point, base_line),
         };
         Action::new(x, y, cut_num, direction)
     }
