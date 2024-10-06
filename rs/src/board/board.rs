@@ -571,6 +571,61 @@ impl Board {
         actions
     }
 
+    /// 端の寄せた後の一列をそろえる処理
+    fn process_direction(
+        actions: &mut Vec<Action>,
+        min_point: i32,
+        max_point: i32,
+        edge_pos: i32,
+        line_lenght: i32,
+        direction: action::Direction,
+    ) {
+        // ToDo: edge_posは端寄せしたあとの位置
+
+        // 0側に寄席せたならでかい型を使うときにずらす必要がある
+        // 逆側に寄せたなら必要ない
+        let sign = if edge_pos == 0 { 1 } else { 0 };
+
+        actions.push(Action::new_from_axis_point(
+            max_point + 1,
+            edge_pos + (sign * -255),
+            22,
+            direction,
+        ));
+        actions.push(Action::new_from_axis_point(
+            min_point + (line_lenght - max_point - 1),
+            edge_pos,
+            0,
+            direction,
+        ));
+
+        let diff = max_point - min_point - 1;
+        let diff_binary_str = format!("{:b}", diff);
+
+        // 交換したいセルの間にあるセルを動かす
+        let edge_width = line_lenght as i32 - max_point - 1;
+        for (i, c) in diff_binary_str.chars().rev().enumerate() {
+            if c == '1' {
+                let cut_num = if i == 0 { 0 } else { 1 + 3 * (i - 1) } as u16;
+                let base_line = edge_pos - (sign * ((1 << i) - 1));
+                actions.push(Action::new_from_axis_point(
+                    min_point + 1 + edge_width,
+                    base_line,
+                    cut_num,
+                    direction,
+                ));
+            }
+        }
+
+        // 元の盤面で小さいほうにある塊の幅はmin_pointと同じ値
+        actions.push(Action::new_from_axis_point(
+            line_lenght - min_point - 1,
+            edge_pos + (sign * -255),
+            22,
+            direction,
+        ));
+    }
+
     fn swapping_others(
         self,
         x1: i32,
@@ -586,49 +641,63 @@ impl Board {
         actions.push(Action::new(x2, y2, 0, dir));
 
         // 2. 並べ替えて、交換する
-        match dir {
+        let (min_point, max_point, edge_pos, line_length, next_dir) = match dir {
             action::Direction::Up | action::Direction::Down => {
-                let (min, max) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
-                let y = if dir == action::Direction::Up {
-                    self.height as i32
+                let (min_point, max_point) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
+                let edge_pos_y = if dir == action::Direction::Up {
+                    self.height as i32 - 1
                 } else {
                     0
                 };
-                // 端のセルの塊の幅
-                let right_width = self.width() as i32 - max - 1;
-                actions.push(Action::new(max + 1, -255, 22, action::Direction::Right));
-                actions.push(Action::new(
-                    min + right_width,
-                    y,
-                    0,
+                (
+                    min_point,
+                    max_point,
+                    edge_pos_y,
+                    self.height as i32,
                     action::Direction::Right,
-                ));
-
-                // 間のセルを２の累乗サイズを使って効率よく並べる
-                {
-                    let x_diff = max - min;
-                    let binary_str = format!("{:b}", x_diff);
-
-                    for (i, c) in binary_str.chars().rev().enumerate() {
-                        if c == '1' {
-                            let cut_num = if i == 0 { 0 } else { 1 + 3 * (i - 1) } as u8;
-                            actions.push(Action::new(
-                                min + 1 + right_width,
-                                y,
-                                cut_num,
-                                action::Direction::Left,
-                            ));
-                        }
-                    }
-                }
-                actions.push(Action::new(max, y, 0, action::Direction::Right));
-                actions.push(Action::new(max + 1, -255, 25, action::Direction::Left));
+                )
             }
             action::Direction::Left | action::Direction::Right => {
-                let (min, max) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
+                let (min_point, max_point) = if y1 < y2 { (y1, y2) } else { (y2, y1) };
+                let edge_pos_x = if dir == action::Direction::Left {
+                    self.width as i32 - 1
+                } else {
+                    0
+                };
+                (
+                    min_point,
+                    max_point,
+                    edge_pos_x,
+                    self.width as i32,
+                    action::Direction::Down,
+                )
+            }
+        };
+        Board::process_direction(
+            &mut actions,
+            min_point,
+            max_point,
+            edge_pos,
+            line_length,
+            next_dir,
+        );
+        {
+            // 3. セルを元の場所に戻す
+            let (count1, count2) = match dir {
+                action::Direction::Down => (y1, y2),
+                action::Direction::Up => (self.height as i32 - y1 - 1, self.height as i32 - y2 - 1),
+                action::Direction::Right => (x1, x2),
+                action::Direction::Left => {
+                    (self.height as i32 - x1 - 1, self.height as i32 - x2 - 1)
+                }
+            };
+            for _ in 0..count1 {
+                actions.push(Action::new(x1, y1, 0, dir))
+            }
+            for _ in 0..count2 {
+                actions.push(Action::new(x2, y2, 0, dir))
             }
         }
-
         actions
     }
 
