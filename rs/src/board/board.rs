@@ -607,9 +607,10 @@ impl Board {
         for (i, c) in diff_binary_str.chars().rev().enumerate() {
             if c == '1' {
                 let cut_num = if i == 0 { 0 } else { 1 + 3 * (i - 1) } as u16;
-                let base_line = edge_pos - (sign * ((1 << i) - 1));
+                let size = 1 << i;
+                let base_line = edge_pos - (sign * (size - 1));
                 actions.push(Action::new_from_axis_point(
-                    min_point + 1 + edge_width,
+                    line_lenght - size - 1,
                     base_line,
                     cut_num,
                     direction,
@@ -653,7 +654,7 @@ impl Board {
                     min_point,
                     max_point,
                     edge_pos_y,
-                    self.height as i32,
+                    self.width as i32,
                     action::Direction::Right,
                 )
             }
@@ -668,7 +669,7 @@ impl Board {
                     min_point,
                     max_point,
                     edge_pos_x,
-                    self.width as i32,
+                    self.height as i32,
                     action::Direction::Down,
                 )
             }
@@ -688,7 +689,7 @@ impl Board {
                 action::Direction::Up => (self.height as i32 - y1 - 1, self.height as i32 - y2 - 1),
                 action::Direction::Right => (x1, x2),
                 action::Direction::Left => {
-                    (self.height as i32 - x1 - 1, self.height as i32 - x2 - 1)
+                    (self.width as i32 - x1 - 1, self.width as i32 - x2 - 1)
                 }
             };
             for _ in 0..count1 {
