@@ -38,19 +38,18 @@ impl Action {
     }
 
     /// 指定された座標、基準線、型番号、方向を持つ新しい `Action` を作成する．
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `point` - 型抜き操作の座標．
     /// * `base_line` - 型抜き操作の基準線．
     /// * `cut_num` - 抜き型の番号．
     /// * `direction` - 型抜き操作の方向．
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// 新しい `Action` 構造体．
     pub fn new_from_axis_point(
-        self,
         point: i32,
         base_line: i32,
         cut_num: u16,
