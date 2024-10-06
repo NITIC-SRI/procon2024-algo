@@ -1,8 +1,12 @@
 use std::iter::{zip, Enumerate};
 
-use rs::board::action::{Action, Direction};
+use rs::board::action::{self, Action, Direction};
 use rs::board::board::Board;
 use rs::board::cut::{Cut, Cuts};
+use rs::utils::{random_board, shuffle_board};
+
+use rand::rngs::StdRng;
+use rand::{self, Rng, SeedableRng};
 
 #[test]
 fn test_op_left() {
@@ -358,12 +362,44 @@ fn test_swapping() {
             1,
             5,
         ),
+        (
+            // 間が2の累乗サイズ以外
+            vec![
+                vec![1, 1, 0, 4, 4, 4, 0, 5, 5, 5],
+                vec![0, 0, 3, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            ],
+            2,
+            1,
+            6,
+            2,
+        ),
     ];
     for (board, x1, y1, x2, y2) in test_cases {
         let mut board = Board::new(board);
         let mut new = board.clone();
         let actions = board.swapping(x1, y1, x2, y2);
         new.operate_actions(actions, &cuts);
-        assert_eq!(board.board(), new.board());
+        assert_eq!(board, new);
+    }
+    let mut rng = StdRng::seed_from_u64(42);
+    for _ in 0..10 {
+        let h: u32 = rng.gen_range(1..256);
+        let w: u32 = rng.gen_range(1..256);
+        let x1: i32 = rng.gen_range(0..w as i32);
+        let x2: i32 = rng.gen_range(0..w as i32);
+        let y1: i32 = rng.gen_range(0..h as i32);
+        let y2: i32 = rng.gen_range(0..h as i32);
+        let mut board = Board::new(random_board(h, w));
+        let mut new = board.clone();
+        let actions = board.swapping(x1, y1, x2, y2);
+        new.operate_actions(actions, &cuts);
+        assert_eq!(board, new, "swapping ({} {}), ({} {})", x1, y1, x2, y2);
     }
 }
