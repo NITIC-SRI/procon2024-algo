@@ -573,62 +573,6 @@ impl<T> Board<T> where T: Copy + PartialEq {
         actions
     }
 
-    /// 端の寄せた後の一列をそろえる処理
-    fn process_direction(
-        actions: &mut Vec<Action>,
-        min_point: i32,
-        max_point: i32,
-        edge_pos: i32,
-        line_lenght: i32,
-        direction: action::Direction,
-    ) {
-        // ToDo: edge_posは端寄せしたあとの位置
-
-        // 0側に寄席せたならでかい型を使うときにずらす必要がある
-        // 逆側に寄せたなら必要ない
-        let sign = if edge_pos == 0 { 1 } else { 0 };
-
-        actions.push(Action::new_from_axis_point(
-            max_point + 1,
-            edge_pos + (sign * -255),
-            22,
-            direction,
-        ));
-        actions.push(Action::new_from_axis_point(
-            min_point + (line_lenght - max_point - 1),
-            edge_pos,
-            0,
-            direction,
-        ));
-
-        let diff = max_point - min_point - 1;
-        let diff_binary_str = format!("{:b}", diff);
-
-        // 交換したいセルの間にあるセルを動かす
-        let edge_width = line_lenght as i32 - max_point - 1;
-        for (i, c) in diff_binary_str.chars().rev().enumerate() {
-            if c == '1' {
-                let cut_num = if i == 0 { 0 } else { 1 + 3 * (i - 1) } as u16;
-                let size = 1 << i;
-                let base_line = edge_pos - (sign * (size - 1));
-                actions.push(Action::new_from_axis_point(
-                    line_lenght - size - 1,
-                    base_line,
-                    cut_num,
-                    direction,
-                ));
-            }
-        }
-
-        // 元の盤面で小さいほうにある塊の幅はmin_pointと同じ値
-        actions.push(Action::new_from_axis_point(
-            line_lenght - min_point - 1,
-            edge_pos + (sign * -255),
-            22,
-            direction,
-        ));
-    }
-
     fn swapping_others(
         self,
         x1: i32,
@@ -676,7 +620,7 @@ impl<T> Board<T> where T: Copy + PartialEq {
                 )
             }
         };
-        Board::process_direction(
+        process_direction(
             &mut actions,
             min_point,
             max_point,
@@ -767,4 +711,59 @@ impl<T> Board<T> where T: Copy + PartialEq {
         self.swap(x1, y1, x2, y2);
         actions
     }
+}
+
+/// 端の寄せた後の一列をそろえる処理
+fn process_direction(
+    actions: &mut Vec<Action>,
+    min_point: i32,
+    max_point: i32,
+    edge_pos: i32,
+    line_lenght: i32,
+    direction: action::Direction,
+) {
+    // ToDo: edge_posは端寄せしたあとの位置
+
+    // 0側に寄席せたならでかい型を使うときにずらす必要がある
+    // 逆側に寄せたなら必要ない
+    let sign = if edge_pos == 0 { 1 } else { 0 };
+
+    actions.push(Action::new_from_axis_point(
+        max_point + 1,
+        edge_pos + (sign * -255),
+        22,
+        direction,
+    ));
+    actions.push(Action::new_from_axis_point(
+        min_point + (line_lenght - max_point - 1),
+        edge_pos,
+        0,
+        direction,
+    ));
+
+    let diff = max_point - min_point - 1;
+    let diff_binary_str = format!("{:b}", diff);
+
+    // 交換したいセルの間にあるセルを動かす
+    for (i, c) in diff_binary_str.chars().rev().enumerate() {
+        if c == '1' {
+            let cut_num = if i == 0 { 0 } else { 1 + 3 * (i - 1) } as u16;
+            let size = 1 << i;
+            let base_line = edge_pos - (sign * (size - 1));
+            actions.push(Action::new_from_axis_point(
+                line_lenght - size - 1,
+                base_line,
+                cut_num,
+                direction,
+            ));
+        }
+    }
+
+    // 元の盤面で小さいほうにある塊の幅はmin_pointと同じ値
+    actions.push(Action::new_from_axis_point(
+        line_lenght - min_point - 1,
+        edge_pos + (sign * -255),
+        22,
+        direction,
+    ));
 }
