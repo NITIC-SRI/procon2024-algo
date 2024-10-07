@@ -1,12 +1,14 @@
+use serde::{Deserialize, Serialize};
+
 /// `Direction` 列挙型は，型抜き操作の方向を表す．
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Direction {
     Up,
     Down,
     Left,
     Right,
 }
-#[derive(PartialEq, Eq, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct Action {
     x: i32,
     y: i32,
@@ -35,6 +37,31 @@ impl Action {
             cut_num,
             direction,
         }
+    }
+
+    /// 指定された座標、基準線、型番号、方向を持つ新しい `Action` を作成する．
+    ///
+    /// # Arguments
+    ///
+    /// * `point` - 型抜き操作の座標．
+    /// * `base_line` - 型抜き操作の基準線．
+    /// * `cut_num` - 抜き型の番号．
+    /// * `direction` - 型抜き操作の方向．
+    ///
+    /// # Returns
+    ///
+    /// 新しい `Action` 構造体．
+    pub fn new_from_axis_point(
+        point: i32,
+        base_line: i32,
+        cut_num: u16,
+        direction: Direction,
+    ) -> Action {
+        let (x, y) = match direction {
+            Direction::Up | Direction::Down => (base_line, point),
+            Direction::Left | Direction::Right => (point, base_line),
+        };
+        Action::new(x, y, cut_num, direction)
     }
 
     /// 型抜き操作の x 座標を返す．
