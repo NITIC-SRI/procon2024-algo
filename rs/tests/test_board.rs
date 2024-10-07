@@ -16,7 +16,7 @@ fn test_op_left() {
         vec![true, true, false],
     ]);
 
-    let mut start = Board::new(vec![
+    let mut start: Board<u8> = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 2, 1, 1, 1, 1],
@@ -25,7 +25,7 @@ fn test_op_left() {
         vec![3, 3, 1, 0, 3, 2, 3],
     ]);
 
-    let end = Board::new(vec![
+    let end: Board<u8> = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 1, 1, 1, 1, 2],
@@ -46,7 +46,7 @@ fn test_op_left_over() {
         vec![true, true, true],
     ]);
 
-    let mut start = Board::new(vec![
+    let mut start: Board<u8> = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 2, 1, 1, 1, 1],
@@ -77,7 +77,7 @@ fn test_op_right() {
         vec![true, true, false],
     ]);
 
-    let mut start = Board::new(vec![
+    let mut start: Board<u8> = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 2, 1, 1, 1, 1],
@@ -234,7 +234,7 @@ fn test_get_formal_cut() {
 
 #[test]
 fn test_formal_cut_operate() {
-    let mut start = Board::new(vec![
+    let mut start: Board<u8> = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 2, 1, 1, 1, 1],
@@ -382,7 +382,7 @@ fn test_swapping() {
         ),
     ];
     for (board, x1, y1, x2, y2) in test_cases {
-        let mut board = Board::new(board);
+        let mut board: Board<u8> = Board::new(board);
         let mut new = board.clone();
         let actions = board.swapping(x1, y1, x2, y2);
         new.operate_actions(actions, &cuts);
