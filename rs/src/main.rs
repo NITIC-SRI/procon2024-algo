@@ -1,7 +1,7 @@
 use rs::board::board::Board;
 use rs::board::cut::Cuts;
-use rs::search::greedy;
-use rs::utils::export_actions;
+use rs::search::fillone_greedy;
+use rs::utils::{export_actions, 
 
 fn main() {
     // let mut start = Board::new(vec![
@@ -67,7 +67,8 @@ fn main() {
 
     let path = "../data/formal_cuts.json".to_string();
     let cuts = Cuts::new(path);
-    let mut greedy_game = greedy::GreedyGame::new(&mut start, &cuts, &end);
+    let legal_actions =
+    let mut greedy_game = fillone_greedy::GreedyGame::new(&mut start, &cuts, &end);
 
     let actions = greedy::play(&mut greedy_game);
     for action in actions.iter() {
