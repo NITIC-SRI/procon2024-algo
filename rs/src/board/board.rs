@@ -5,12 +5,14 @@ use crate::board::action;
 use crate::board::action::Action;
 use crate::board::cut::{Cut, Cuts};
 
-#[derive(Debug, Clone)]
-pub struct Board {
-    pub board: Vec<Vec<u8>>,
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
+pub struct Board<T = u8> where T: Copy + PartialEq {
+    pub board: Vec<Vec<T>>,
     width: usize,
     height: usize,
 }
+
+
 
 impl Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -24,8 +26,8 @@ impl Display for Board {
     }
 }
 
-impl Board {
-    pub fn new(board: Vec<Vec<u8>>) -> Board {
+impl<T> Board<T> where T: Copy + PartialEq {
+    pub fn new(board: Vec<Vec<T>>) -> Self {
         let height = board.len();
         let width = board[0].len();
         Board {
@@ -43,7 +45,7 @@ impl Board {
         self.height
     }
 
-    pub fn board(&self) -> &Vec<Vec<u8>> {
+    pub fn board(&self) -> &Vec<Vec<T>> {
         &self.board
     }
 
@@ -764,24 +766,5 @@ impl Board {
 
         self.swap(x1, y1, x2, y2);
         actions
-    }
-}
-
-// boardの比較
-impl PartialEq for Board {
-    fn eq(&self, other: &Self) -> bool {
-        if self.width != other.width || self.height != other.height {
-            return false;
-        }
-
-        for h in 0..self.height {
-            for w in 0..self.width {
-                if self.board[h][w] != other.board[h][w] {
-                    return false;
-                }
-            }
-        }
-
-        true
     }
 }
