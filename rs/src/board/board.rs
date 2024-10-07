@@ -1,9 +1,9 @@
 use std::collections::VecDeque;
 use std::fmt::Display;
 
+use crate::board::action;
 use crate::board::action::Action;
 use crate::board::cut::{Cut, Cuts};
-use crate::board::action;
 
 #[derive(Debug, Clone)]
 pub struct Board {
@@ -512,6 +512,28 @@ impl Board {
     ) -> (Action, u64) {
         unimplemented!()
     }
+
+    pub fn weighted_absolute_distance(&self, end: &Self) -> u64 {
+        let mut d = 0;
+        for h in 0..self.height {
+            for w in 0..self.width {
+                // let weight: u64;
+                // if h >= 5 && w >= 5 {
+                //     weight = 1;
+                // } else {
+                //     weight = 5;
+                // }
+
+                if self.board[h][w] != end.board[h][w] {
+                    // 中心からのマンハッタン距離
+                    let dist = (h as i32 - 5).abs() + (w as i32 - 5).abs();
+                    d += (10 - dist) * (10 - dist);
+                }
+            }
+        }
+
+        d as u64
+    }
 }
 
 // boardの比較
@@ -532,3 +554,4 @@ impl PartialEq for Board {
         true
     }
 }
+

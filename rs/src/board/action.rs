@@ -6,7 +6,7 @@ pub enum Direction {
     Left,
     Right,
 }
-#[derive(PartialEq, Eq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub struct Action {
     x: i32,
     y: i32,
