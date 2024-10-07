@@ -1,18 +1,21 @@
+use core::hash;
 use std::collections::VecDeque;
 use std::fmt::Display;
-
+use ac_library::dsu::Dsu;
+use serde::{Deserialize, Serialize};
 use crate::board::action;
 use crate::board::action::Action;
 use crate::board::cut::{Cut, Cuts};
 
-#[derive(Debug, Clone, Hash, Eq, PartialEq)]
-pub struct Board<T = u8> where T: Copy + PartialEq {
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+pub struct Board<T = u8>
+where
+    T: Copy + PartialEq,
+{
     pub board: Vec<Vec<T>>,
     width: usize,
     height: usize,
 }
-
-
 
 impl Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -26,7 +29,10 @@ impl Display for Board {
     }
 }
 
-impl<T> Board<T> where T: Copy + PartialEq {
+impl<T> Board<T>
+where
+    T: Copy + PartialEq,
+{
     pub fn new(board: Vec<Vec<T>>) -> Self {
         let height = board.len();
         let width = board[0].len();
@@ -531,25 +537,18 @@ impl<T> Board<T> where T: Copy + PartialEq {
     }
 
     pub fn weighted_absolute_distance(&self, end: &Self) -> u64 {
-        let mut d = 0;
+        let mut distance = 0;
         for h in 0..self.height {
             for w in 0..self.width {
-                // let weight: u64;
-                // if h >= 5 && w >= 5 {
-                //     weight = 1;
-                // } else {
-                //     weight = 5;
-                // }
-
+                let center_d = ((self.height / 2) as i32 - h as i32).abs()
+                    + ((self.width / 2) as i32 - w as i32).abs();
                 if self.board[h][w] != end.board[h][w] {
-                    // 中心からのマンハッタン距離
-                    let dist = (h as i32 - 5).abs() + (w as i32 - 5).abs();
-                    d += (10 - dist) * (10 - dist);
+                    distance += center_d as u64;
                 }
             }
         }
 
-        d as u64
+        distance
     }
 
     fn swapping_one_line(self, x1: i32, y1: i32, x2: i32, y2: i32) -> Vec<Action> {
@@ -656,9 +655,7 @@ impl<T> Board<T> where T: Copy + PartialEq {
                 action::Direction::Down => (y1, y2),
                 action::Direction::Up => (self.height as i32 - y1 - 1, self.height as i32 - y2 - 1),
                 action::Direction::Right => (x1, x2),
-                action::Direction::Left => {
-                    (self.width as i32 - x1 - 1, self.width as i32 - x2 - 1)
-                }
+                action::Direction::Left => (self.width as i32 - x1 - 1, self.width as i32 - x2 - 1),
             };
             for _ in 0..count1 {
                 actions.push(Action::new(x1, y1, 0, dir))
