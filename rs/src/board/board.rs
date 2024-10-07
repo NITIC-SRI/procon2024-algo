@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use std::convert::Into;
 use std::fmt::Display;
 
 use crate::board::action;
@@ -6,13 +7,14 @@ use crate::board::action::Action;
 use crate::board::cut::{Cut, Cuts};
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
-pub struct Board<T = u8> where T: Copy + PartialEq {
+pub struct Board<T = u8>
+where
+    T: Copy + PartialEq + Into<usize>,
+{
     pub board: Vec<Vec<T>>,
     width: usize,
     height: usize,
 }
-
-
 
 impl Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -26,7 +28,10 @@ impl Display for Board {
     }
 }
 
-impl<T> Board<T> where T: Copy + PartialEq {
+impl<T> Board<T>
+where
+    T: Copy + PartialEq + Into<usize>,
+{
     pub fn new(board: Vec<Vec<T>>) -> Self {
         let height = board.len();
         let width = board[0].len();
@@ -634,9 +639,7 @@ impl<T> Board<T> where T: Copy + PartialEq {
                 action::Direction::Down => (y1, y2),
                 action::Direction::Up => (self.height as i32 - y1 - 1, self.height as i32 - y2 - 1),
                 action::Direction::Right => (x1, x2),
-                action::Direction::Left => {
-                    (self.width as i32 - x1 - 1, self.width as i32 - x2 - 1)
-                }
+                action::Direction::Left => (self.width as i32 - x1 - 1, self.width as i32 - x2 - 1),
             };
             for _ in 0..count1 {
                 actions.push(Action::new(x1, y1, 0, dir))
@@ -709,6 +712,69 @@ impl<T> Board<T> where T: Copy + PartialEq {
         }
 
         self.swap(x1, y1, x2, y2);
+        actions
+    }
+
+    pub fn solve_swapping(&mut self, end: &Self) -> Vec<Action> {
+        let mut actions = vec![];
+        let mut pairs: Vec<Vec<Vec<(i32, i32)>>> = vec![
+            vec![vec![], vec![], vec![], vec![]],
+            vec![vec![], vec![], vec![], vec![]],
+            vec![vec![], vec![], vec![], vec![]],
+            vec![vec![], vec![], vec![], vec![]],
+        ];
+
+        // 終盤面と現盤面を比べ異なるセルをペアにして保存
+        // pairs[i][j] = (x, y):iが欲しいところにjがあり、座標は(x, y)
+        for y in 0..self.height() {
+            for x in 0..self.width() {
+                if self.board[y][x] != end.board[y][x] {
+                    let source = self.board[y][x];
+                    let target = end.board[y][x];
+                    pairs[target.into()][source.into()].push((x as i32, y as i32));
+                }
+            }
+        }
+
+        // 最適ペアでの交換
+        for i in 0..4 {
+            for j in 0..4 {
+                if i == j {
+                    continue;
+                }
+                while pairs[i][j].len() > 0 && pairs[j][i].len() > 0 {
+                    let (x1, y1) = pairs[i][j].pop().unwrap();
+                    let (x2, y2) = pairs[j][i].pop().unwrap();
+                    actions.extend(self.swapping(x1, y1, x2, y2));
+                }
+            }
+        }
+
+        // 残りの交換
+        for i in 0..4 {
+            let mut index = 0;
+
+            for j in 0..4 {
+                if i == j {
+                    continue;
+                }
+                while pairs[i][j].len() > 0 {
+                    while pairs[index][i].len() > 0 {
+                        let (x1, y1) = pairs[i][j].pop().unwrap();
+                        let (x2, y2) = pairs[index][i].pop().unwrap();
+
+                        actions.extend(self.swapping(x1, y1, x2, y2));
+                        pairs[index][j].push((x2, y2));
+                        break;
+                    }
+
+                    if pairs[index][i].len() == 0 {
+                        index += 1;
+                    }
+                }
+            }
+        }
+
         actions
     }
 }

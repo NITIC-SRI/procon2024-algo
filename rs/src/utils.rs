@@ -1,12 +1,12 @@
 use crate::board::action::{Action, Direction};
-use crate::board::cut::Cuts;
 use crate::board::board::Board;
-use serde::{de, Deserialize, Serialize};
+use crate::board::cut::Cuts;
 use rand::{self, Rng};
+use serde::{de, Deserialize, Serialize};
 
+use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
-use rand::rngs::StdRng;
 
 use ahash::AHashSet as HashSet;
 
@@ -47,13 +47,12 @@ pub fn export_actions(actions: Vec<Action>) -> String {
     json
 }
 
-
 pub fn random_board(h: u32, w: u32) -> Vec<Vec<u8>> {
     let mut rng = rand::thread_rng();
     let mut board = vec![vec![0; w as usize]; h as usize];
     for i in 0..h {
         for j in 0..w {
-            board[i as usize][j as usize] = rng.gen_range(0..5);
+            board[i as usize][j as usize] = rng.gen_range(0..4);
         }
     }
     board
@@ -81,8 +80,8 @@ pub fn shuffle_board(mut board: Vec<Vec<u8>>, seed: u64) -> Vec<Vec<u8>> {
 }
 
 pub fn get_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Action> {
-    let mut actions = Vec::with_capacity(10000);  // 容量を事前に確保
-    let mut saw = HashSet::with_capacity(10000);  // HashSetの容量も事前確保
+    let mut actions = Vec::with_capacity(10000); // 容量を事前に確保
+    let mut saw = HashSet::with_capacity(10000); // HashSetの容量も事前確保
 
     let mut board_vec: Vec<Vec<usize>> = vec![vec![0; w_size]; h_size];
     for h in 0..h_size {
@@ -106,7 +105,12 @@ pub fn get_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Action> {
 
         for w in (1 - cut_w)..(w_size as i32) {
             for h in (1 - cut_h)..(h_size as i32) {
-                for d in vec![Direction::Left, Direction::Right, Direction::Up, Direction::Down] {
+                for d in vec![
+                    Direction::Left,
+                    Direction::Right,
+                    Direction::Up,
+                    Direction::Down,
+                ] {
                     let action = Action::new(w, h, i as u16, d);
                     let mut new_board = board.clone();
 
@@ -134,13 +138,18 @@ pub fn read_actions(path: String) -> Vec<Action> {
     let actions_format: ActionsFormat = serde_json::from_reader(reader).unwrap();
     let mut actions = Vec::new();
     for action_format in actions_format.ops {
-        let action = Action::new(action_format.x, action_format.y, action_format.p, match action_format.s.as_str() {
-            "0" => Direction::Up,
-            "1" => Direction::Down,
-            "2" => Direction::Right,
-            "3" => Direction::Left,
-            _ => panic!("Invalid direction"),
-        });
+        let action = Action::new(
+            action_format.x,
+            action_format.y,
+            action_format.p,
+            match action_format.s.as_str() {
+                "0" => Direction::Up,
+                "1" => Direction::Down,
+                "2" => Direction::Right,
+                "3" => Direction::Left,
+                _ => panic!("Invalid direction"),
+            },
+        );
         actions.push(action);
     }
     actions
