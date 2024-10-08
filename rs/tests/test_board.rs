@@ -1,5 +1,6 @@
 use std::f32::consts::E;
 use std::iter::{zip, Enumerate};
+use std::ptr::{null, null_mut};
 
 use rs::board::action::{self, Action, Direction};
 use rs::board::board::Board;
@@ -101,7 +102,7 @@ fn test_op_right() {
 }
 
 fn test_get_fillone_action_score(start: Board, end: Board, expected_score: usize) {
-    let res = start.get_fillone_action_score(&end);
+    let res = start.get_fillone_action_score(&end, None);
     println!("res: {}, expected: {}", res, expected_score);
     assert_eq!(res, expected_score)
 }
@@ -212,6 +213,52 @@ fn tests_get_fillone_action_score() {
 
     for (start, end, expected_score) in test_cases {
         test_get_fillone_action_score(start, end, expected_score)
+    }
+}
+
+fn test_action_get_fillone_action_score(start: Board, end: Board, cuts: &Cuts) {
+    let mut new = start.clone();
+    let mut actions: Vec<Action> = vec![];
+    start.get_fillone_action_score(&end, Some(&mut actions));
+
+    new.operate_actions(actions, cuts);
+    assert_eq!(new, end, "start: {:?},  end: {:?}", start, end);
+}
+
+#[test]
+fn tests_actions_fillone() {
+    let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+    let test_cases: Vec<(Board<u8>, Board<u8>)> = vec![
+        // (
+        //     Board::new(vec![vec![1, 3], vec![0, 3], vec![1, 0], vec![1, 3]]),
+        //     Board::new(vec![vec![1, 0], vec![0, 1], vec![1, 3], vec![3, 3]]),
+        // ),
+        // (
+        //     Board::new(vec![vec![0, 0, 1], vec![2, 2, 1]]),
+        //     Board::new(vec![vec![0, 2, 1], vec![1, 0, 2]]),
+        // ),
+        (
+            Board::new(vec![vec![2], vec![1], vec![1], vec![2], vec![2]]),
+            Board::new(vec![vec![2], vec![2], vec![2], vec![1], vec![1]]),
+        ),
+    ];
+
+    for (start, end) in test_cases {
+        test_action_get_fillone_action_score(start, end, &cuts);
+    }
+
+    let mut rng = StdRng::seed_from_u64(42);
+    for _ in 0..100 {
+        let h = rng.gen_range(1..10);
+        let w = rng.gen_range(1..10);
+
+        let start = random_board(h, w);
+        let end = shuffle_board(start.clone(), 42);
+
+        let start = Board::new(start);
+        let end = Board::new(end);
+
+        test_action_get_fillone_action_score(start, end, &cuts);
     }
 }
 
