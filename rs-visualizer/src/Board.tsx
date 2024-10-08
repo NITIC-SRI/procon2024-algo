@@ -122,7 +122,7 @@ const Board = ({ start, end, actions }: BoardProps) => {
         }
       }
       setScore(newScore);
-    }, 1000);
+    }, 700);
 
     setCnt(cnt + 1);
   };
@@ -175,6 +175,24 @@ const Board = ({ start, end, actions }: BoardProps) => {
     return newBoard;
   };
 
+  const autoPlay = () => {
+    let cnt = 0; // Track the number of alternations (0 for cut, 1 for move, etc.)
+
+    const intervalId = setInterval(() => {
+      // id=cut-button or id=move-button
+      const button = document.getElementById(
+        cnt % 2 === 0 ? "cut-button" : "move-button"
+      );
+      button?.click();
+      cnt++;
+
+      if (cnt === actions.length * 2) {
+        clearInterval(intervalId);
+      }
+    }, 1200); // Alternate every 2 seconds
+  };
+
+
   return (
     <div className="body">
       <div className="board">
@@ -192,19 +210,21 @@ const Board = ({ start, end, actions }: BoardProps) => {
             ))}
           </div>
         ))}
-        <button onClick={applyCut} disabled={isCutting}>
+        <button onClick={applyCut} disabled={isCutting} id="cut-button">
           cut
         </button>
-        <button onClick={applyMove} disabled={isMoving}>
+        <button onClick={applyMove} disabled={isMoving} id="move-button">
           move
         </button>
-
+        <button onClick={autoPlay} disabled={isMoving}>
+          auto
+        </button>
         {liftedPieces.map((piece, index) => (
           <div
             className="lifted-piece"
             key={index}
             style={{
-              transform: `translate(${piece.x * 40}px, ${piece.y * 40}px)`,
+              transform: `translate(${piece.x * 20}px, ${piece.y * 20}px)`,
             }}
           >
             {piece.value}

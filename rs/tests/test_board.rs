@@ -1,3 +1,4 @@
+use std::f32::consts::E;
 use std::iter::{zip, Enumerate};
 
 use rs::board::action::{self, Action, Direction};
@@ -16,7 +17,7 @@ fn test_op_left() {
         vec![true, true, false],
     ]);
 
-    let mut start = Board::new(vec![
+    let mut start: Board<u8> = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 2, 1, 1, 1, 1],
@@ -25,7 +26,7 @@ fn test_op_left() {
         vec![3, 3, 1, 0, 3, 2, 3],
     ]);
 
-    let end = Board::new(vec![
+    let end: Board<u8> = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 1, 1, 1, 1, 2],
@@ -46,7 +47,7 @@ fn test_op_left_over() {
         vec![true, true, true],
     ]);
 
-    let mut start = Board::new(vec![
+    let mut start: Board<u8> = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 2, 1, 1, 1, 1],
@@ -77,7 +78,7 @@ fn test_op_right() {
         vec![true, true, false],
     ]);
 
-    let mut start = Board::new(vec![
+    let mut start: Board<u8> = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 2, 1, 1, 1, 1],
@@ -234,7 +235,7 @@ fn test_get_formal_cut() {
 
 #[test]
 fn test_formal_cut_operate() {
-    let mut start = Board::new(vec![
+    let mut start: Board<u8> = Board::new(vec![
         vec![1, 0, 1, 1, 2, 2, 1],
         vec![2, 3, 1, 1, 0, 0, 2],
         vec![3, 0, 2, 1, 1, 1, 1],
@@ -382,7 +383,7 @@ fn test_swapping() {
         ),
     ];
     for (board, x1, y1, x2, y2) in test_cases {
-        let mut board = Board::new(board);
+        let mut board: Board<u8> = Board::new(board);
         let mut new = board.clone();
         let actions = board.swapping(x1, y1, x2, y2);
         new.operate_actions(actions, &cuts);
@@ -401,5 +402,37 @@ fn test_swapping() {
         let actions = board.swapping(x1, y1, x2, y2);
         new.operate_actions(actions, &cuts);
         assert_eq!(board, new, "swapping ({} {}), ({} {})", x1, y1, x2, y2);
+    }
+}
+
+#[test]
+fn test_solve_swapping() {
+    let test_cases = vec![
+        (vec![vec![1, 2, 3, 3, 0, 0]], vec![vec![0, 0, 1, 2, 3, 3]]),
+        (
+            vec![vec![1, 2, 3], vec![3, 0, 0]],
+            vec![vec![0, 0, 1], vec![2, 3, 3]],
+        ),
+    ];
+    for (start, end) in test_cases {
+        let mut start: Board<u8> = Board::new(start);
+        let end: Board<u8> = Board::new(end);
+        // let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+        let actions = start.solve_swapping(&end);
+        // start.operate_actions(actions, &cuts);
+        println!("{:?}", actions.len());
+        assert_eq!(start, end);
+    }
+
+    let mut rng = StdRng::seed_from_u64(42);
+    for _ in 0..10 {
+        let h: u32 = rng.gen_range(1..256);
+        let w: u32 = rng.gen_range(1..256);
+        let mut start: Board<u8> = Board::new(random_board(h, w));
+
+        let end = Board::new(shuffle_board(start.clone().board, 42));
+        let actions = start.solve_swapping(&end);
+        println!("{:?}", actions.len());
+        assert_eq!(start, end);
     }
 }
