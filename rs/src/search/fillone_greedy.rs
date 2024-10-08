@@ -50,7 +50,7 @@ impl<'a> GreedyGame<'a> {
             let mut board = self.state.board.clone();
             board.operate(action, &self.cuts);
 
-            let score = board.weighted_absolute_distance(&self.end);
+            let score = self.state.evaluate_score(&self.end);
 
             if score < min_score {
                 min_score = score;
@@ -58,6 +58,7 @@ impl<'a> GreedyGame<'a> {
             }
         }
 
+        println!("score: {}", min_score);
         // assert!(max_action != Action::new(0, 0, 0, Direction::Up));
         min_action
     }

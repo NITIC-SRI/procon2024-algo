@@ -1,7 +1,7 @@
 use rs::board::board::Board;
 use rs::board::cut::Cuts;
-use rs::search::fillone_greedy;
-use rs::utils::{export_actions, get_actions};
+use rs::search::greedy;
+use rs::utils::{export_actions, export_visualyzer_json, get_actions};
 use serde::{Deserialize, Serialize};
 
 fn main() {
@@ -292,22 +292,21 @@ fn main() {
     //     ],
     // ]);
 
-    let size = 12;
+    let size = 16;
     let mut start = Board::new(rs::utils::random_board(size, size));
     let end = Board::new(rs::utils::shuffle_board(start.clone().board, 42));
-    println!("{:?}", start);
-    println!("{:?}", end);
+    let start_clone = start.clone();
     println!("{:?}", start.absolute_distance(&end));
 
     let path = "../data/formal_cuts.json".to_string();
     let cuts = Cuts::new(path);
     let legal_actions = get_actions(size as usize, size as usize, &cuts);
-    let mut greedy_game = fillone_greedy::GreedyGame::new(&mut start, &cuts, &end, legal_actions);
+    println!("{:?}", legal_actions.len());
+    let mut greedy_game = greedy::GreedyGame::new(&mut start, &cuts, &end, &legal_actions);
 
-    let actions = fillone_greedy::play(&mut greedy_game);
+    let actions = greedy::play(&mut greedy_game);
     println!("{:?}", actions.len());
     println!("{:?}", start.absolute_distance(&end));
-    let json = export_actions(actions);
-    println!("{}", json);
+    let visualize_json = export_visualyzer_json(&start_clone, &end, actions);
+    println!("{}", visualize_json);
 }
-

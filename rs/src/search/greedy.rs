@@ -2,11 +2,13 @@ use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
 
-pub const SCORE_MAX: u64 = 1000000000;
+pub const SCORE_MAX: u64 = 0;
 pub struct GreedyGame<'a> {
     pub state: GreedyState<'a>,
     pub cuts: &'a Cuts,
     pub end: &'a Board,
+    pub legal_actions: &'a Vec<Action>,
+    pub turn: usize,
 }
 pub struct GreedyState<'a> {
     pub board: &'a mut Board,
@@ -16,65 +18,31 @@ impl<'a> GreedyState<'a> {
     pub fn new(board: &'a mut Board) -> GreedyState<'a> {
         GreedyState { board }
     }
-
-    pub fn evaluate_score(&self, end: &Board) -> u64 {
-        self.board.absolute_distance(end)
-    }
 }
 
 impl<'a> GreedyGame<'a> {
-    pub fn new(board: &'a mut Board, cuts: &'a Cuts, end: &'a Board) -> GreedyGame<'a> {
+    pub fn new(board: &'a mut Board, cuts: &'a Cuts, end: &'a Board, legal_actions: &'a Vec<Action>) -> GreedyGame<'a> {
         GreedyGame {
             state: GreedyState::new(board),
             cuts,
             end,
+            legal_actions,
+            turn: 0,
         }
     }
 
-    pub fn get_all_legal_actions(&self) -> Vec<Action> {
-        let mut legal_actions = Vec::new();
-        let board_h = self.state.board.height();
-        let board_w = self.state.board.width();
-        for i in 0..(self.cuts.len()) {
-            // 盤面からはみ出す型は無視
-            // ただし、一般型と最初にはみ出た3つの型はそのまま
-            if 25 > i
-                && i >= 3
-                && self.cuts[i as u32 - 3].width() > board_w
-                && self.cuts[i as u32 - 3].height() > board_h
-            {
-                break;
-            }
-
-            for w in (1 - self.cuts[i as u32].width() as i32)..(self.state.board.width() as i32) {
-                for h in
-                    (1 - self.cuts[i as u32].height() as i32)..(self.state.board.height() as i32)
-                {
-                    // println!("w: {}, h: {}, cut_num: {}", w, h, i);
-                    for d in vec![
-                        Direction::Up,
-                        Direction::Down,
-                        Direction::Left,
-                        Direction::Right,
-                    ] {
-                        let action = Action::new(w, h, i as u16, d);
-                        legal_actions.push(action);
-                    }
-                }
-            }
-        }
-        legal_actions
+    pub fn evaluate_score(&self, end: &Board) -> u64 {
+        self.state.board.absolute_distance(end)
     }
 
     pub fn greedy_acion(&self, state: &GreedyState) -> Action {
-        let legal_actions = self.get_all_legal_actions();
         let mut min_score = SCORE_MAX;
         let mut min_action = Action::new(0, 0, 0, Direction::Up);
 
-        for action in legal_actions {
+        for action in self.legal_actions {
             let mut board = state.board.clone();
             board.operate(&action, &self.cuts);
-            let score = board.absolute_distance(&self.end);
+            let score = board.weighted_absolute_distance(&self.end, self.turn);
             // println!("score: {}", score);
             // println!(
             //     "action: x={} y={} cut={} direction={:?}",
@@ -84,9 +52,9 @@ impl<'a> GreedyGame<'a> {
             //     action.direction()
             // );
             // println!("------------------------------------");
-            if score < min_score {
+            if score > min_score {
                 min_score = score;
-                min_action = action;
+                min_action = action.clone();
             }
         }
 
@@ -99,7 +67,7 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
     let mut actions = Vec::new();
 
     // TODO: タイムキーパーを設定する
-    for i in 0..100 {
+    for i in 0..200 {
         println!("i: {}", i);
         let now_board = game.state.board.clone();
         let action = game.greedy_acion(&game.state);
@@ -113,6 +81,7 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
         if *game.state.board == now_board {
             break;
         }
+        game.turn += 1;
 
         // println!(
         //     "action: x={} y={} cut={} direction={:?}",
@@ -121,7 +90,7 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
         //     action.cut_num(),
         //     action.direction()
         // );
-        // println!("score: {}", game.state.evaluate_score(&game.end));
+        println!("score: {}", game.evaluate_score(&game.end));
         // println!("board: {}", game.state.board);
         // println!("----------------------------------");
     }

@@ -1,7 +1,6 @@
 use core::hash;
 use std::collections::VecDeque;
 use std::fmt::Display;
-use ac_library::dsu::Dsu;
 use serde::{Deserialize, Serialize};
 use crate::board::action;
 use crate::board::action::Action;
@@ -536,19 +535,27 @@ where
         unimplemented!()
     }
 
-    pub fn weighted_absolute_distance(&self, end: &Self) -> u64 {
-        let mut distance = 0;
-        for h in 0..self.height {
-            for w in 0..self.width {
-                let center_d = ((self.height / 2) as i32 - h as i32).abs()
-                    + ((self.width / 2) as i32 - w as i32).abs();
-                if self.board[h][w] != end.board[h][w] {
-                    distance += center_d as u64;
+    pub fn weighted_absolute_distance(&self, end: &Self, turn: usize) -> u64 {
+        let mut score = 0;
+        for h in 0..self.height() {
+            for w in 0..self.width() {
+                // 中心からのユークリッド距離
+                let mut distance = (h as i32 - self.height() as i32 / 2).pow(2)
+                    + (w as i32 - self.width() as i32 / 2).pow(2);
+                distance = (distance as f64).sqrt() as i32;
+                if distance * 5 <= turn as i32 {
+                    if self.board()[h][w] == end.board()[h][w] {
+                        score += ((8 - distance) * (8 - distance) * (8 - distance) * (8 - distance)) as u64;
+                    }
+                } else {
+                    if self.board()[h][w] != end.board()[h][w] {
+                        score += 1;
+                    }
                 }
             }
         }
 
-        distance
+        score
     }
 
     fn swapping_one_line(self, x1: i32, y1: i32, x2: i32, y2: i32) -> Vec<Action> {
