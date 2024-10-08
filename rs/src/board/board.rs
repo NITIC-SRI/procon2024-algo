@@ -1,7 +1,6 @@
 use std::collections::VecDeque;
 use std::convert::Into;
-use std::fmt::{Debug, Display};
-use std::vec;
+use std::fmt::Display;
 
 use crate::board::action;
 use crate::board::action::Action;
@@ -10,7 +9,7 @@ use crate::board::cut::{Cut, Cuts};
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct Board<T = u8>
 where
-    T: Copy + PartialEq + Into<usize> + Display + Debug,
+    T: Copy + PartialEq + Into<usize>,
 {
     pub board: Vec<Vec<T>>,
     width: usize,
@@ -31,7 +30,7 @@ impl Display for Board {
 
 impl<T> Board<T>
 where
-    T: Copy + PartialEq + Into<usize> + Display + Debug,
+    T: Copy + PartialEq + Into<usize>,
 {
     pub fn new(board: Vec<Vec<T>>) -> Self {
         let height = board.len();
@@ -82,17 +81,8 @@ where
     }
 
     pub fn operate_actions(&mut self, actions: Vec<Action>, cuts: &Cuts) {
-        if cfg!(debug_assertions) {
-            println!("{:?}", self);
-            println!()
-        }
         for action in actions {
             self.operate(&action, cuts);
-            if cfg!(debug_assertions) {
-                println!("Action: {:?}", action);
-                println!("{:?}", self);
-                println!()
-            }
         }
     }
 
@@ -390,69 +380,10 @@ where
         }
     }
 
-    // letf移動の連続を処理する
-    fn make_continue_action(&self, before_action: Action, continue_count: usize) -> Vec<Action> {
-        let mut actions = vec![];
-        if before_action.direction() == action::Direction::Left {
-            if before_action.y() == 0 {
-                match before_action.x() {
-                    0 => {
-                        if continue_count != self.width {
-                            actions.push(Action::new(
-                                -256 + continue_count as i32,
-                                -255,
-                                22,
-                                action::Direction::Left,
-                            ));
-                        }
-                    }
-                    _ => {
-                        let binary_str = format!("{:b}", continue_count);
-                        for (i, s) in binary_str.chars().rev().enumerate() {
-                            if s == '1' {
-                                let cut_num = if i == 0 { 0 } else { 1 + 3 * (i - 1) } as u16;
-                                let size = 1 << i;
-                                actions.push(Action::new(
-                                    before_action.x(),
-                                    1 - size,
-                                    cut_num,
-                                    action::Direction::Left,
-                                ));
-                            }
-                        }
-                    }
-                }
-            } else {
-                // count個数Actionを追加
-                actions.extend(vec![before_action.clone(); continue_count]);
-            }
-        } else if before_action.direction() == action::Direction::Up {
-            if before_action.x() == 0 {
-                if continue_count == self.height {
-                    actions.push(Action::new(
-                        -256 + continue_count as i32,
-                        -255,
-                        22,
-                        action::Direction::Up,
-                    ));
-                }
-            } else {
-                // count個数Actionを追加
-                actions.extend(vec![before_action.clone(); continue_count]);
-            }
-        }
-
-        return actions;
-    }
-
-    pub fn get_fillone_action_score(
-        &self,
-        end: &Self,
-        mut actions: Option<&mut Vec<Action>>,
-    ) -> usize {
+    pub fn get_fillone_action_score(&self, end: &Self) -> usize {
         let mut count: usize = 0;
-        let mut left_continue_count: usize = 1;
-        let mut rowup_continue_count: usize = 0;
+        let mut continue_count: usize = 1;
+        let mut rowup_continue_count: usize = 1;
         let mut before_action = Action::new(256, 256, 0, action::Direction::Up);
 
         let mut new = self.clone();
@@ -476,22 +407,14 @@ where
                             let tmp = Action::new(w as i32, 0, 0, action::Direction::Left);
 
                             if tmp == before_action {
-                                left_continue_count += 1;
+                                continue_count += 1;
                             } else {
                                 count = self.calc_complesed_action_num(
                                     count,
-                                    before_action.clone(),
-                                    left_continue_count,
+                                    before_action,
+                                    continue_count,
                                 );
-                                if let Some(ref mut acts) = actions {
-                                    acts.extend(
-                                        self.make_continue_action(
-                                            before_action,
-                                            left_continue_count,
-                                        ),
-                                    );
-                                }
-                                left_continue_count = 1;
+                                continue_count = 1;
                                 before_action = tmp;
                             }
 
@@ -514,25 +437,11 @@ where
 
                                 count = self.calc_complesed_action_num(
                                     count,
-                                    before_action.clone(),
-                                    left_continue_count,
+                                    before_action,
+                                    continue_count,
                                 );
-                                if let Some(ref mut acts) = actions {
-                                    acts.extend(
-                                        self.make_continue_action(
-                                            before_action,
-                                            left_continue_count,
-                                        ),
-                                    );
-                                    acts.push(Action::new(
-                                        w as i32,
-                                        h as i32,
-                                        0,
-                                        action::Direction::Down,
-                                    ));
-                                    // actions.push(Action::new(w as i32, 0, 0, action::Direction::Left));
-                                }
-                                left_continue_count = 1;
+
+                                continue_count = 1;
                                 before_action =
                                     Action::new(w as i32, 0, 0, action::Direction::Left);
 
@@ -558,32 +467,11 @@ where
 
                                 count = self.calc_complesed_action_num(
                                     count,
-                                    before_action.clone(),
-                                    left_continue_count,
+                                    before_action,
+                                    continue_count,
                                 );
-                                if let Some(ref mut acts) = actions {
-                                    acts.extend(
-                                        self.make_continue_action(
-                                            before_action,
-                                            left_continue_count,
-                                        ),
-                                    );
-                                    acts.push(Action::new(
-                                        w as i32,
-                                        h as i32,
-                                        0,
-                                        action::Direction::Right,
-                                    ));
-                                    acts.push(Action::new(
-                                        0 as i32,
-                                        h as i32,
-                                        0,
-                                        action::Direction::Down,
-                                    ));
-                                    // actions.push(Action::new(0 as i32, 0 as i32, 0, action::Direction::Left));
-                                }
 
-                                left_continue_count = 1;
+                                continue_count = 1;
                                 before_action =
                                     Action::new(0 as i32, 0, 0, action::Direction::Left);
 
@@ -601,33 +489,15 @@ where
                 println!();
             }
 
-            count =
-                self.calc_complesed_action_num(count, before_action.clone(), left_continue_count);
-            if let Some(ref mut acts) = actions {
-                acts.extend(self.make_continue_action(before_action, left_continue_count));
-            }
-            left_continue_count = 1;
+            count = self.calc_complesed_action_num(count, before_action, continue_count);
+
+            continue_count = 1;
             before_action = Action::new(0 as i32, -255, 22, action::Direction::Up);
 
             if skip_flag {
-                if rowup_continue_count == 0 {
-                    rowup_continue_count = 1;
-                } else {
-                    rowup_continue_count += 1;
-                }
+                rowup_continue_count += 1;
             } else {
                 count = count + 1 - rowup_continue_count;
-                if let Some(ref mut acts) = actions {
-                    if rowup_continue_count != 1 {
-                        acts.pop();
-                    }
-                    acts.push(Action::new(
-                        0,
-                        -256 + rowup_continue_count as i32,
-                        22,
-                        action::Direction::Up,
-                    ));
-                }
                 rowup_continue_count = 1;
             }
         }
@@ -636,18 +506,6 @@ where
             count = count - rowup_continue_count;
         } else {
             count = count + 1 - rowup_continue_count;
-
-            if let Some(ref mut acts) = actions {
-                if rowup_continue_count != 1 {
-                    acts.pop();
-                    acts.push(Action::new(
-                        0,
-                        -256 + rowup_continue_count as i32,
-                        22,
-                        action::Direction::Up,
-                    ));
-                }
-            }
         }
 
         return count;
