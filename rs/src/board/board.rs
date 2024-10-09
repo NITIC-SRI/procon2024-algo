@@ -380,6 +380,180 @@ where
         }
     }
 
+    fn _compress_left(
+        &self,
+        actions: &Vec<Action>,
+        consecutive: usize,
+        i: usize,
+    ) -> (bool, Vec<Action>) {
+        let action = &actions[i - 1];
+        if consecutive > 1 && action.direction() == action::Direction::Left {
+            if action.x() == 0 && action.y() == 0 {
+                if consecutive == self.width() {
+                    return (true, vec![]);
+                } else {
+                    return (
+                        true,
+                        vec![Action::new(
+                            -256 + consecutive as i32,
+                            -255,
+                            22,
+                            action::Direction::Left,
+                        )],
+                    );
+                }
+            } else if action.x() != 0 && action.y() == 0 {
+                let b = format!("{:b}", consecutive);
+                let mut tmp_actions = vec![];
+                for (idx, j) in b.chars().rev().enumerate() {
+                    if j == '1' {
+                        tmp_actions.push(Action::new(
+                            action.x(),
+                            1 - 2_i32.pow(idx as u32),
+                            1 << idx,
+                            action::Direction::Left,
+                        ));
+                    }
+                }
+                return (true, tmp_actions);
+            }
+        }
+
+        return (false, vec![]);
+    }
+
+    fn _compress_rowup(
+        &self,
+        actions: &Vec<Action>,
+        consecutive: usize,
+        i: usize,
+    ) -> (bool, Vec<Action>) {
+        let action = &actions[i - 1];
+        if consecutive > 1 && action.direction() == action::Direction::Up {
+            if consecutive == self.height() {
+                return (true, vec![]);
+            } else {
+                return (
+                    true,
+                    vec![Action::new(
+                        0,
+                        -256 + consecutive as i32,
+                        22,
+                        action::Direction::Up,
+                    )],
+                );
+            }
+        }
+        return (false, vec![]);
+    }
+
+    fn _compress_actions(
+        &self,
+        actions: &Vec<Action>,
+        func: fn(&Self, &Vec<Action>, usize, usize) -> (bool, Vec<Action>),
+    ) -> Vec<Action> {
+        let mut compressed_actions = vec![];
+        let mut consecutive = 1;
+        for i in 1..actions.len() {
+            compressed_actions.push(actions[i - 1].clone());
+            if actions[i - 1] == actions[i] {
+                consecutive += 1;
+            } else {
+                let (check, comp_action) = func(&self, &actions, consecutive, i);
+                if check {
+                    compressed_actions.splice(
+                        compressed_actions.len() - consecutive..,
+                        comp_action.iter().cloned(),
+                    );
+                }
+                consecutive = 1;
+            }
+        }
+        compressed_actions.push(actions[actions.len() - 1].clone());
+        if consecutive > 1 {
+            let (check, comp_action) = func(&self, &actions, consecutive, actions.len());
+            if check {
+                compressed_actions.splice(
+                    compressed_actions.len() - consecutive..,
+                    comp_action.iter().cloned(),
+                );
+            }
+        }
+        return compressed_actions;
+    }
+
+    fn compress_actions(&self, actions: &Vec<Action>) -> Vec<Action> {
+        let mut actions = self._compress_actions(actions, Self::_compress_left);
+        if actions.len() > 1 {
+            actions = self._compress_actions(&actions, Self::_compress_rowup);
+        }
+        return actions;
+    }
+
+    pub fn get_fillone_actions(&self, end: &Self) -> Vec<Action> {
+        let mut actions = vec![];
+        let mut new = self.clone();
+
+        for y in 0..self.height() {
+            'loop_x: for x in 0..self.width() {
+                for w in 0..self.width() - x {
+                    if end.board[y][x] == new.board[0][w] {
+                        new.op_one_left(w as i32, 0 as i32);
+                        actions.push(Action::new(w as i32, 0, 0, action::Direction::Left));
+                        continue 'loop_x;
+                    }
+                }
+
+                for h in 1..self.height() - y {
+                    for w in 0..self.width() - x {
+                        if end.board[y][x] == new.board[h][w] {
+                            new.op_one_down(w as i32, h as i32);
+                            new.op_one_left(w as i32, 0 as i32);
+                            actions.push(Action::new(
+                                w as i32,
+                                h as i32,
+                                0,
+                                action::Direction::Down,
+                            ));
+                            actions.push(Action::new(w as i32, 0, 0, action::Direction::Left));
+                            continue 'loop_x;
+                        }
+                    }
+                }
+
+                for h in 1..self.height() - y {
+                    for w in self.width() - x..self.width() {
+                        if end.board[y][x] == new.board[h][w] {
+                            new.op_one_right(w as i32, h as i32);
+                            new.op_one_down(0 as i32, h as i32);
+                            new.op_one_left(0 as i32, 0 as i32);
+                            actions.push(Action::new(
+                                w as i32,
+                                h as i32,
+                                0,
+                                action::Direction::Right,
+                            ));
+                            actions.push(Action::new(
+                                0 as i32,
+                                h as i32,
+                                0,
+                                action::Direction::Down,
+                            ));
+                            actions.push(Action::new(0 as i32, 0, 0, action::Direction::Left));
+                            continue 'loop_x;
+                        }
+                    }
+                }
+            }
+            new.op_row_up();
+            actions.push(Action::new(0, 0, 0, action::Direction::Up));
+        }
+
+        actions = self.compress_actions(&actions);
+
+        actions
+    }
+
     pub fn get_fillone_action_score(&self, end: &Self) -> usize {
         let mut count: usize = 0;
         let mut continue_count: usize = 1;
