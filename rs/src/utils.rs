@@ -2,7 +2,7 @@ use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
 use rand::{self, Rng};
-use serde::{de, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
@@ -17,6 +17,8 @@ struct ActionFormat {
     y: i32,
     s: String,
 }
+
+
 
 #[derive(Serialize, Deserialize)]
 struct ActionsFormat {
@@ -44,6 +46,38 @@ pub fn export_actions(actions: Vec<Action>) -> String {
         actions_format.ops.push(action_format);
     }
     let json = serde_json::to_string(&actions_format).unwrap();
+    json
+}
+
+#[derive(Serialize, Deserialize)]
+struct Visualizer {
+    start: Vec<Vec<u8>>,
+    end: Vec<Vec<u8>>,
+    actions: Vec<ActionFormat>,
+}
+
+pub fn export_visualyzer_json(start: &Board, end: &Board, actions: Vec<Action>) -> String {
+    let mut actions_format = Vec::new();
+    for action in actions {
+        let action_format = ActionFormat {
+            p: action.cut_num(),
+            x: action.x(),
+            y: action.y(),
+            s: match action.direction() {
+                Direction::Up => "0".to_string(),
+                Direction::Down => "1".to_string(),
+                Direction::Right => "2".to_string(),
+                Direction::Left => "3".to_string(),
+            },
+        };
+        actions_format.push(action_format);
+    }
+    let visualizer = Visualizer {
+        start: start.clone().board,
+        end: end.clone().board,
+        actions: actions_format,
+    };
+    let json = serde_json::to_string(&visualizer).unwrap();
     json
 }
 
