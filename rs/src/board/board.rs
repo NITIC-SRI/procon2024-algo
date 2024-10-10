@@ -410,7 +410,7 @@ where
                         tmp_actions.push(Action::new(
                             action.x(),
                             1 - 2_i32.pow(idx as u32),
-                            1 << idx,
+                            if idx == 0 { 0 } else { 1 + 3 * (idx - 1) } as u16,
                             action::Direction::Left,
                         ));
                     }
