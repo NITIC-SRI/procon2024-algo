@@ -2,7 +2,7 @@ use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
 use rand::{self, Rng};
-use serde::{de, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
