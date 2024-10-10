@@ -36,29 +36,19 @@ impl<'a> GreedyGame<'a> {
     }
 
     pub fn greedy_acion(&self, state: &GreedyState) -> Action {
-        let mut min_score = SCORE_MAX;
+        let mut min_score = state.board.absolute_distance(&self.end);
         let mut min_action = Action::new(0, 0, 0, Direction::Up);
 
         for action in self.legal_actions {
             let mut board = state.board.clone();
             board.operate(&action, &self.cuts);
-            let score = board.weighted_absolute_distance(&self.end, self.turn);
-            // println!("score: {}", score);
-            // println!(
-            //     "action: x={} y={} cut={} direction={:?}",
-            //     action.x(),
-            //     action.y(),
-            //     action.cut_num(),
-            //     action.direction()
-            // );
-            // println!("------------------------------------");
+            let score = board.before_board_and_weighted_absolute_distance(&self.end, self.turn, &state.board);
             if score > min_score {
                 min_score = score;
                 min_action = action.clone();
             }
         }
 
-        // assert!(max_action != Action::new(0, 0, 0, Direction::Up));
         min_action
     }
 }
@@ -67,11 +57,15 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
     let mut actions = Vec::new();
 
     // TODO: タイムキーパーを設定する
-    for i in 0..200 {
+    for i in 0..10 {
         println!("i: {}", i);
         let now_board = game.state.board.clone();
         let action = game.greedy_acion(&game.state);
         game.state.board.operate(&action, game.cuts);
+
+        if i > 0 && actions[actions.len() - 1] == action {
+            break;
+        }
         actions.push(action.clone());
         println!("action: {:?}", action);
         println!("{}", game.state.board);
@@ -82,17 +76,7 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
             break;
         }
         game.turn += 1;
-
-        // println!(
-        //     "action: x={} y={} cut={} direction={:?}",
-        //     action.x(),
-        //     action.y(),
-        //     action.cut_num(),
-        //     action.direction()
-        // );
         println!("score: {}", game.evaluate_score(&game.end));
-        // println!("board: {}", game.state.board);
-        // println!("----------------------------------");
     }
     actions
 }

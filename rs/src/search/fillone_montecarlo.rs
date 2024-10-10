@@ -2,6 +2,8 @@ use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
 
+use rand::Rng;
+
 pub const SCORE_MAX: u64 = 1000000;
 pub struct GreedyGame<'a> {
     pub state: GreedyState<'a>,
@@ -38,21 +40,20 @@ impl<'a> GreedyGame<'a> {
     pub fn greedy_acion(&self, state: &GreedyState) -> Action {
         let mut min_score = SCORE_MAX;
         let mut min_action = Action::new(0, 0, 0, Direction::Up);
+		let mut random_legal_actions = vec![];
+		let cnt = 10000;
+		let mut rng = rand::thread_rng();
+		for _ in 0..cnt {
+			let random_action = &self.legal_actions[rng.gen_range(0..self.legal_actions.len())];
+			random_legal_actions.push(random_action);
+		}
 
-        for action in self.legal_actions {
+        for action in random_legal_actions {
             let mut board = state.board.clone();
             board.operate(&action, &self.cuts);
             let score = board.get_fillone_action_score(&self.end) as u64;
             // let score = board.weighted_absolute_distance(&self.end, self.turn);
-            // println!("score: {}", score);
-            // println!(
-            //     "action: x={} y={} cut={} direction={:?}",
-            //     action.x(),
-            //     action.y(),
-            //     action.cut_num(),
-            //     action.direction()
-            // );
-            // println!("------------------------------------");
+
             if score < min_score {
                 min_score = score;
                 min_action = action.clone();
@@ -60,7 +61,7 @@ impl<'a> GreedyGame<'a> {
         }
 
         // assert!(max_action != Action::new(0, 0, 0, Direction::Up));
-        println!("min_score: {}", min_score);
+		println!("min_score: {}", min_score);
         min_action
     }
 }
@@ -69,6 +70,7 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
     let mut actions = Vec::new();
 
     // TODO: タイムキーパーを設定する
+	let now_time = std::time::Instant::now();
     for i in 0..2000 {
         println!("i: {}", i);
         let now_board = game.state.board.clone();
@@ -89,16 +91,12 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
         }
         game.turn += 1;
 
-        // println!(
-        //     "action: x={} y={} cut={} direction={:?}",
-        //     action.x(),
-        //     action.y(),
-        //     action.cut_num(),
-        //     action.direction()
-        // );
         println!("score: {}", game.evaluate_score(&game.end));
-        // println!("board: {}", game.state.board);
-        // println!("----------------------------------");
+		let elapsed = now_time.elapsed();
+		// 4分40秒経っていたら終了
+		if elapsed.as_millis() > 280000 {
+			break;
+		}
     }
     actions
 }
