@@ -43,23 +43,12 @@ impl<'a> GreedyGame<'a> {
             let mut board = state.board.clone();
             board.operate(&action, &self.cuts);
             let score = board.get_fillone_action_score(&self.end) as u64;
-            // let score = board.weighted_absolute_distance(&self.end, self.turn);
-            // println!("score: {}", score);
-            // println!(
-            //     "action: x={} y={} cut={} direction={:?}",
-            //     action.x(),
-            //     action.y(),
-            //     action.cut_num(),
-            //     action.direction()
-            // );
-            // println!("------------------------------------");
             if score < min_score {
                 min_score = score;
                 min_action = action.clone();
             }
         }
 
-        // assert!(max_action != Action::new(0, 0, 0, Direction::Up));
         println!("min_score: {}", min_score);
         min_action
     }
@@ -88,17 +77,7 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
             break;
         }
         game.turn += 1;
-
-        // println!(
-        //     "action: x={} y={} cut={} direction={:?}",
-        //     action.x(),
-        //     action.y(),
-        //     action.cut_num(),
-        //     action.direction()
-        // );
         println!("score: {}", game.evaluate_score(&game.end));
-        // println!("board: {}", game.state.board);
-        // println!("----------------------------------");
     }
     actions
 }

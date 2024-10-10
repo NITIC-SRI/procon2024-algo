@@ -42,7 +42,7 @@ impl<'a> GreedyGame<'a> {
         for action in self.legal_actions {
             let mut board = state.board.clone();
             board.operate(&action, &self.cuts);
-            let score = board.before_board_and_weighted_absolute_distance(&self.end, self.turn, &state.board);
+            let score = board.absolute_distance(&self.end);
             if score > min_score {
                 min_score = score;
                 min_action = action.clone();

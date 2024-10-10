@@ -70,7 +70,6 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
     let mut actions = Vec::new();
 
     // TODO: タイムキーパーを設定する
-	let now_time = std::time::Instant::now();
     for i in 0..2000 {
         println!("i: {}", i);
         let now_board = game.state.board.clone();
@@ -92,11 +91,6 @@ pub fn play(game: &mut GreedyGame) -> Vec<Action> {
         game.turn += 1;
 
         println!("score: {}", game.evaluate_score(&game.end));
-		let elapsed = now_time.elapsed();
-		// 4分40秒経っていたら終了
-		if elapsed.as_millis() > 280000 {
-			break;
-		}
     }
     actions
 }
