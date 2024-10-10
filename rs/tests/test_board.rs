@@ -166,6 +166,10 @@ fn tests_actions_fillone() {
             Board::new(vec![vec![2], vec![1], vec![1], vec![2], vec![2]]),
             Board::new(vec![vec![2], vec![2], vec![2], vec![1], vec![1]]),
         ),
+        (
+            Board::new(vec![vec![0, 0, 1, 0, 3, 0]]),
+            Board::new(vec![vec![0, 3, 0, 1, 0, 0]]),
+        )
     ];
 
     for (start, end) in test_cases {
@@ -179,7 +183,7 @@ fn tests_actions_fillone() {
         let w = 256;
 
         let start = random_board(h, w);
-        let end = shuffle_board(start.clone(), 32);
+        let end = shuffle_board(start.clone(), 42);
 
         let start = Board::new(start);
         let end = Board::new(end);
@@ -188,8 +192,8 @@ fn tests_actions_fillone() {
     }
 
     for _ in 0..16 {
-        let h = rng.gen_range(1..32);
-        let w = rng.gen_range(1..32);
+        let h = rng.gen_range(1..128);
+        let w = rng.gen_range(1..128);
 
         let start = random_board(h, w);
         let end = shuffle_board(start.clone(), 42);
