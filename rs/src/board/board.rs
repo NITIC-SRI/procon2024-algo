@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 use std::convert::Into;
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 use crate::board::action;
 use crate::board::action::Action;
@@ -9,7 +9,7 @@ use crate::board::cut::{Cut, Cuts};
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct Board<T = u8>
 where
-    T: Copy + PartialEq + Into<usize>,
+    T: Copy + PartialEq + Into<usize> + Debug,
 {
     pub board: Vec<Vec<T>>,
     width: usize,
@@ -30,7 +30,7 @@ impl Display for Board {
 
 impl<T> Board<T>
 where
-    T: Copy + PartialEq + Into<usize>,
+    T: Copy + PartialEq + Into<usize> + Debug,
 {
     pub fn new(board: Vec<Vec<T>>) -> Self {
         let height = board.len();
@@ -496,7 +496,7 @@ where
 
         for y in 0..self.height() {
             'loop_x: for x in 0..self.width() {
-                for w in 0..self.width() - x {
+                for w in 0..(self.width() - x) {
                     if end.board[y][x] == new.board[0][w] {
                         new.op_one_left(w as i32, 0 as i32);
                         actions.push(Action::new(w as i32, 0, 0, action::Direction::Left));
@@ -546,10 +546,10 @@ where
                 }
             }
             new.op_row_up();
-            actions.push(Action::new(0, 0, 0, action::Direction::Up));
+            actions.push(Action::new(0, -255, 22, action::Direction::Up));
         }
 
-        actions = self.compress_actions(&actions);
+        // actions = self.compress_actions(&actions);
 
         actions
     }
