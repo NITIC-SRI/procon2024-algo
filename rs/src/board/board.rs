@@ -387,7 +387,7 @@ where
         i: usize,
     ) -> (bool, Vec<Action>) {
         let action = &actions[i - 1];
-        if consecutive > 1 && action.direction() == action::Direction::Left {
+        if action.direction() == action::Direction::Left {
             if action.x() == 0 && action.y() == 0 {
                 if consecutive == self.width() {
                     return (true, vec![]);
@@ -429,7 +429,7 @@ where
         i: usize,
     ) -> (bool, Vec<Action>) {
         let action = &actions[i - 1];
-        if consecutive > 1 && action.direction() == action::Direction::Up {
+        if action.direction() == action::Direction::Up {
             if consecutive == self.height() {
                 return (true, vec![]);
             } else {
@@ -549,7 +549,7 @@ where
             actions.push(Action::new(0, -255, 22, action::Direction::Up));
         }
 
-        // actions = self.compress_actions(&actions);
+        actions = self.compress_actions(&actions);
 
         actions
     }
