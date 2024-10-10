@@ -34,8 +34,9 @@ fn test_random_board() {
 #[test]
 fn test_get_actions() {
     let cuts = Cuts::new("../data/formal_cuts.json".to_string());
-    let actions = get_actions(64, 64, &cuts);
-    println!("{}", actions.len());
+    let actions = get_actions(16, 16, &cuts);
+    // magic number
+    assert_eq!(14072, actions.len());
 }
 
 // #[test]
