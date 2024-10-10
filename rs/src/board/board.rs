@@ -1,11 +1,12 @@
-use core::hash;
-use std::collections::VecDeque;
-use std::convert::Into;
-use std::fmt::Display;
-use serde::{Deserialize, Serialize};
 use crate::board::action;
 use crate::board::action::Action;
 use crate::board::cut::{Cut, Cuts};
+use core::hash;
+use std::vec;
+use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, VecDeque};
+use std::convert::Into;
+use std::fmt::Display;
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Board<T = u8>
@@ -546,12 +547,103 @@ where
                 distance = (distance as f64).sqrt() as i32;
                 if distance * 5 <= turn as i32 {
                     if self.board()[h][w] == end.board()[h][w] {
-                        score += ((8 - distance) * (8 - distance) * (8 - distance) * (8 - distance)) as u64;
+                        score += ((5 - distance) * (5 - distance) * (5 - distance) * (5 - distance))
+                            as u64;
                     }
                 } else {
                     if self.board()[h][w] != end.board()[h][w] {
                         score += 1;
                     }
+                }
+            }
+        }
+
+        score
+    }
+
+    // 行ごとに、列外れていても同じ数字があればスコアを加算
+    pub fn row_score(&self, end: &Self) -> u64 {
+        let mut score = 0;
+        for h in 0..self.height() {
+            let mut row_map = vec![0; 4];
+            let mut row_score = 0;
+            for w in 0..self.width() {
+                row_map[self.board()[h][w].into()] += 1;
+                row_map[end.board()[h][w].into()] -= 1;
+            }
+            for i in 0..4 {
+                row_score += (row_map[i] as i32).abs();
+            }
+            score += row_score as u64;
+        }
+
+        score
+    }
+
+    pub fn col_score(&self, end: &Self) -> u64 {
+        let mut score = 0;
+        for w in 0..self.width() {
+            let mut col_map = vec![0; 4];
+            let mut col_score = 0;
+            for h in 0..self.height() {
+                col_map[self.board()[h][w].into()] += 1;
+                col_map[end.board()[h][w].into()] -= 1;
+            }
+            for i in 0..4 {
+                col_score += (col_map[i] as i32).abs();
+            }
+            score += col_score as u64;
+        }
+
+        score
+    }
+
+    pub fn migishita_score(&self, end: &Self) -> u64 {
+        // 右下から優先して揃える
+        let mut score = 0;
+        let mut zero = 1.0;
+        for h in 0..self.height() {
+            for w in 0..self.width() {
+                if h<8 {
+                    continue;
+                }
+                if self.board()[h][w] == end.board()[h][w] {
+                    score += (1 * w * h) as u64;
+                }
+                if self.board()[h][w] != end.board()[h][w] {
+                    zero = 0.5;
+                }
+            }
+        }
+
+        (score as f64 * zero) as u64
+    }
+
+    pub fn before_board_and_weighted_absolute_distance(
+        &self,
+        end: &Self,
+        turn: usize,
+        before_board: &Self,
+    ) -> u64 {
+        let mut score = 0;
+        for h in 0..self.height() {
+            for w in 0..self.width() {
+                // 中心からのユークリッド距離
+                let mut distance = (h as i32 - self.height() as i32 / 2).pow(2)
+                    + (w as i32 - self.width() as i32 / 2).pow(2);
+                distance = (distance as f64).sqrt() as i32;
+                if turn > 20 {
+                    if self.board()[h][w] == end.board()[h][w] {
+                        score += 1;
+                    }
+                    continue;
+                }
+                if self.board()[h][w] == end.board()[h][w] {
+                    score += ((17 - distance) * (17 - distance)) as u64;
+                } else if self.board()[h][w] == end.board()[h][w]
+                    && before_board.board()[h][w] != end.board()[h][w]
+                {
+                    score += ((17 - distance) * (17 - distance)) as u64;
                 }
             }
         }
