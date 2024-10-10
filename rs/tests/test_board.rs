@@ -99,7 +99,7 @@ fn test_op_right() {
 
 fn test_get_fillone_action_score(start: Board, end: Board) {
     let res = start.get_fillone_action_score(&end);
-    let mut actions: Vec<Action>;
+    let actions: Vec<Action>;
 
     let expected_score: usize = {
         let new = start.clone();
