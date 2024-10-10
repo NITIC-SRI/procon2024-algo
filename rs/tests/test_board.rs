@@ -97,118 +97,48 @@ fn test_op_right() {
     assert_eq!(start, end);
 }
 
-fn test_get_fillone_action_score(start: Board, end: Board, expected_score: usize) {
+fn test_get_fillone_action_score(start: Board, end: Board) {
     let res = start.get_fillone_action_score(&end);
-    println!("res: {}, expected: {}", res, expected_score);
-    assert_eq!(res, expected_score)
+    let mut actions: Vec<Action>;
+
+    let expected_score: usize = {
+        let new = start.clone();
+        actions = new.get_fillone_actions(&end);
+        actions.len()
+    };
+    assert_eq!(res, expected_score, "res: {}, expected: {}", res, expected_score);
 }
 
 #[test]
 fn tests_get_fillone_action_score() {
     // ToDo: issue #26
     let test_cases = vec![
-        // (
-        //     Board::new(vec![
-        //         vec![1, 0, 1, 1, 2, 2, 0, 0],
-        //         vec![2, 3, 0, 1, 0, 0, 1, 3],
-        //         vec![2, 0, 3, 1, 0, 3, 3, 0],
-        //         vec![0, 3, 1, 2, 1, 1, 2, 0],
-        //         vec![2, 2, 1, 1, 3, 1, 1, 2],
-        //         vec![2, 1, 0, 2, 0, 3, 1, 1],
-        //         vec![2, 2, 2, 0, 2, 0, 2, 2],
-        //     ]),
-        //     Board::new(vec![
-        //         vec![3, 1, 2, 0, 3, 2, 1, 0],
-        //         vec![2, 0, 3, 2, 1, 2, 0, 0],
-        //         vec![1, 1, 0, 0, 1, 0, 1, 3],
-        //         vec![2, 1, 2, 1, 2, 2, 3, 0],
-        //         vec![3, 2, 2, 0, 1, 1, 3, 2],
-        //         vec![1, 2, 0, 2, 2, 2, 1, 0],
-        //         vec![0, 1, 2, 1, 0, 3, 1, 0],
-        //     ]),
-        //     74,
-        // ),
-        // (
-        //     Board::new(vec![
-        //         vec![2, 1, 2, 1, 0, 0, 0, 2],
-        //         vec![0, 0, 3, 2, 0, 1, 1, 0],
-        //         vec![2, 3, 3, 3, 2, 2, 0, 1],
-        //         vec![2, 0, 2, 0, 2, 0, 3, 1],
-        //         vec![3, 3, 0, 2, 2, 1, 2, 2],
-        //         vec![3, 1, 3, 0, 1, 3, 0, 1],
-        //         vec![0, 2, 2, 1, 1, 3, 1, 0],
-        //     ]),
-        //     Board::new(vec![
-        //         vec![0, 2, 1, 3, 1, 0, 0, 2],
-        //         vec![0, 0, 2, 2, 1, 1, 0, 0],
-        //         vec![2, 3, 3, 3, 2, 2, 0, 1],
-        //         vec![2, 0, 2, 0, 2, 0, 3, 1],
-        //         vec![3, 3, 0, 2, 2, 1, 2, 2],
-        //         vec![3, 1, 0, 1, 3, 0, 1, 3],
-        //         vec![0, 2, 2, 1, 1, 3, 1, 0],
-        //     ]),
-        //     19,
-        // ),
-        // (
-        //     Board::new(vec![
-        //         vec![0, 2, 3, 3, 0],
-        //         vec![1, 2, 0, 0, 0],
-        //         vec![3, 0, 1, 3, 3],
-        //     ]),
-        //     Board::new(vec![
-        //         vec![3, 3, 0, 0, 0],
-        //         vec![2, 3, 1, 0, 3],
-        //         vec![2, 0, 3, 0, 1],
-        //     ]),
-        //     21,
-        // ),
-        // (
-        //     Board::new(vec![
-        //         vec![1, 3, 2, 0, 0],
-        //         vec![3, 1, 0, 1, 1],
-        //         vec![2, 3, 2, 0, 0],
-        //     ]),
-        //     Board::new(vec![
-        //         vec![2, 3, 0, 3, 1],
-        //         vec![0, 2, 0, 1, 3],
-        //         vec![0, 1, 0, 2, 1],
-        //     ]),
-        //     20,
-        // ),
-        // (
-        //     Board::new(vec![vec![
-        //         0, 3, 0, 3, 0, 0, 0, 3, 2, 3, 3, 2, 2, 0, 1, 2, 0, 1, 2, 0, 3, 0, 0, 1, 2, 1, 0, 0,
-        //         3, 0, 3, 0, 0, 3, 2, 1, 0, 2, 0, 3, 3, 1, 3, 0, 0, 2, 2, 0, 2, 1, 0, 1, 3, 3, 3, 0,
-        //         0, 0, 0, 3, 1, 3, 0, 2, 3, 2, 3, 1, 2, 1, 1, 3, 0, 1, 3, 0, 3, 2, 3, 1, 3, 1, 2, 0,
-        //         0, 1, 1, 0, 3, 2, 3, 3, 3, 2, 3, 0, 2, 3, 0, 2, 0, 0, 0, 3, 3, 0, 2, 1, 2, 1, 2, 1,
-        //         2, 2, 1, 3, 3, 2, 2, 1, 0, 3, 0, 0, 3, 3, 1, 0, 2, 1, 1, 2, 1, 1, 2, 2, 1, 0, 2, 2,
-        //         0, 0, 2, 3, 1, 1, 0, 1, 3, 0, 2, 1, 3, 0, 1, 0, 3, 0, 2, 3, 1, 0, 1, 3, 2, 3, 1, 1,
-        //         0, 0, 2, 2, 0, 1, 1, 0, 1, 3, 0, 1, 3, 3, 3, 3, 1, 3, 0, 1, 1, 0, 0, 0, 1, 0, 2, 3,
-        //         2, 3, 3, 1, 0, 3, 1, 0, 3, 1, 2, 3, 3, 1, 0, 2, 2, 3, 0, 3, 2, 0, 2, 2, 2, 0, 1, 1,
-        //         0, 1, 1, 1, 2, 2, 3, 3, 0, 0, 1, 1, 3, 3, 2, 2, 2, 3, 1, 1, 3, 1, 0, 2, 0, 3, 3, 0,
-        //         2, 2, 0, 0,
-        //     ]]),
-        //     Board::new(vec![vec![
-        //         3, 0, 3, 0, 0, 0, 3, 2, 3, 3, 2, 2, 0, 1, 2, 0, 1, 2, 0, 3, 0, 0, 1, 2, 1, 0, 0, 3,
-        //         0, 3, 0, 0, 3, 2, 1, 0, 2, 0, 3, 3, 1, 3, 0, 0, 2, 2, 0, 2, 1, 0, 1, 3, 3, 3, 0, 0,
-        //         0, 0, 3, 1, 3, 0, 2, 3, 2, 3, 1, 2, 1, 1, 3, 0, 1, 3, 0, 3, 2, 3, 1, 3, 1, 2, 0, 0,
-        //         1, 1, 0, 3, 2, 3, 3, 3, 2, 3, 0, 2, 3, 0, 2, 0, 0, 0, 3, 3, 0, 2, 1, 2, 1, 2, 1, 2,
-        //         2, 1, 3, 3, 2, 2, 1, 0, 3, 0, 0, 3, 3, 1, 0, 2, 1, 1, 2, 1, 1, 2, 2, 1, 0, 2, 2, 0,
-        //         0, 2, 3, 1, 1, 0, 1, 3, 0, 2, 1, 3, 0, 1, 0, 3, 0, 2, 3, 1, 0, 1, 3, 2, 3, 1, 1, 0,
-        //         0, 2, 2, 0, 1, 1, 0, 1, 3, 0, 1, 3, 3, 3, 3, 1, 3, 0, 1, 1, 0, 0, 0, 1, 0, 2, 3, 2,
-        //         3, 3, 1, 0, 3, 1, 0, 3, 1, 2, 3, 3, 1, 0, 2, 2, 3, 0, 3, 2, 0, 2, 2, 2, 0, 1, 1, 0,
-        //         1, 1, 1, 2, 2, 3, 3, 0, 0, 1, 1, 3, 3, 2, 2, 2, 3, 1, 1, 3, 1, 0, 2, 0, 3, 3, 0, 2,
-        //         2, 0, 0, 0,
-        //     ]]),
-        //     134,
-        // ),
-        // (Board::new(vec![vec![2], vec![3], vec![3], vec![0], vec![2], vec![1], vec![2], vec![3], vec![3], vec![3], vec![1], vec![0], vec![3], vec![2], vec![3], vec![0], vec![2], vec![3], vec![2], vec![0], vec![1], vec![1], vec![0], vec![1], vec![2], vec![0], vec![2], vec![2], vec![2], vec![2], vec![2], vec![3], vec![2], vec![2], vec![3], vec![1], vec![2], vec![3], vec![3], vec![0], vec![2], vec![0], vec![2], vec![2], vec![0], vec![3], vec![2], vec![3], vec![3], vec![1], vec![3], vec![2], vec![1], vec![1], vec![2], vec![2], vec![2], vec![3], vec![2], vec![2], vec![2], vec![3], vec![1], vec![2],]), Board::new(vec![vec![3], vec![3], vec![0], vec![1], vec![2], vec![0], vec![1], vec![0], vec![3], vec![2], vec![2], vec![1], vec![2], vec![3], vec![3], vec![3], vec![0], vec![2], vec![2], vec![3], vec![3], vec![3], vec![2], vec![2], vec![2], vec![2], vec![2], vec![2], vec![1], vec![3], vec![2], vec![2], vec![2], vec![1], vec![0], vec![1], vec![3], vec![3], vec![3], vec![3], vec![1], vec![0], vec![2], vec![0], vec![2], vec![2], vec![3], vec![2], vec![3], vec![1], vec![1], vec![3], vec![1], vec![2], vec![2], vec![0], vec![2], vec![2], vec![3], vec![0], vec![2], vec![2], vec![2], vec![2],]), 174),
-
-        // (Board::new(vec![vec![0], vec![0], vec![1], vec![0], vec![0], vec![1], vec![3], vec![0], vec![0], vec![1], vec![3], vec![1], vec![3], vec![1], vec![2], vec![0], vec![2], vec![3], vec![0], vec![3], vec![1], vec![2], vec![3], vec![2], vec![3], vec![0], vec![3], vec![3], vec![0], vec![2], vec![1], vec![1],]), Board::new(vec![vec![1], vec![2], vec![0], vec![2], vec![3], vec![0], vec![3], vec![1], vec![2], vec![3], vec![2], vec![3], vec![0], vec![3], vec![3], vec![0], vec![2], vec![1], vec![1], vec![0], vec![0], vec![1], vec![0], vec![0], vec![1], vec![3], vec![0], vec![0], vec![1], vec![3], vec![1], vec![3],]), 82),
+        (
+            Board::new(vec![vec![2], vec![1], vec![1], vec![2], vec![2]]),
+            Board::new(vec![vec![2], vec![2], vec![2], vec![1], vec![1]]),
+        ),
+        (
+            Board::new(vec![vec![0, 3, 0, 3]]),
+            Board::new(vec![vec![3, 0, 3, 0]]),
+        ),
     ];
+    let mut i = 0;
+    for (start, end) in test_cases {
+        println!("test case: {}", i);
+        i += 1;
+        test_get_fillone_action_score(start, end)
+    }
 
-    for (start, end, expected_score) in test_cases {
-        test_get_fillone_action_score(start, end, expected_score)
+    let mut rng = StdRng::seed_from_u64(42);
+    for _ in 0..1 {
+        let h = rng.gen_range(256..=256);
+        let w = rng.gen_range(256..=256);
+
+        let start = Board::new(random_board(h, w));
+        let end = shuffle_board(start.clone().board, 42);
+
+        // println!("random test case: h: {}, w: {}", h, w);
+        test_get_fillone_action_score(start, Board::new(end));
     }
 }
 
@@ -236,6 +166,10 @@ fn tests_actions_fillone() {
             Board::new(vec![vec![2], vec![1], vec![1], vec![2], vec![2]]),
             Board::new(vec![vec![2], vec![2], vec![2], vec![1], vec![1]]),
         ),
+        (
+            Board::new(vec![vec![0, 0, 1, 0, 3, 0]]),
+            Board::new(vec![vec![0, 3, 0, 1, 0, 0]]),
+        )
     ];
 
     for (start, end) in test_cases {
@@ -249,7 +183,7 @@ fn tests_actions_fillone() {
         let w = 256;
 
         let start = random_board(h, w);
-        let end = shuffle_board(start.clone(), 32);
+        let end = shuffle_board(start.clone(), 42);
 
         let start = Board::new(start);
         let end = Board::new(end);
@@ -258,8 +192,8 @@ fn tests_actions_fillone() {
     }
 
     for _ in 0..16 {
-        let h = rng.gen_range(1..32);
-        let w = rng.gen_range(1..32);
+        let h = rng.gen_range(1..128);
+        let w = rng.gen_range(1..128);
 
         let start = random_board(h, w);
         let end = shuffle_board(start.clone(), 42);

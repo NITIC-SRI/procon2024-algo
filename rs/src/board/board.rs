@@ -387,7 +387,7 @@ where
         i: usize,
     ) -> (bool, Vec<Action>) {
         let action = &actions[i - 1];
-        if consecutive > 1 && action.direction() == action::Direction::Left {
+        if action.direction() == action::Direction::Left {
             if action.x() == 0 && action.y() == 0 {
                 if consecutive == self.width() {
                     return (true, vec![]);
@@ -409,8 +409,8 @@ where
                     if j == '1' {
                         tmp_actions.push(Action::new(
                             action.x(),
-                            1 - 2_i32.pow(idx as u32),
-                            1 << idx,
+                            1 - (1 << idx),
+                            if idx == 0 { 0 } else { 1 + 3 * (idx - 1) } as u16,
                             action::Direction::Left,
                         ));
                     }
@@ -429,7 +429,7 @@ where
         i: usize,
     ) -> (bool, Vec<Action>) {
         let action = &actions[i - 1];
-        if consecutive > 1 && action.direction() == action::Direction::Up {
+        if action.direction() == action::Direction::Up {
             if consecutive == self.height() {
                 return (true, vec![]);
             } else {
@@ -470,24 +470,21 @@ where
             }
         }
         compressed_actions.push(actions[actions.len() - 1].clone());
-        if consecutive > 1 {
-            let (check, comp_action) = func(&self, &actions, consecutive, actions.len());
-            if check {
-                compressed_actions.splice(
-                    compressed_actions.len() - consecutive..,
-                    comp_action.iter().cloned(),
-                );
-            }
+        let (check, comp_action) = func(&self, &actions, consecutive, actions.len());
+        if check {
+            compressed_actions.splice(
+                compressed_actions.len() - consecutive..,
+                comp_action.iter().cloned(),
+            );
         }
         return compressed_actions;
     }
 
     fn compress_actions(&self, actions: &Vec<Action>) -> Vec<Action> {
-        let mut actions = self._compress_actions(actions, Self::_compress_left);
-        if actions.len() > 1 {
-            actions = self._compress_actions(&actions, Self::_compress_rowup);
-        }
-        return actions;
+        let mut comped_actions: Vec<Action>;
+        comped_actions = self._compress_actions(actions, Self::_compress_left);
+        comped_actions = self._compress_actions(&comped_actions, Self::_compress_rowup);
+        return comped_actions;
     }
 
     pub fn get_fillone_actions(&self, end: &Self) -> Vec<Action> {
@@ -549,7 +546,7 @@ where
             actions.push(Action::new(0, -255, 22, action::Direction::Up));
         }
 
-        // actions = self.compress_actions(&actions);
+        actions = self.compress_actions(&actions);
 
         actions
     }
@@ -557,7 +554,7 @@ where
     pub fn get_fillone_action_score(&self, end: &Self) -> usize {
         let mut count: usize = 0;
         let mut continue_count: usize = 1;
-        let mut rowup_continue_count: usize = 1;
+        let mut rowup_continue_count: usize = 0;
         let mut before_action = Action::new(256, 256, 0, action::Direction::Up);
 
         let mut new = self.clone();
@@ -574,9 +571,9 @@ where
                         if end.board[y][x] == new.board[0][w] {
                             new.op_one_left(w as i32, 0 as i32);
                             count += 1;
-                            if cfg!(debug_assertions) {
-                                println!("Action left {}, {}", w, 0);
-                            }
+                            // if cfg!(debug_assertions) {
+                            //     println!("Action left {}, {}", w, 0);
+                            // }
 
                             let tmp = Action::new(w as i32, 0, 0, action::Direction::Left);
 
@@ -604,10 +601,10 @@ where
                                 new.op_one_left(w as i32, 0 as i32);
                                 count += 2;
 
-                                if cfg!(debug_assertions) {
-                                    println!("Action down {}, {}", w, h);
-                                    println!("Action left {}, {}", w, 0);
-                                }
+                                // if cfg!(debug_assertions) {
+                                //     println!("Action down {}, {}", w, h);
+                                //     println!("Action left {}, {}", w, 0);
+                                // }
 
                                 count = self.calc_complesed_action_num(
                                     count,
@@ -633,11 +630,11 @@ where
                                 new.op_one_left(0 as i32, 0 as i32);
                                 count += 3;
 
-                                if cfg!(debug_assertions) {
-                                    println!("Action right {}, {}", w, h);
-                                    println!("Action down {}, {}", 0, h);
-                                    println!("Action left {}, {}", 0, 0);
-                                }
+                                // if cfg!(debug_assertions) {
+                                //     println!("Action right {}, {}", w, h);
+                                //     println!("Action down {}, {}", 0, h);
+                                //     println!("Action left {}, {}", 0, 0);
+                                // }
 
                                 count = self.calc_complesed_action_num(
                                     count,
@@ -658,10 +655,10 @@ where
             new.op_row_up();
             count += 1;
 
-            if cfg!(debug_assertions) {
-                println!("Action row_up {}, {}", 0, 0);
-                println!();
-            }
+            // if cfg!(debug_assertions) {
+            //     println!("Action row_up {}, {}", 0, 0);
+            //     println!();
+            // }
 
             count = self.calc_complesed_action_num(count, before_action, continue_count);
 
@@ -671,7 +668,9 @@ where
             if skip_flag {
                 rowup_continue_count += 1;
             } else {
-                count = count + 1 - rowup_continue_count;
+                if rowup_continue_count != 0 {
+                    count = count + 1 - rowup_continue_count;
+                }
                 rowup_continue_count = 1;
             }
         }
