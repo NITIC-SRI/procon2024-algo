@@ -710,7 +710,7 @@ where
         unimplemented!()
     }
 
-    pub fn weighted_absolute_distance(&self, end: &Self, turn: usize) -> u64 {
+    pub fn weighted_absolute_distance(&self, end: &Self, turn: usize, val: i32, span: i32) -> u64 {
         let mut score = 0;
         for h in 0..self.height() {
             for w in 0..self.width() {
@@ -718,9 +718,9 @@ where
                 let mut distance = (h as i32 - self.height() as i32 / 2).pow(2)
                     + (w as i32 - self.width() as i32 / 2).pow(2);
                 distance = (distance as f64).sqrt() as i32;
-                if distance * 5 <= turn as i32 {
+                if distance * span <= turn as i32 {
                     if self.board()[h][w] == end.board()[h][w] {
-                        score += ((5 - distance) * (5 - distance) * (5 - distance) * (5 - distance))
+                        score += ((val - distance) * (val - distance) * (val - distance) * (val - distance))
                             as u64;
                     }
                 } else {
@@ -777,7 +777,7 @@ where
         let mut zero = 1.0;
         for h in 0..self.height() {
             for w in 0..self.width() {
-                if h<8 {
+                if h<self.height()-3 && w<self.width()-3 {
                     continue;
                 }
                 if self.board()[h][w] == end.board()[h][w] {
@@ -797,6 +797,7 @@ where
         end: &Self,
         turn: usize,
         before_board: &Self,
+        val: i32,
     ) -> u64 {
         let mut score = 0;
         for h in 0..self.height() {
@@ -812,11 +813,11 @@ where
                     continue;
                 }
                 if self.board()[h][w] == end.board()[h][w] {
-                    score += ((17 - distance) * (17 - distance)) as u64;
+                    score += ((val - distance) * (val - distance)) as u64;
                 } else if self.board()[h][w] == end.board()[h][w]
                     && before_board.board()[h][w] != end.board()[h][w]
                 {
-                    score += ((17 - distance) * (17 - distance)) as u64;
+                    score += ((val - distance) * (val - distance)) as u64;
                 }
             }
         }
