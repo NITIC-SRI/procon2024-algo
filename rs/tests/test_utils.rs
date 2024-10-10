@@ -3,9 +3,6 @@ use rs::board::board::Board;
 use rs::board::cut::Cuts;
 use rs::utils::{export_actions, get_actions};
 
-use std::collections::HashSet;
-use std::fs::File;
-use std::io::{self, BufReader, Read, Write};
 use std::vec;
 
 #[test]
