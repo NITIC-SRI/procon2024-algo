@@ -191,7 +191,6 @@ pub fn read_actions(path: String) -> Vec<Action> {
 
 
 pub fn random_general_cut(h: u32, w: u32) -> Vec<String> {
-    let mut rng = rand::thread_rng();
     // 0がw個並んだものをh個並べる
     let mut general_cut = Vec::new();
     let mut rng = rand::thread_rng();

@@ -37,7 +37,7 @@ fn main() {
     let mut cnt = 0;
     for k in 5..9 {
         cnt += 1;
-        for cnt in 0..4 {
+        for _ in 0..4 {
             let size = 2u32.pow(k);
             let start = Board::new(utils::random_board(size, size));
             let end = Board::new(utils::shuffle_board(start.board.clone(), cnt));
