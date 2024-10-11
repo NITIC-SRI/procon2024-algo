@@ -25,7 +25,7 @@ cargo doc --open
 json-server --watch ./data/test.json
 ```
 
-'http://localhost:3000/{番号}`にアクセスすると本番の仕様と同じ形式でデータが取得できる。
+`http://localhost:3000/{番号}`にアクセスすると本番の仕様と同じ形式でデータが取得できる。
 
 #### json-serverのインストール
 ```bash
