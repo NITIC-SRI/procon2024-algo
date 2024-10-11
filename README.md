@@ -18,3 +18,13 @@
 cd rs
 cargo doc --open
 ```
+
+### 評価用APIの使い方
+以下のコマンドでサーバーが立ち上がる。
+```bash
+json-server --watch ./data/test.json
+```
+
+'http://localhost:3000/{番号}`にアクセスすると本番の仕様と同じ形式でデータが取得できる。
+
+
