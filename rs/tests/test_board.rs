@@ -106,7 +106,11 @@ fn test_get_fillone_action_score(start: Board, end: Board) {
         actions = new.get_fillone_actions(&end);
         actions.len()
     };
-    assert_eq!(res, expected_score, "res: {}, expected: {}", res, expected_score);
+    assert_eq!(
+        res, expected_score,
+        "res: {}, expected: {}",
+        res, expected_score
+    );
 }
 
 #[test]
@@ -169,7 +173,7 @@ fn tests_actions_fillone() {
         (
             Board::new(vec![vec![0, 0, 1, 0, 3, 0]]),
             Board::new(vec![vec![0, 3, 0, 1, 0, 0]]),
-        )
+        ),
     ];
 
     for (start, end) in test_cases {

@@ -50,7 +50,10 @@ where
             println!("i: {}", i);
             println!("action: {:?}", action);
             println!("{}", game.state().board);
-            println!("score: {}", game.state().board.absolute_distance(&game.end()));
+            println!(
+                "score: {}",
+                game.state().board.absolute_distance(&game.end())
+            );
         }
         if game.state().board == *game.end() {
             break;

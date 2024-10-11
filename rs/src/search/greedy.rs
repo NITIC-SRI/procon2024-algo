@@ -1,7 +1,7 @@
+use super::game::{Game, State};
 use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
-use super::game::{State, Game};
 
 pub const SCORE_MAX: u64 = 1000000;
 pub struct GreedyGame<'a> {

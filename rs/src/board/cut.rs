@@ -71,7 +71,6 @@ impl Cuts {
     }
 }
 
-
 impl Index<u32> for Cuts {
     type Output = Cut;
 

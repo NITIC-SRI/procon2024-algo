@@ -1,12 +1,11 @@
 use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
-use rand::{self, Rng};
-use serde::{Deserialize, Serialize};
-
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
+use rand::{self, Rng};
+use serde::{Deserialize, Serialize};
 
 use ahash::AHashSet as HashSet;
 
@@ -17,8 +16,6 @@ struct ActionFormat {
     y: i32,
     s: String,
 }
-
-
 
 #[derive(Serialize, Deserialize)]
 struct ActionsFormat {
@@ -189,7 +186,6 @@ pub fn read_actions(path: String) -> Vec<Action> {
     actions
 }
 
-
 pub fn random_general_cut(h: u32, w: u32) -> Vec<String> {
     // 0がw個並んだものをh個並べる
     let mut general_cut = Vec::new();
@@ -204,4 +200,32 @@ pub fn random_general_cut(h: u32, w: u32) -> Vec<String> {
     }
 
     general_cut
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Data {
+    pub board: TestBoard,
+    pub general: TestGeneral,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct TestBoard {
+    pub width: u32,
+    pub height: u32,
+    pub start: Vec<String>,
+    pub goal: Vec<String>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct TestGeneral {
+    pub n: u32,
+    pub pattern: Vec<Pattern>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Pattern {
+    pub p: u32,
+    pub width: u32,
+    pub height: u32,
+    pub cells: Vec<String>,
 }

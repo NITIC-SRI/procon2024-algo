@@ -1,11 +1,11 @@
-use std::collections::VecDeque;
-use std::convert::Into;
-use std::fmt::{Debug, Display};
 use crate::board::action;
 use crate::board::action::Action;
 use crate::board::cut::{Cut, Cuts};
-use std::vec;
 use serde::{Deserialize, Serialize};
+use std::collections::VecDeque;
+use std::convert::Into;
+use std::fmt::{Debug, Display};
+use std::vec;
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Board<T = u8>
@@ -719,8 +719,10 @@ where
                 distance = (distance as f64).sqrt() as i32;
                 if distance * span <= turn as i32 {
                     if self.board()[h][w] == end.board()[h][w] {
-                        score += ((val - distance) * (val - distance) * (val - distance) * (val - distance))
-                            as u64;
+                        score += ((val - distance)
+                            * (val - distance)
+                            * (val - distance)
+                            * (val - distance)) as u64;
                     }
                 } else {
                     if self.board()[h][w] != end.board()[h][w] {
@@ -776,7 +778,7 @@ where
         let mut zero = 1.0;
         for h in 0..self.height() {
             for w in 0..self.width() {
-                if h<self.height()-3 && w<self.width()-3 {
+                if h < self.height() - 3 && w < self.width() - 3 {
                     continue;
                 }
                 if self.board()[h][w] == end.board()[h][w] {
