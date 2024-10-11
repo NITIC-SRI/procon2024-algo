@@ -1,35 +1,7 @@
 use rand::Rng;
 use rs::board::board::Board;
 use rs::utils;
-use serde::{Deserialize, Serialize};
-
-#[derive(Deserialize, Serialize)]
-struct Test {
-    board: TestBoard,
-    general: TestGeneral,
-}
-
-#[derive(Deserialize, Serialize)]
-struct TestBoard {
-    width: u32,
-    height: u32,
-    start: Vec<String>,
-    goal: Vec<String>,
-}
-
-#[derive(Deserialize, Serialize)]
-struct TestGeneral {
-    n: u32,
-    pattern: Vec<Pattern>,
-}
-
-#[derive(Deserialize, Serialize)]
-struct Pattern {
-    p: u32,
-    width: u32,
-    height: u32,
-    cells: Vec<String>,
-}
+use rs::utils::{Pattern, Data, TestBoard, TestGeneral};
 
 fn main() {
     let mut testcases = vec![];
@@ -55,7 +27,7 @@ fn main() {
                 general_cuts.push(pattern);
             }
 
-            let test = Test {
+            let test = Data {
                 board: TestBoard {
                     width: size,
                     height: size,
