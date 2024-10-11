@@ -1,7 +1,7 @@
 use rand::Rng;
 use rs::board::board::Board;
 use rs::utils;
-use rs::utils::{Pattern, Data, TestBoard, TestGeneral};
+use rs::utils::{Data, Pattern, TestBoard, TestGeneral};
 
 fn main() {
     let mut testcases = vec![];
@@ -32,7 +32,7 @@ fn main() {
                     width: size,
                     height: size,
                     start: board_to_string(&start),
-                    goal: board_to_string(&end)
+                    goal: board_to_string(&end),
                 },
                 general: TestGeneral {
                     n: num_general_cuts,
@@ -40,18 +40,22 @@ fn main() {
                 },
             };
 
-			testcases.push(test);
+            testcases.push(test);
         }
     }
-	let json = serde_json::to_string(&testcases).unwrap();
-	let path = "./test.json".to_string();
-	std::fs::write(path, json).expect("Unable to write file");
+    let json = serde_json::to_string(&testcases).unwrap();
+    let path = "./test.json".to_string();
+    std::fs::write(path, json).expect("Unable to write file");
 }
 
 fn board_to_string(board: &Board<u8>) -> Vec<String> {
     let mut board_str = vec![];
     for row in &board.board {
-        let row_str = row.iter().map(|&x| x.to_string()).collect::<Vec<String>>().join("");
+        let row_str = row
+            .iter()
+            .map(|&x| x.to_string())
+            .collect::<Vec<String>>()
+            .join("");
         board_str.push(row_str);
     }
     board_str

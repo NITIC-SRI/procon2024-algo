@@ -13,7 +13,12 @@ pub struct FilloneGreedyGame<'a> {
 }
 
 impl<'a> Game<'a> for FilloneGreedyGame<'a> {
-    fn new(board: Board, cuts: &'a Cuts, end: &'a Board, legal_actions: &'a Vec<Action>) -> FilloneGreedyGame<'a> {
+    fn new(
+        board: Board,
+        cuts: &'a Cuts,
+        end: &'a Board,
+        legal_actions: &'a Vec<Action>,
+    ) -> FilloneGreedyGame<'a> {
         FilloneGreedyGame {
             state: State::new(board),
             cuts,
