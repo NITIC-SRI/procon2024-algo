@@ -188,3 +188,21 @@ pub fn read_actions(path: String) -> Vec<Action> {
     }
     actions
 }
+
+
+pub fn random_general_cut(h: u32, w: u32) -> Vec<String> {
+    let mut rng = rand::thread_rng();
+    // 0がw個並んだものをh個並べる
+    let mut general_cut = Vec::new();
+    let mut rng = rand::thread_rng();
+
+    for _ in 0..h {
+        let mut row = Vec::new();
+        for _ in 0..w {
+            row.push(rng.gen_range(0..2).to_string());
+        }
+        general_cut.push(row.join(""));
+    }
+
+    general_cut
+}
