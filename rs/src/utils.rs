@@ -1,9 +1,9 @@
-use std::hash::{Hash, Hasher};
 use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
 use rand::{self, Rng};
 use serde::{Deserialize, Serialize};
+use std::hash::{Hash, Hasher};
 
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
@@ -19,8 +19,6 @@ struct ActionFormat {
     y: i32,
     s: String,
 }
-
-
 
 #[derive(Serialize, Deserialize)]
 struct ActionsFormat {
@@ -158,12 +156,10 @@ pub fn get_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Action> {
 
                     saw.insert(new_board_hash);
                     actions.push(action);
-                    }
                 }
             }
         }
     }
-
     actions
 }
 
@@ -189,7 +185,6 @@ pub fn read_actions(path: String) -> Vec<Action> {
     }
     actions
 }
-
 
 pub fn random_general_cut(h: u32, w: u32) -> Vec<String> {
     // 0がw個並んだものをh個並べる
