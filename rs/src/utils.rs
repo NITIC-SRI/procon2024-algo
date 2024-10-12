@@ -1,21 +1,15 @@
-use std::future::Future;
-use std::hash::{Hash, Hasher};
-
 use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
 use rand::{self, Rng};
 use serde::{Deserialize, Serialize};
+use std::hash::{Hash, Hasher};
 
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 
 use ahash::AHashSet as HashSet;
-
-use genawaiter::sync::{gen, Gen};
-use genawaiter::yield_;
-
 use std::collections::hash_map::DefaultHasher;
 
 #[derive(Serialize, Deserialize)]
@@ -119,58 +113,54 @@ pub fn shuffle_board(mut board: Vec<Vec<u8>>, seed: u64) -> Vec<Vec<u8>> {
     board
 }
 
-pub fn get_actions<'a>(
-    h_size: usize,
-    w_size: usize,
-    cuts: &'a Cuts,
-) -> Gen<Action, (), impl Future<Output = ()> + 'a> {
-    gen!({
-        let mut saw = HashSet::with_capacity(10000); // HashSetの容量も事前確保
+pub fn get_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Action> {
+    let mut actions = Vec::with_capacity(10000); // 容量を事前に確保
+    let mut saw = HashSet::with_capacity(10000); // HashSetの容量も事前確保
 
-        let mut board_vec: Vec<Vec<usize>> = vec![vec![0; w_size]; h_size];
-        for h in 0..h_size {
-            for w in 0..w_size {
-                board_vec[h][w] = w + h * w_size;
+    let mut board_vec: Vec<Vec<usize>> = vec![vec![0; w_size]; h_size];
+    for h in 0..h_size {
+        for w in 0..w_size {
+            board_vec[h][w] = w + h * w_size;
+        }
+    }
+    let board: Board<usize> = Board::new(board_vec);
+
+    for i in 0..cuts.len() {
+        if i >= 3 && i < 25 {
+            let cut = &cuts[i as u32 - 3];
+            if cut.width() >= w_size || cut.height() >= h_size {
+                break;
             }
         }
-        let board: Board<usize> = Board::new(board_vec);
 
-        for i in 0..cuts.len() {
-            if i >= 3 && i < 25 {
-                let cut = &cuts[i as u32 - 3];
-                if cut.width() >= w_size || cut.height() >= h_size {
-                    break;
-                }
-            }
+        let cut = &cuts[i as u32];
+        let cut_w = cut.width() as i32;
+        let cut_h = cut.height() as i32;
 
-            let cut = &cuts[i as u32];
-            let cut_w = cut.width() as i32;
-            let cut_h = cut.height() as i32;
+        for w in (1 - cut_w)..(w_size as i32) {
+            for h in (1 - cut_h)..(h_size as i32) {
+                for d in vec![
+                    Direction::Left,
+                    Direction::Right,
+                    Direction::Up,
+                    Direction::Down,
+                ] {
+                    let action = Action::new(w, h, i as u16, d);
+                    let mut new_board = board.clone();
 
-            for w in (1 - cut_w)..(w_size as i32) {
-                for h in (1 - cut_h)..(h_size as i32) {
-                    for d in vec![
-                        Direction::Left,
-                        Direction::Right,
-                        Direction::Up,
-                        Direction::Down,
-                    ] {
-                        let action = Action::new(w, h, i as u16, d);
-                        let mut new_board = board.clone();
-
-                        new_board.operate(&action, cuts);
-                        let new_board_hash = calculate_hash(&new_board);
-                        if new_board == board || saw.contains(&new_board_hash) {
-                            continue;
-                        }
-
-                        saw.insert(new_board_hash);
-                        yield_!(action);
+                    new_board.operate(&action, cuts);
+                    let new_board_hash = calculate_hash(&new_board);
+                    if new_board == board || saw.contains(&new_board_hash) {
+                        continue;
                     }
+
+                    saw.insert(new_board_hash);
+                    actions.push(action);
                 }
             }
         }
-    })
+    }
+    actions
 }
 
 pub fn read_actions(path: String) -> Vec<Action> {

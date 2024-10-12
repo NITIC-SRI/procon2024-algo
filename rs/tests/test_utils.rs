@@ -33,7 +33,7 @@ fn test_get_actions() {
     let cuts = Cuts::new("../data/formal_cuts.json".to_string());
     let actions = get_actions(16, 16, &cuts);
     // magic number
-    assert_eq!(14072, actions.into_iter().count());
+    assert_eq!(14072, actions.len());
 }
 
 // #[test]
