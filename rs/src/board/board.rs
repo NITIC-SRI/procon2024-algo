@@ -552,6 +552,10 @@ where
         actions
     }
 
+    pub fn get_fillone_score_intermediate(&self, end:&Self, row_num:usize, col_num:usize) -> usize {
+        unimplemented!()
+    }
+
     pub fn get_fillone_action_score(&self, end: &Self) -> usize {
         let mut count: usize = 0;
         let mut continue_count: usize = 1;
