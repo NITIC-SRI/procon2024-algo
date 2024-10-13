@@ -116,7 +116,6 @@ pub fn shuffle_board(mut board: Vec<Vec<u8>>, seed: u64) -> Vec<Vec<u8>> {
 pub fn get_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Action> {
     let mut actions = Vec::with_capacity(10000); // 容量を事前に確保
     let mut saw = HashSet::with_capacity(10000); // HashSetの容量も事前確保
-    let mut prev_count = 0;
 
     let mut board_vec: Vec<Vec<usize>> = vec![vec![0; w_size]; h_size];
     for h in 0..h_size {
@@ -149,8 +148,6 @@ pub fn get_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Action> {
                     let action = Action::new(w, h, i as u16, d);
                     let mut new_board = board.clone();
 
-                    prev_count += 1;
-
                     new_board.operate(&action, cuts);
                     let new_board_hash = calculate_hash(&new_board);
                     if new_board == board || saw.contains(&new_board_hash) {
@@ -163,7 +160,6 @@ pub fn get_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Action> {
             }
         }
     }
-    println!("size {}, prev_count: {}", h_size, prev_count);
     actions
 }
 
