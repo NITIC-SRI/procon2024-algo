@@ -488,11 +488,7 @@ where
         return comped_actions;
     }
 
-    fn _get_fillone_actions(&self, end: &Self) -> Vec<Action> {
-        unimplemented!();
-    }
-
-    pub fn get_fillone_actions(&self, end: &Self) -> Vec<Action> {
+    pub fn _get_fillone_actions(&self, end: &Self, is_compress: bool) -> Vec<Action> {
         let mut actions = vec![];
         let mut new = self.clone();
 
@@ -551,13 +547,15 @@ where
             actions.push(Action::new(0, -255, 22, action::Direction::Up));
         }
 
-        actions = self.compress_actions(&actions);
-
+        if is_compress {
+            actions = self.compress_actions(&actions)
+        }
         actions
     }
 
-    pub fn get_fillone_score_intermediate(&self, end:&Self, row_num:usize, col_num:usize) -> usize {
-        unimplemented!()
+    pub fn get_fillone_actions(&self, end: &Self) -> Vec<Action> {
+        self._get_fillone_actions(end, true)
+    }
     }
 
     pub fn get_fillone_action_score(&self, end: &Self) -> usize {
