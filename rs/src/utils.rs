@@ -1,6 +1,8 @@
 use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
+use std::hash::{Hash, Hasher};
+
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
@@ -8,6 +10,7 @@ use rand::{self, Rng};
 use serde::{Deserialize, Serialize};
 
 use ahash::AHashSet as HashSet;
+use std::collections::hash_map::DefaultHasher;
 
 #[derive(Serialize, Deserialize)]
 struct ActionFormat {
@@ -146,20 +149,17 @@ pub fn get_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Action> {
                     let mut new_board = board.clone();
 
                     new_board.operate(&action, cuts);
-                    if new_board == board {
-                        continue;
-                    }
-                    if new_board == board || saw.contains(&new_board) {
+                    let new_board_hash = calculate_hash(&new_board);
+                    if new_board == board || saw.contains(&new_board_hash) {
                         continue;
                     }
 
-                    saw.insert(new_board);
+                    saw.insert(new_board_hash);
                     actions.push(action);
                 }
             }
         }
     }
-
     actions
 }
 
@@ -200,6 +200,12 @@ pub fn random_general_cut(h: u32, w: u32) -> Vec<String> {
     }
 
     general_cut
+}
+
+fn calculate_hash<T: Hash>(t: &T) -> u64 {
+    let mut hasher = DefaultHasher::new();
+    t.hash(&mut hasher);
+    hasher.finish()
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
