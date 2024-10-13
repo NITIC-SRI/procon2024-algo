@@ -488,6 +488,10 @@ where
         return comped_actions;
     }
 
+    fn _get_fillone_actions(&self, end: &Self) -> Vec<Action> {
+        unimplemented!();
+    }
+
     pub fn get_fillone_actions(&self, end: &Self) -> Vec<Action> {
         let mut actions = vec![];
         let mut new = self.clone();
