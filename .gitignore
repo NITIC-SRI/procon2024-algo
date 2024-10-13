@@ -166,3 +166,5 @@ cython_debug/
 node_modules/
 
 .tmp/
+
+data/compress_actions
