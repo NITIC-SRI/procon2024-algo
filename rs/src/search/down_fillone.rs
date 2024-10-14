@@ -33,3 +33,18 @@ pub fn get_action_by_direction(legal_actions: &Vec<Action>, direction: Direction
 	}
 	down_only
 }
+
+pub fn down_greedy_action(now_board: &Board, end: &Board, down_only_legal_actions: &Vec<Action>, cuts: &Cuts) -> Action {
+    let mut min_distance = 100000;
+    let mut min_action = down_only_legal_actions[0].clone();
+    
+    for action in down_only_legal_actions {
+        let next_board = now_board.clone().operate(action, cuts);
+        let distance = next_board.top_priority_distance(&end);
+        if distance < min_distance {
+            min_distance = distance;
+            min_action = action.clone();
+        }
+    }
+    min_action
+}
