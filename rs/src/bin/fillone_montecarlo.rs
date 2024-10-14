@@ -1,6 +1,6 @@
 use rs::board::cut::Cuts;
+use rs::search::fillone_montecarlo;
 use rs::search::game::{play, Game};
-use rs::search::{fillone_greedy, fillone_montecarlo};
 use rs::{board::board::Board, utils};
 
 fn main() {
