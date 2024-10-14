@@ -97,6 +97,49 @@ fn test_op_right() {
     assert_eq!(start, end);
 }
 
+#[test]
+fn test_check_progress() {
+    let test_cases: Vec<(Board<u8>, Board<u8>, usize, usize)> = vec![
+        (
+            Board::new(vec![
+                vec![4, 5, 1, 2, 3],
+                vec![6, 7, 8, 9, 0],
+                vec![0, 0, 0, 0, 0],
+                vec![1, 1, 1, 1, 1],
+            ]),
+            Board::new(vec![
+                vec![0, 0, 0, 0, 0],
+                vec![1, 1, 1, 1, 1],
+                vec![1, 2, 3, 4, 5],
+                vec![6, 7, 8, 9, 0],
+            ]),
+            2,
+            3,
+        ),
+        (
+            Board::new(vec![
+                vec![2, 2, 2, 2, 2],
+                vec![3, 3, 3, 3, 3],
+                vec![0, 0, 0, 0, 0],
+                vec![1, 1, 1, 1, 1],
+            ]),
+            Board::new(vec![
+                vec![0, 0, 0, 0, 0],
+                vec![1, 1, 1, 1, 1],
+                vec![2, 2, 2, 2, 2],
+                vec![3, 3, 3, 3, 3],
+            ]),
+            2,
+            5,
+        ),
+    ];
+
+    for (start, end, row_num, col_num) in test_cases {
+        let res = start.check_progress(&end);
+        assert_eq!(res, (row_num, col_num));
+    }
+}
+
 fn test_get_fillone_action_score(start: Board, end: Board) {
     let res = start.get_fillone_action_score(&end);
     let actions: Vec<Action>;
