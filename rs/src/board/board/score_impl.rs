@@ -150,4 +150,18 @@ where
 
         score
     }
+    
+    pub fn hello() {
+        println!("hello");
+    }
+    
+    pub fn top_first_distance(&self, end: &Self) -> u64 {
+        let mut distance = 0;
+        for w in 0..self.width() {
+            if self.board()[0][w] != end.board()[0][w] {
+                distance += 1;
+            }
+        }
+        distance
+    }
 }
