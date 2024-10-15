@@ -1,3 +1,4 @@
+pub mod down_fillone;
 pub mod fillone_greedy;
 pub mod fillone_montecarlo;
 pub mod game;

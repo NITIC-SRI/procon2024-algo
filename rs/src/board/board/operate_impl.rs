@@ -297,7 +297,7 @@ where
         self.board[y as usize][0] = e;
     }
 
-    pub(super) fn op_row_up(&mut self) {
+    pub fn op_row_up(&mut self) {
         let last = self.board[0].clone();
         for h in 0..(self.height() - 1) {
             self.board[h] = self.board[h + 1].clone();

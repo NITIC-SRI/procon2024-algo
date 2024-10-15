@@ -150,4 +150,35 @@ where
 
         score
     }
+
+    // diffは揃っていない箇所のインデックス
+    pub fn top_first_distance(&self, end: &Self, usable_height: usize) -> (u64, Vec<usize>) {
+        let mut distance = 0;
+        // 揃っていないところを保存
+        let mut diff = vec![];
+        for w in 0..self.width() {
+            if self.board()[0][w] != end.board()[self.height() - usable_height][w] {
+                distance += 1;
+                diff.push(w);
+            }
+        }
+        (distance, diff)
+    }
+
+    pub fn match_x_direction_score(
+        self,
+        end: &Self,
+        diff: &Vec<usize>,
+        usable_height: usize,
+    ) -> u64 {
+        let mut distance = 0;
+        for &d in diff {
+            for h in 1..usable_height {
+                if self.board[h][d] != end.board[self.height() - usable_height][d] {
+                    distance += 1;
+                }
+            }
+        }
+        distance
+    }
 }
