@@ -6,6 +6,7 @@ use std::convert::Into;
 use std::fmt::Debug;
 use std::vec;
 
+// 圧縮
 impl<T> Board<T>
 where
     T: Copy + PartialEq + Into<usize> + Debug,
@@ -138,7 +139,13 @@ where
         comped_actions = self._compress_actions(&comped_actions, Self::_compress_rowup);
         return comped_actions;
     }
+}
 
+// fillone本体
+impl<T> Board<T>
+where
+    T: Copy + PartialEq + Into<usize> + Debug,
+{
     pub fn _get_fillone_actions(&self, end: &Self, is_compress: bool) -> Vec<Action> {
         let mut actions = vec![];
         let mut new = self.clone();
