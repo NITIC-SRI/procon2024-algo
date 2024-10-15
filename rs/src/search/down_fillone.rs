@@ -8,8 +8,9 @@ pub fn play<'a>(
     legal_actions: &Vec<Action>,
     cuts: &Cuts,
 ) -> Vec<Action> {
-    let (down_only_actions, x_only_actions) =
-        get_action_by_direction(&legal_actions, Direction::Down);
+    let mut cuts = cuts.clone();
+    cuts.delete_only_zero_bottoms();
+    let (down_only_actions, x_only_actions) = get_action_by_direction(&legal_actions);
 
     let mut actions = Vec::new();
     let mut now_board = start.clone();
