@@ -352,28 +352,26 @@ where
         let s_vec = self.board();
         let e_vec = end.board();
         let row_count = {
-            let mut tmp_row_count = 0;
-            for ev in e_vec.iter().rev() {
-                if ev == &s_vec[h - tmp_row_count - 1] {
-                    tmp_row_count += 1;
-                } else {
-                    tmp_row_count = 0
+            let mut row_count = 0;
+            for tmp_row_count in (1..=h).rev() {
+                if e_vec[..tmp_row_count] == s_vec[h - tmp_row_count..] {
+                    row_count = tmp_row_count;
+                    break;
                 }
             }
-            tmp_row_count
+            row_count
         };
 
         let col_count = {
-            let mut tmp_col_count = 0;
+            let mut col_count = 0;
             let erow = &e_vec[row_count];
-            for ec in erow.iter().rev() {
-                if ec == &s_vec[0][w - tmp_col_count - 1] {
-                    tmp_col_count += 1;
-                } else {
-                    tmp_col_count = 0
+            for tmp_col_count in (1..=w).rev() {
+                if erow[..tmp_col_count] == s_vec[0][w - tmp_col_count..] {
+                    col_count = tmp_col_count;
+                    break;
                 }
             }
-            tmp_col_count
+            col_count
         };
         (row_count, col_count)
     }
