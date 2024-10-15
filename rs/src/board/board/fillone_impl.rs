@@ -214,7 +214,8 @@ where
     pub fn get_fillone_actions(&self, end: &Self) -> Vec<Action> {
         self._get_fillone_actions(end, true)
     }
-    pub fn get_fillone_action_score(&self, end: &Self) -> usize {
+
+    fn inner_fillone_scores(&self, end: &Self, row_num: usize, col_num: usize) -> usize {
         let mut count: usize = 0;
         let mut continue_count: usize = 1;
         let mut rowup_continue_count: usize = 0;
@@ -223,20 +224,22 @@ where
         let mut new = self.clone();
 
         // 終盤面についてのループ
-        for y in 0..self.height() {
+        for y in row_num..self.height() {
             // skip_flag: 上の行がすでにそろっていたらtrue
             let mut skip_flag = true;
+            let col_num = if row_num == y { col_num } else { 0 };
             if end.board[y] != new.board[0] {
                 skip_flag = false;
-                'loop_x: for x in 0..self.width() {
+                'loop_x: for x in col_num..self.width() {
                     // 一番上の行についてのループ
                     for w in 0..(self.width() - x) {
                         if end.board[y][x] == new.board[0][w] {
                             new.op_one_left(w as i32, 0 as i32);
                             count += 1;
-                            // if cfg!(debug_assertions) {
-                            //     println!("Action left {}, {}", w, 0);
-                            // }
+
+                            if cfg!(debug_assertions) {
+                                println!("Action left {}, {}", w, 0);
+                            }
 
                             let tmp = Action::new(w as i32, 0, 0, action::Direction::Left);
 
@@ -264,10 +267,10 @@ where
                                 new.op_one_left(w as i32, 0 as i32);
                                 count += 2;
 
-                                // if cfg!(debug_assertions) {
-                                //     println!("Action down {}, {}", w, h);
-                                //     println!("Action left {}, {}", w, 0);
-                                // }
+                                if cfg!(debug_assertions) {
+                                    println!("Action down {}, {}", w, h);
+                                    println!("Action left {}, {}", w, 0);
+                                }
 
                                 count = self.calc_complesed_action_num(
                                     count,
@@ -293,11 +296,11 @@ where
                                 new.op_one_left(0 as i32, 0 as i32);
                                 count += 3;
 
-                                // if cfg!(debug_assertions) {
-                                //     println!("Action right {}, {}", w, h);
-                                //     println!("Action down {}, {}", 0, h);
-                                //     println!("Action left {}, {}", 0, 0);
-                                // }
+                                if cfg!(debug_assertions) {
+                                    println!("Action right {}, {}", w, h);
+                                    println!("Action down {}, {}", 0, h);
+                                    println!("Action left {}, {}", 0, 0);
+                                }
 
                                 count = self.calc_complesed_action_num(
                                     count,
@@ -315,13 +318,13 @@ where
                     }
                 }
             }
+
             new.op_row_up();
             count += 1;
-
-            // if cfg!(debug_assertions) {
-            //     println!("Action row_up {}, {}", 0, 0);
-            //     println!();
-            // }
+            if cfg!(debug_assertions) {
+                println!("Action row_up {}, {}", 0, 0);
+                println!();
+            }
 
             count = self.calc_complesed_action_num(count, before_action, continue_count);
 
@@ -344,7 +347,14 @@ where
             count = count + 1 - rowup_continue_count;
         }
 
+        if cfg!(debug_assertions) {
+            println!("new: {:?}", new);
+        }
         return count;
+    }
+
+    pub fn get_fillone_action_score(&self, end: &Self) -> usize {
+        self.inner_fillone_scores(end, 0, 0)
     }
 
     pub fn check_progress(&self, end: &Self) -> (usize, usize) {
