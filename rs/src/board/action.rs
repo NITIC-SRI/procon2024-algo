@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 /// `Direction` 列挙型は，型抜き操作の方向を表す．
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -8,6 +9,24 @@ pub enum Direction {
     Left,
     Right,
 }
+impl Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        // for row in &self.board {
+        //     for cell in row {
+        //         write!(f, "{}", cell)?;
+        //     }
+        //     writeln!(f)?;
+        // }
+        let _ = match self {
+            Direction::Up => write!(f, "Up"),
+            Direction::Down => write!(f, "Down"),
+            Direction::Left => write!(f, "Left"),
+            Direction::Right => write!(f, "Right"),
+        };
+        Ok(())
+    }
+}
+
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct Action {
     x: i32,
