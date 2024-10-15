@@ -1,3 +1,5 @@
+use std::vec;
+
 use rs::board::action::{Action, Direction};
 use rs::board::board::Board;
 use rs::board::cut::{Cut, Cuts};
@@ -146,7 +148,7 @@ fn test_get_fillone_action_score(start: Board, end: Board) {
 
     let expected_score: usize = {
         let new = start.clone();
-        actions = new.get_fillone_actions(&end);
+        actions = new.get_fillone_actions(&end, 0, 0, true);
         actions.len()
     };
     assert_eq!(
@@ -169,10 +171,10 @@ fn tests_get_fillone_action_score() {
             Board::new(vec![vec![3, 0, 3, 0]]),
         ),
     ];
-    let mut i = 0;
+    // let mut i = 0;
     for (start, end) in test_cases {
-        println!("test case: {}", i);
-        i += 1;
+        // println!("test case: {}", i);
+        // i += 1;
         test_get_fillone_action_score(start, end)
     }
 
@@ -189,12 +191,43 @@ fn tests_get_fillone_action_score() {
     }
 }
 
-fn test_get_fillone_actions(start: Board, end: Board, cuts: &Cuts) {
-    let mut new = start.clone();
-    let actions = start.get_fillone_actions(&end);
+fn test_get_fillone_score_intermediate(start: Board, end: Board) {
+    let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+    let mut rng = rand::thread_rng();
 
-    new.operate_actions(actions, cuts);
-    assert_eq!(new, end, "start: {:?},  end: {:?}", start, end);
+    let actions = start.get_fillone_actions(&end, 0, 0, true);
+
+    let mut new = start.clone();
+    new.operate_actions(
+        Vec::from(&actions[..rng.gen_range(0..actions.len())]),
+        &cuts,
+    );
+    let (row_count, col_count) = new.check_progress(&end);
+
+    let inter_actions = new.get_fillone_actions(&end, row_count, col_count, true);
+    let res = new.get_fillone_score_intermediate(&end, row_count, col_count);
+    assert_eq!(inter_actions.len(), res);
+}
+
+#[test]
+fn tests_get_fillone_score_intermediate() {
+    let mut rng = StdRng::seed_from_u64(42);
+    for _ in 0..16 {
+        let h = rng.gen_range(32..=128);
+        let w = rng.gen_range(32..=128);
+
+        let start = Board::new(random_board(h, w));
+        let end = shuffle_board(start.clone().board, 42);
+
+        test_get_fillone_score_intermediate(start, Board::new(end));
+    }
+}
+
+fn test_get_fillone_actions(mut start: Board, end: Board, cuts: &Cuts) {
+    let actions = start.get_fillone_actions(&end, 0, 0, true);
+
+    start.operate_actions(actions, cuts);
+    assert_eq!(start, end, "start: {:?},  end: {:?}", start, end);
 }
 
 #[test]
