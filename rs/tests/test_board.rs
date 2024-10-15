@@ -147,14 +147,13 @@ fn test_get_fillone_action_score(start: Board, end: Board) {
     let actions: Vec<Action>;
 
     let expected_score: usize = {
-        let new = start.clone();
-        actions = new.get_fillone_actions(&end, 0, 0, true);
+        actions = start.get_fillone_actions(&end, 0, 0, true);
         actions.len()
     };
     assert_eq!(
         res, expected_score,
-        "res: {}, expected: {}",
-        res, expected_score
+        "res: {}, expected: {}\n start: {:?}, end: {:?}",
+        res, expected_score, start, end
     );
 }
 
