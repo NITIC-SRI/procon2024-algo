@@ -26,6 +26,7 @@ where
                         count + 1 - continue_count
                     }
                 }
+                x if x == self.width as i32 - continue_count as i32 => count - continue_count,
                 _ => count - continue_count + continue_count.count_ones() as usize,
             }
         } else {
