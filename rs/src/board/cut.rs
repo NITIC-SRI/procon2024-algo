@@ -23,15 +23,15 @@ impl Cut {
     pub fn height(&self) -> usize {
         self.height
     }
-    
+
     pub fn delete_only_zero_bottom(&mut self) {
         let mut is_bottom_only_zero = true;
         for w in 0..self.width() {
-            if self[self.height()-1][w] {
+            if self[self.height() - 1][w] {
                 is_bottom_only_zero = false;
             }
         }
-        
+
         if is_bottom_only_zero {
             self.height -= 1;
             self.cut.pop();
@@ -83,7 +83,7 @@ impl Cuts {
     pub fn len(&self) -> usize {
         self.cuts.len()
     }
-    
+
     pub fn delete_only_zero_bottoms(&mut self) {
         for i in 0..self.len() {
             self.cuts[i].delete_only_zero_bottom();
