@@ -148,76 +148,26 @@ impl<T> Board<T>
 where
     T: Copy + PartialEq + Into<usize> + Debug,
 {
-    pub fn _get_fillone_actions(&self, end: &Self, is_compress: bool) -> Vec<Action> {
-        let mut actions = vec![];
-        let mut new = self.clone();
-
-        for y in 0..self.height() {
-            'loop_x: for x in 0..self.width() {
-                for w in 0..(self.width() - x) {
-                    if end.board[y][x] == new.board[0][w] {
-                        new.op_one_left(w as i32, 0 as i32);
-                        actions.push(Action::new(w as i32, 0, 0, action::Direction::Left));
-                        continue 'loop_x;
-                    }
-                }
-
-                for h in 1..self.height() - y {
-                    for w in 0..self.width() - x {
-                        if end.board[y][x] == new.board[h][w] {
-                            new.op_one_down(w as i32, h as i32);
-                            new.op_one_left(w as i32, 0 as i32);
-                            actions.push(Action::new(
-                                w as i32,
-                                h as i32,
-                                0,
-                                action::Direction::Down,
-                            ));
-                            actions.push(Action::new(w as i32, 0, 0, action::Direction::Left));
-                            continue 'loop_x;
-                        }
-                    }
-                }
-
-                for h in 1..self.height() - y {
-                    for w in self.width() - x..self.width() {
-                        if end.board[y][x] == new.board[h][w] {
-                            new.op_one_right(w as i32, h as i32);
-                            new.op_one_down(0 as i32, h as i32);
-                            new.op_one_left(0 as i32, 0 as i32);
-                            actions.push(Action::new(
-                                w as i32,
-                                h as i32,
-                                0,
-                                action::Direction::Right,
-                            ));
-                            actions.push(Action::new(
-                                0 as i32,
-                                h as i32,
-                                0,
-                                action::Direction::Down,
-                            ));
-                            actions.push(Action::new(0 as i32, 0, 0, action::Direction::Left));
-                            continue 'loop_x;
-                        }
-                    }
-                }
-            }
-            new.op_row_up();
-            actions.push(Action::new(0, -255, 22, action::Direction::Up));
-        }
-
-        if is_compress {
-            actions = self.compress_actions(&actions)
-        }
-        actions
+    pub fn get_fillone_actions(
+        &self,
+        end: &Self,
+        row_num: usize,
+        col_num: usize,
+        is_compress: bool,
+    ) -> Vec<Action> {
+        let actions: &mut Vec<Action> = &mut vec![];
+        self.fillone(end, row_num, col_num, Some(actions), is_compress);
+        actions.to_vec()
     }
 
-    pub fn get_fillone_actions(&self, end: &Self) -> Vec<Action> {
-        self._get_fillone_actions(end, true)
-    }
-
-    fn inner_fillone_scores(&self, end: &Self, row_num: usize, col_num: usize) -> usize {
+    pub fn fillone(
+        &self,
+        end: &Self,
+        row_num: usize,
+        col_num: usize,
+        mut actions: Option<&mut Vec<Action>>,
+        is_compress: bool,
+    ) -> usize {
         let mut count: usize = 0;
         let mut continue_count: usize = 1;
         let mut rowup_continue_count: usize = 0;
@@ -229,19 +179,23 @@ where
         for y in row_num..self.height() {
             // skip_flag: 上の行がすでにそろっていたらtrue
             let mut skip_flag = true;
-            let col_num = if row_num == y { col_num } else { 0 };
             if end.board[y] != new.board[0] {
                 skip_flag = false;
+
+                let col_num = if row_num == y { col_num } else { 0 };
                 'loop_x: for x in col_num..self.width() {
                     // 一番上の行についてのループ
-                    for w in 0..(self.width() - x) {
+                    for w in (0..(self.width() - x)).rev() {
                         if end.board[y][x] == new.board[0][w] {
                             new.op_one_left(w as i32, 0 as i32);
                             count += 1;
-
-                            if cfg!(debug_assertions) {
-                                println!("Action left {}, {}", w, 0);
+                            if let Some(ref mut acts) = actions {
+                                acts.push(Action::new(w as i32, 0, 0, action::Direction::Left));
                             }
+
+                            // if cfg!(debug_assertions) {
+                            //     println!("Action left {}, {}", w, 0);
+                            // }
 
                             let tmp = Action::new(w as i32, 0, 0, action::Direction::Left);
 
@@ -268,11 +222,21 @@ where
                                 new.op_one_down(w as i32, h as i32);
                                 new.op_one_left(w as i32, 0 as i32);
                                 count += 2;
+                                if let Some(ref mut acts) = actions {
+                                    acts.push(Action::new(
+                                        w as i32,
+                                        h as i32,
+                                        0,
+                                        action::Direction::Down,
+                                    ));
 
-                                if cfg!(debug_assertions) {
-                                    println!("Action down {}, {}", w, h);
-                                    println!("Action left {}, {}", w, 0);
+                                    acts.push(Action::new(w as i32, 0, 0, action::Direction::Left));
                                 }
+
+                                // if cfg!(debug_assertions) {
+                                //     println!("Action down {}, {}", w, h);
+                                //     println!("Action left {}, {}", w, 0);
+                                // }
 
                                 count = self.calc_complesed_action_num(
                                     count,
@@ -297,12 +261,29 @@ where
                                 new.op_one_down(0 as i32, h as i32);
                                 new.op_one_left(0 as i32, 0 as i32);
                                 count += 3;
+                                if let Some(ref mut acts) = actions {
+                                    acts.push(Action::new(
+                                        w as i32,
+                                        h as i32,
+                                        0,
+                                        action::Direction::Right,
+                                    ));
 
-                                if cfg!(debug_assertions) {
-                                    println!("Action right {}, {}", w, h);
-                                    println!("Action down {}, {}", 0, h);
-                                    println!("Action left {}, {}", 0, 0);
+                                    acts.push(Action::new(
+                                        0 as i32,
+                                        h as i32,
+                                        0,
+                                        action::Direction::Down,
+                                    ));
+
+                                    acts.push(Action::new(0 as i32, 0, 0, action::Direction::Left));
                                 }
+
+                                // if cfg!(debug_assertions) {
+                                //     println!("Action right {}, {}", w, h);
+                                //     println!("Action down {}, {}", 0, h);
+                                //     println!("Action left {}, {}", 0, 0);
+                                // }
 
                                 count = self.calc_complesed_action_num(
                                     count,
@@ -323,10 +304,14 @@ where
 
             new.op_row_up();
             count += 1;
-            if cfg!(debug_assertions) {
-                println!("Action row_up {}, {}", 0, 0);
-                println!();
+
+            if let Some(ref mut acts) = actions {
+                acts.push(Action::new(0 as i32, -255, 22, action::Direction::Up));
             }
+            // if cfg!(debug_assertions) {
+            //     println!("Action row_up {}, {}", 0, 0);
+            //     println!();
+            // }
 
             count = self.calc_complesed_action_num(count, before_action, continue_count);
 
@@ -349,14 +334,17 @@ where
             count = count + 1 - rowup_continue_count;
         }
 
-        if cfg!(debug_assertions) {
-            println!("new: {:?}", new);
+        if is_compress {
+            if let Some(acts) = actions {
+                *acts = self.compress_actions(acts);
+            }
         }
+
         return count;
     }
 
     pub fn get_fillone_action_score(&self, end: &Self) -> usize {
-        self.inner_fillone_scores(end, 0, 0)
+        self.fillone(end, 0, 0, None, true)
     }
 
     pub fn check_progress(&self, end: &Self) -> (usize, usize) {
@@ -388,4 +376,12 @@ where
         (row_count, col_count)
     }
 
+    pub fn get_fillone_score_intermediate(
+        &self,
+        end: &Self,
+        row_num: usize,
+        col_num: usize,
+    ) -> usize {
+        self.fillone(end, row_num, col_num, None, true)
+    }
 }
