@@ -55,6 +55,8 @@ where
                         )],
                     );
                 }
+            } else if action.x() == self.width() as i32 - consecutive as i32 {
+                return (true, vec![]);
             } else if action.x() != 0 && action.y() == 0 {
                 let b = format!("{:b}", consecutive);
                 let mut tmp_actions = vec![];
