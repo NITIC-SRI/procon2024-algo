@@ -49,17 +49,16 @@ impl DownFillOne<'_> {
         self.now_board == *self.end || self.usable_height == 0
     }
 
-    pub fn greedy_match_x_direction_action(
-        &self,
-        diff: &Vec<usize>,
-    ) -> Action {
+    pub fn greedy_match_x_direction_action(&self, diff: &Vec<usize>) -> Action {
         let mut min_distance: u64 = std::u64::MAX;
         let mut min_action = Action::new(0, 0, 0, Direction::Down);
 
         for action in self.x_only_actions {
             let mut next_board = self.now_board.clone();
 
-            if action.y() + self.cuts[action.cut_num() as u32].height() as i32 > self.usable_height as i32 {
+            if action.y() + self.cuts[action.cut_num() as u32].height() as i32
+                > self.usable_height as i32
+            {
                 continue;
             }
 
@@ -74,16 +73,16 @@ impl DownFillOne<'_> {
         min_action
     }
 
-    pub fn down_greedy_action(
-        &self
-    ) -> (Action, u64, Vec<usize>) {
+    pub fn down_greedy_action(&self) -> (Action, u64, Vec<usize>) {
         let mut min_distance: u64 = std::u64::MAX;
         let mut min_action = Action::new(0, 0, 0, Direction::Down);
         let mut min_diff = vec![std::usize::MAX];
 
         for action in self.down_only_actions {
             let mut next_board = self.now_board.clone();
-            if action.y() + self.cuts[action.cut_num() as u32].height() as i32 > self.usable_height as i32 {
+            if action.y() + self.cuts[action.cut_num() as u32].height() as i32
+                > self.usable_height as i32
+            {
                 continue;
             }
             next_board.operate(action, self.cuts);
@@ -109,7 +108,13 @@ pub fn play<'a>(
     let mut cuts = cuts.clone();
     cuts.delete_only_zero_bottoms();
     let (down_only_actions, x_only_actions) = utils::get_action_by_direction(&legal_actions);
-    let mut down_fillone_game = DownFillOne::new(start.clone(), end, &down_only_actions, &x_only_actions, &cuts);
+    let mut down_fillone_game = DownFillOne::new(
+        start.clone(),
+        end,
+        &down_only_actions,
+        &x_only_actions,
+        &cuts,
+    );
 
     // TODO: タイムキーパー
     for _ in 0..MAX_ITERATIONS {
@@ -148,5 +153,3 @@ pub fn play<'a>(
 
     down_fillone_game.actions
 }
-
-
