@@ -505,3 +505,31 @@ fn test_solve_swapping() {
         assert_eq!(start, end);
     }
 }
+
+fn test_caterpillar_move(mut start: Board, top_x: usize, target_x: usize, target_y: usize) {
+    let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+    let expected_board = {
+        let mut sb = start.board().clone();
+        let target = sb[target_y][target_x];
+        sb[0][top_x] = target;
+        sb
+    };
+
+    let actions = start.caterpillar_move(top_x, target_x, target_y);
+    start.operate_actions(actions, &cuts);
+    assert_eq!(start.board()[0], expected_board[0]);
+}
+
+#[test]
+fn tests_catapillar_move() {
+    let mut rng = StdRng::seed_from_u64(42);
+    for _ in 0..10 {
+        let h: u32 = rng.gen_range(32..256);
+        let w: u32 = rng.gen_range(32..256);
+        let top_x: usize = rng.gen_range(0..w as usize);
+        let target_x: usize = rng.gen_range(0..w as usize);
+        let target_y: usize = rng.gen_range(1..h as usize);
+        let board = Board::new(random_board(h, w));
+        test_caterpillar_move(board, top_x, target_x, target_y);
+    }
+}
