@@ -337,6 +337,7 @@ where
     }
 
     pub fn caterpillar_move(&self, top_x: usize, target_x: usize, target_y: usize) -> Vec<Action> {
+        assert_ne!(target_y, 0, "target_y must be greater than 0");
         let mut actions: Vec<Action> = vec![];
 
         let x_diff = top_x as i32 - target_x as i32;
