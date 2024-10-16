@@ -171,14 +171,15 @@ where
         diff: &Vec<usize>,
         usable_height: usize,
     ) -> u64 {
-        let mut distance = 0;
+        let mut score = 0;
         for &d in diff {
             for h in 1..usable_height {
-                if self.board[h][d] != end.board[self.height() - usable_height][d] {
-                    distance += 1;
+                if self.board[h][d] == end.board[self.height() - usable_height][d] {
+                    score += 1;
+                    break;
                 }
             }
         }
-        distance
+        (diff.len() - score) as u64
     }
 }
