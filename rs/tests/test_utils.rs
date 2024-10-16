@@ -48,3 +48,32 @@ fn test_get_actions() {
 //     }
 //     println!("{}", sized_actions.len());
 // }
+
+#[test]
+fn test_read_actions_by_size() {
+    let testcases = vec![
+        (32, 32, "32*32"),
+        (70, 80, "128*128"),
+        (127, 129, "256*256"),
+        (256, 256, "256*256"),
+    ];
+
+    for testcase in testcases {
+        let actions =
+            rs::utils::read_actions(format!("../data/compress_actions/{}.json", testcase.2));
+        let mut sized_actions_len = 0;
+        for action in actions.iter() {
+            if action.x() >= testcase.0 || action.y() >= testcase.1 {
+                continue;
+            }
+            sized_actions_len += 1;
+        }
+
+        assert_eq!(
+            sized_actions_len,
+            rs::utils::read_actions_by_size(testcase.0 as usize, testcase.1 as usize).len()
+        );
+    }
+}
+
+

@@ -186,6 +186,48 @@ pub fn read_actions(path: String) -> Vec<Action> {
     actions
 }
 
+pub fn read_actions_by_size(width: usize, height: usize) -> Vec<Action> {
+    let size = height.max(width);
+
+    let action_board_size;
+    let mut k = 5;
+    loop {
+        if size <= 1 << k {
+            action_board_size = 1 << k;
+            break;
+        }
+        k += 1;
+    }
+    println!("action_board_size: {}", action_board_size);
+    let path = format!(
+        "../data/compress_actions/{}*{}.json",
+        action_board_size, action_board_size
+    );
+    let file = std::fs::File::open(path).unwrap();
+    let reader = std::io::BufReader::new(file);
+    let actions_format: ActionsFormat = serde_json::from_reader(reader).unwrap();
+    let mut actions = Vec::new();
+    for action_format in actions_format.ops {
+        if action_format.x >= width as i32 || action_format.y >= height as i32 {
+            continue;
+        }
+        let action = Action::new(
+            action_format.x,
+            action_format.y,
+            action_format.p,
+            match action_format.s.as_str() {
+                "0" => Direction::Up,
+                "1" => Direction::Down,
+                "2" => Direction::Right,
+                "3" => Direction::Left,
+                _ => panic!("Invalid direction"),
+            },
+        );
+        actions.push(action);
+    }
+    actions
+}
+
 pub fn random_general_cut(h: u32, w: u32) -> Vec<String> {
     // 0がw個並んだものをh個並べる
     let mut general_cut = Vec::new();
