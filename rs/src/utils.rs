@@ -198,7 +198,6 @@ pub fn read_actions_by_size(width: usize, height: usize) -> Vec<Action> {
         }
         k += 1;
     }
-    println!("action_board_size: {}", action_board_size);
     let path = format!(
         "../data/compress_actions/{}*{}.json",
         action_board_size, action_board_size
