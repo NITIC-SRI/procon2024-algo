@@ -1,7 +1,7 @@
 use rs::board::action::{Action, Direction};
 use rs::board::board::Board;
 use rs::board::cut::Cuts;
-use rs::utils::{export_actions, get_actions};
+use rs::utils::{export_actions, get_actions, validate_actions};
 
 use std::vec;
 
@@ -74,4 +74,13 @@ fn test_read_actions_by_size() {
             rs::utils::read_actions_by_size(testcase.0 as usize, testcase.1 as usize).len()
         );
     }
+}
+
+fn test_validate_actions() {
+    let board = Board::new(rs::utils::random_board(10, 10));
+    let end = Board::new(rs::utils::shuffle_board(board.clone().board, 42));
+    let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+    
+    let actions = board.get_fillone_actions(&end, 0, 0, true);
+    assert!(validate_actions(&board, &end,&actions, &cuts));
 }
