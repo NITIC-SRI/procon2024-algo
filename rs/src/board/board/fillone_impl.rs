@@ -390,7 +390,7 @@ where
         }
 
         actions
-
+    }
     pub fn get_fillone_action_score(&self, end: &Self) -> usize {
         self.fillone(end, 0, 0, None, true)
     }
@@ -431,6 +431,5 @@ where
         col_num: usize,
     ) -> usize {
         self.fillone(end, row_num, col_num, None, true)
-      
     }
 }
