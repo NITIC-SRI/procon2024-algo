@@ -1,4 +1,3 @@
-use rs::board::action;
 use rs::board::cut::Cuts;
 use rs::search::down_fillone::play;
 use rs::{board::board::Board, utils};
@@ -26,7 +25,6 @@ fn main() {
 
     let actions = play(&start, &end, &legal_actions, &cuts);
     let json = utils::export_visualyzer_json(&start, &end, actions.clone());
-
 
     println!("{}", json);
     println!("len: {}", actions.len());

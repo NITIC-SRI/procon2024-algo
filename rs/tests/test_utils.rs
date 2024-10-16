@@ -75,5 +75,3 @@ fn test_read_actions_by_size() {
         );
     }
 }
-
-
