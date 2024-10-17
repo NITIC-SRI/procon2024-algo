@@ -554,7 +554,7 @@ fn test_line_fillone() {
         let line: Vec<Vec<u8>> = random_board(1, w);
 
         let start = Board::new([line.clone(), base.clone()].concat());
-        let end = Board::new([shuffle_board(line.clone(),42), base].concat());
+        let end = Board::new([shuffle_board(line.clone(), 42), base].concat());
 
         let actions = start.line_fillone(&end);
         assert!(validate_actions(&start, &end, &actions, &cuts));
