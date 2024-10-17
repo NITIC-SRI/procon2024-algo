@@ -3,7 +3,7 @@ use std::vec;
 use rs::board::action::{Action, Direction};
 use rs::board::board::Board;
 use rs::board::cut::{Cut, Cuts};
-use rs::utils::{random_board, shuffle_board};
+use rs::utils::{random_board, shuffle_board, validate_actions};
 
 use rand::rngs::StdRng;
 use rand::{self, Rng, SeedableRng};
@@ -531,5 +531,32 @@ fn tests_catapillar_move() {
         let target_y: usize = rng.gen_range(1..h as usize);
         let board = Board::new(random_board(h, w));
         test_caterpillar_move(board, top_x, target_x, target_y);
+    }
+}
+
+#[test]
+fn test_line_fillone() {
+    let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+
+    let test_cases = vec![];
+    for (start, end) in test_cases {
+        let mut start: Board<u8> = Board::new(start);
+        let end: Board<u8> = Board::new(end);
+        let actions = start.line_fillone(&end);
+        assert!(validate_actions(&start, &end, &actions, &cuts));
+    }
+
+    let mut rng = StdRng::seed_from_u64(42);
+    for _ in 0..16 {
+        let h: u32 = rng.gen_range(1..255);
+        let w: u32 = rng.gen_range(1..256);
+        let base: Vec<Vec<u8>> = random_board(h, w);
+        let line: Vec<Vec<u8>> = random_board(1, w);
+
+        let start = Board::new([line.clone(), base.clone()].concat());
+        let end = Board::new([shuffle_board(line.clone(),42), base].concat());
+
+        let actions = start.line_fillone(&end);
+        assert!(validate_actions(&start, &end, &actions, &cuts));
     }
 }
