@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use std::hash::Hash;
+
 use super::Board;
 
 use crate::board::action;
@@ -431,5 +434,28 @@ where
         col_num: usize,
     ) -> usize {
         self.fillone(end, row_num, col_num, None, true)
+    }
+}
+
+impl<T> Board<T>
+where
+    T: Copy + PartialEq + Into<usize> + Debug + Eq + Hash,
+{
+    pub fn line_fillone(&self, end: &Self) -> Vec<Action> {
+        let start_row = Board::new(vec![self.board()[0].clone()]);
+        let end_row = Board::new(vec![end.board()[0].clone()]);
+        if cfg!(debug_assertions) {
+            let mut counts = HashMap::new();
+            for i in 0..self.width() {
+                *counts.entry(self.board()[0][i]).or_insert(0) += 1;
+                *counts.entry(end.board()[0][i]).or_insert(0) -= 1;
+            }
+            assert!(
+                counts.values().all(|&x| x == 0),
+                "line_fillone: start and end row must have same number of each element"
+            );
+        }
+        let actions = start_row.get_fillone_actions(&end_row, 0, 0, true);
+        actions
     }
 }
