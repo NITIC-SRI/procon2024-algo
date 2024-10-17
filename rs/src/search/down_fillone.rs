@@ -13,6 +13,7 @@ pub struct DownFillOne<'a> {
     cuts: &'a Cuts,
     usable_height: usize,
     actions: Vec<Action>,
+    count: usize,
 }
 
 impl DownFillOne<'_> {
@@ -31,7 +32,12 @@ impl DownFillOne<'_> {
             cuts,
             usable_height: start.height(),
             actions: Vec::new(),
+            count: 0,
         }
+    }
+
+    pub fn count(&mut self) {
+        self.count += 1;
     }
 
     pub fn complete_top_row(&mut self) {
@@ -49,7 +55,7 @@ impl DownFillOne<'_> {
         self.now_board == *self.end || self.usable_height == 0
     }
 
-    pub fn greedy_match_x_direction_action(&self, diff: &Vec<usize>) -> Action {
+    pub fn greedy_match_x_direction_action(&self, diff: &Vec<usize>) -> (Action, u64) {
         let mut min_distance: u64 = std::u64::MAX;
         let mut min_action = Action::new(0, 0, 0, Direction::Down);
 
@@ -70,7 +76,7 @@ impl DownFillOne<'_> {
             }
         }
 
-        min_action
+        (min_action, min_distance)
     }
 
     pub fn down_greedy_action(&self) -> (Action, u64, Vec<usize>) {
@@ -96,6 +102,36 @@ impl DownFillOne<'_> {
         }
 
         (min_action, min_distance, min_diff)
+    }
+
+    pub fn caterpillar_and_line_fillone(&mut self) -> Vec<Action> {
+        let mut actions = vec![];
+        let mut row_cnt: Vec<i32> = vec![0; 4];
+        let mut wrongs = vec![vec![]; 4];
+        for w in 0..self.now_board.width() {
+            if self.now_board.board()[0][w] == self.end.board()[self.now_board.height() - self.usable_height][w] {
+                continue;
+            }
+
+            wrongs[self.now_board.board()[0][w] as usize].push(w);
+            row_cnt[self.now_board.board()[0][w] as usize] += 1;
+            row_cnt[self.end.board()[self.now_board.height() - self.usable_height][w] as usize] -= 1;
+        }
+
+        for (i, &cnt) in row_cnt.iter().enumerate() {
+            if cnt >= 0 {
+                continue;
+            }
+
+            // 異端のうち足りていないものをカウントしておく
+            let mut cnt = cnt.clone();
+            
+
+        }
+
+
+
+        actions
     }
 }
 
@@ -140,8 +176,13 @@ pub fn play<'a>(
 
         // 一番上の行で揃えられないものが存在するなら横に篩う
         if !last_diff.is_empty() {
-            let action = down_fillone_game.greedy_match_x_direction_action(&last_diff);
-            down_fillone_game.operate(&action);
+            let (action, distance) = down_fillone_game.greedy_match_x_direction_action(&last_diff);
+            if last_diff.len() == distance as usize {
+                // down_fillone_game.caterpillar_and_line_fillone();
+                down_fillone_game.count();
+            } else {
+                down_fillone_game.operate(&action);
+            }
             continue;
         }
 
@@ -150,6 +191,8 @@ pub fn play<'a>(
             break;
         }
     }
+
+    println!("count: {}", down_fillone_game.count);
 
     down_fillone_game.actions
 }

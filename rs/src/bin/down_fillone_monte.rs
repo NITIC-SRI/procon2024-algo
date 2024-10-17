@@ -1,10 +1,10 @@
 use rs::board::action;
 use rs::board::cut::Cuts;
-use rs::search::down_fillone::play;
+use rs::search::down_fillone_montecarlo::play;
 use rs::{board::board::Board, utils};
 
 fn main() {
-    let size = 32;
+    let size = 64;
     // let start: Board<u8> = Board::new(vec![
     //     vec![3, 2, 3, 1],
     //     vec![0, 3, 0, 3],
@@ -22,11 +22,10 @@ fn main() {
 
     let path = "../data/formal_cuts.json".to_string();
     let cuts = Cuts::new(path);
-    let legal_actions = utils::get_actions(size as usize, size as usize, &cuts);
+    let legal_actions = utils::read_actions("../data/compress_actions/64*64.json".to_string());
 
     let actions = play(&start, &end, &legal_actions, &cuts);
     let json = utils::export_visualyzer_json(&start, &end, actions.clone());
-
 
     println!("{}", json);
     println!("len: {}", actions.len());
