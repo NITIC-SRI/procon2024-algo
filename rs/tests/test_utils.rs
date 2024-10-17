@@ -80,7 +80,7 @@ fn test_validate_actions() {
     let board = Board::new(rs::utils::random_board(10, 10));
     let end = Board::new(rs::utils::shuffle_board(board.clone().board, 42));
     let cuts = Cuts::new("../data/formal_cuts.json".to_string());
-    
+
     let actions = board.get_fillone_actions(&end, 0, 0, true);
-    assert!(validate_actions(&board, &end,&actions, &cuts));
+    assert!(validate_actions(&board, &end, &actions, &cuts));
 }

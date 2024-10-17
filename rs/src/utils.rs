@@ -293,11 +293,11 @@ pub fn get_action_by_direction(legal_actions: &Vec<Action>) -> (Vec<Action>, Vec
     (down_only, x_only)
 }
 
-pub fn validate_actions(start: &Board, end: &Board, actions: &Vec<Action>, cuts:&Cuts) -> bool {
+pub fn validate_actions(start: &Board, end: &Board, actions: &Vec<Action>, cuts: &Cuts) -> bool {
     let mut now = start.clone();
     for action in actions.iter() {
         now.operate(action, cuts)
     }
-    
+
     now == *end
 }
