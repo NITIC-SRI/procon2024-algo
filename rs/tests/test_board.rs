@@ -538,12 +538,31 @@ fn tests_catapillar_move() {
 fn test_line_fillone() {
     let cuts = Cuts::new("../data/formal_cuts.json".to_string());
 
-    let test_cases = vec![];
-    for (start, end) in test_cases {
+    let test_cases = vec![(
+        vec![
+            vec![1, 3, 2, 1, 1, 2],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+        ],
+        vec![
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![1, 1, 1, 2, 2, 3],
+            vec![0, 0, 0, 0, 0, 0],
+        ],
+        4,
+    )];
+    for (start, end, target_row) in test_cases {
         let mut start: Board<u8> = Board::new(start);
         let end: Board<u8> = Board::new(end);
-        let actions = start.line_fillone(&end);
-        assert!(validate_actions(&start, &end, &actions, &cuts));
+        let actions = start.line_fillone(&end, target_row);
+        start.operate_actions(actions, &cuts);
+        assert_eq!(start.board()[0], end.board()[target_row]);
     }
 
     let mut rng = StdRng::seed_from_u64(42);
@@ -553,10 +572,12 @@ fn test_line_fillone() {
         let base: Vec<Vec<u8>> = random_board(h, w);
         let line: Vec<Vec<u8>> = random_board(1, w);
 
-        let start = Board::new([line.clone(), base.clone()].concat());
-        let end = Board::new([shuffle_board(line.clone(), 42), base].concat());
+        let mut start =
+            Board::new([shuffle_board(line.clone(), 42), base.clone(), base.clone()].concat());
+        let end = Board::new([base.clone(), line, base].concat());
 
-        let actions = start.line_fillone(&end);
-        assert!(validate_actions(&start, &end, &actions, &cuts));
+        let actions = start.line_fillone(&end, h as usize);
+        start.operate_actions(actions, &cuts);
+        assert_eq!(start.board()[0], end.board()[h as usize]);
     }
 }

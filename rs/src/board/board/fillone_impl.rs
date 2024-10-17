@@ -473,14 +473,15 @@ impl<T> Board<T>
 where
     T: Copy + PartialEq + Into<usize> + Debug + Eq + Hash,
 {
-    pub fn line_fillone(&self, end: &Self) -> Vec<Action> {
+    pub fn line_fillone(&self, end: &Self, target_row: usize) -> Vec<Action> {
         let start_row = Board::new(vec![self.board()[0].clone()]);
-        let end_row = Board::new(vec![end.board()[0].clone()]);
+        let end_row = Board::new(vec![end.board()[target_row].clone()]);
+
         if cfg!(debug_assertions) {
             let mut counts = HashMap::new();
             for i in 0..self.width() {
-                *counts.entry(self.board()[0][i]).or_insert(0) += 1;
-                *counts.entry(end.board()[0][i]).or_insert(0) -= 1;
+                *counts.entry(start_row.board()[0][i]).or_insert(0) += 1;
+                *counts.entry(end_row.board()[0][i]).or_insert(0) -= 1;
             }
             assert!(
                 counts.values().all(|&x| x == 0),
