@@ -103,36 +103,6 @@ impl DownFillOne<'_> {
 
         (min_action, min_distance, min_diff)
     }
-
-    pub fn caterpillar_and_line_fillone(&mut self) -> Vec<Action> {
-        let mut actions = vec![];
-        let mut row_cnt: Vec<i32> = vec![0; 4];
-        let mut wrongs = vec![vec![]; 4];
-        for w in 0..self.now_board.width() {
-            if self.now_board.board()[0][w] == self.end.board()[self.now_board.height() - self.usable_height][w] {
-                continue;
-            }
-
-            wrongs[self.now_board.board()[0][w] as usize].push(w);
-            row_cnt[self.now_board.board()[0][w] as usize] += 1;
-            row_cnt[self.end.board()[self.now_board.height() - self.usable_height][w] as usize] -= 1;
-        }
-
-        for (i, &cnt) in row_cnt.iter().enumerate() {
-            if cnt >= 0 {
-                continue;
-            }
-
-            // 異端のうち足りていないものをカウントしておく
-            let mut cnt = cnt.clone();
-            
-
-        }
-
-
-
-        actions
-    }
 }
 
 pub fn play<'a>(
