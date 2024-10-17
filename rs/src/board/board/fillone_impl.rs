@@ -391,6 +391,38 @@ where
 
         actions
     }
+
+    pub fn half_caterpillar_move(&self, top_x: usize, target_x: usize, target_y: usize) -> Vec<Action> {
+        assert_ne!(target_y, 0, "target_y must be greater than 0");
+        let mut actions: Vec<Action> = vec![];
+
+        let x_diff = top_x as i32 - target_x as i32;
+
+        if x_diff > 0 {
+            actions.push(Action::new(
+                -256 + x_diff,
+                -255,
+                22,
+                action::Direction::Left,
+            ));
+        } else if x_diff < 0 {
+            actions.push(Action::new(
+                self.width() as i32 + x_diff,
+                -255,
+                22,
+                action::Direction::Right,
+            ));
+        }
+
+        actions.push(Action::new(
+            target_x as i32,
+            target_y as i32,
+            0,
+            action::Direction::Down,
+        ));
+
+        actions
+    }
     pub fn get_fillone_action_score(&self, end: &Self) -> usize {
         self.fillone(end, 0, 0, None, true)
     }
