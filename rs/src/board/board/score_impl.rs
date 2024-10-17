@@ -231,6 +231,7 @@ where
         }
 
         if diff.len() as i64 - score == 0 {
+            let mut row_count_sum = 0;
             for h in 0..self.height() {
                 let mut row_map = vec![0; 4];
                 let mut row_score: i64 = 0;
@@ -241,9 +242,10 @@ where
                 for i in 0..4 {
                     row_score += (row_map[i] as i64).abs();
                 }
-                score += row_score;
+                row_count_sum += row_score;
             }
+            return row_count_sum - (self.height() * self.width()) as i64;
         }
-        diff.len() - score
+        diff.len() as i64 - score
     }
 }
