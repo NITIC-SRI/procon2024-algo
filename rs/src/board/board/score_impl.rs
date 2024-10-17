@@ -165,6 +165,37 @@ where
         (distance, diff)
     }
 
+    pub fn weighted_top_first_distance(
+        &self,
+        end: &Self,
+        usable_height: usize,
+    ) -> (u64, Vec<usize>) {
+        let mut distance = 0;
+        // 揃っていないところを保存
+        let mut diff = vec![];
+        for w in 0..self.width() {
+            if self.board()[0][w] != end.board()[self.height() - usable_height][w] {
+                distance += self.width() * (self.width() + 1) + self.width();
+                diff.push(w);
+            }
+
+            if self.height() - usable_height + 1 >= self.height() {
+                continue;
+            }
+            if self.board()[1][w] != end.board()[self.height() - usable_height + 1][w] {
+                distance += self.width() + 1;
+            }
+
+            if self.height() - usable_height + 2 >= self.height() {
+                continue;
+            }
+            if self.board()[2][w] != end.board()[self.height() - usable_height + 2][w] {
+                distance += 1;
+            }
+        }
+        (distance as u64, diff)
+    }
+
     pub fn match_x_direction_score(
         self,
         end: &Self,
@@ -181,5 +212,38 @@ where
             }
         }
         (diff.len() - score) as u64
+    }
+
+    pub fn match_x_direction_and_row_score(
+        self,
+        end: &Self,
+        diff: &Vec<usize>,
+        usable_height: usize,
+    ) -> i64 {
+        let mut score: i64 = 0;
+        for &d in diff {
+            for h in 1..usable_height {
+                if self.board[h][d] == end.board[self.height() - usable_height][d] {
+                    score += 1;
+                    break;
+                }
+            }
+        }
+
+        if diff.len() as i64 - score == 0 {
+            for h in 0..self.height() {
+                let mut row_map = vec![0; 4];
+                let mut row_score: i64 = 0;
+                for w in 0..self.width() {
+                    row_map[self.board()[h][w].into()] += 1;
+                    row_map[end.board()[h][w].into()] -= 1;
+                }
+                for i in 0..4 {
+                    row_score += (row_map[i] as i64).abs();
+                }
+                score += row_score;
+            }
+        }
+        diff.len() - score
     }
 }
