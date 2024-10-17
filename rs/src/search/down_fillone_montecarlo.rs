@@ -3,9 +3,9 @@ use crate::board::board::Board;
 use crate::board::cut::Cuts;
 use crate::utils;
 
-use rand::Rng;
-
-const MAX_ITERATIONS: usize = 10000;
+use rand::rngs::SmallRng;
+use rand::seq::SliceRandom;
+use rand::SeedableRng;
 
 pub struct DownFillOne<'a> {
     now_board: Board,
@@ -15,6 +15,7 @@ pub struct DownFillOne<'a> {
     cuts: &'a Cuts,
     usable_height: usize,
     actions: Vec<Action>,
+    n_simulations: usize,
 }
 
 impl DownFillOne<'_> {
@@ -24,6 +25,7 @@ impl DownFillOne<'_> {
         down_only_actions: &'a Vec<Action>,
         x_only_actions: &'a Vec<Action>,
         cuts: &'a Cuts,
+        n_simulations: usize,
     ) -> DownFillOne<'a> {
         DownFillOne {
             now_board: start.clone(),
@@ -33,6 +35,7 @@ impl DownFillOne<'_> {
             cuts,
             usable_height: start.height(),
             actions: Vec::new(),
+            n_simulations,
         }
     }
 
@@ -54,10 +57,14 @@ impl DownFillOne<'_> {
     pub fn greedy_match_x_direction_action(&self, diff: &Vec<usize>) -> (Action, u64) {
         let mut min_distance: u64 = std::u64::MAX;
         let mut min_action = Action::new(0, 0, 0, Direction::Down);
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_entropy();
+        let random_legal_actions: Vec<Action> = self
+            .x_only_actions
+            .choose_multiple(&mut rng, self.n_simulations)
+            .cloned()
+            .collect();
 
-        for _ in 0..1000 {
-            let action = &self.x_only_actions[rng.gen_range(0..self.x_only_actions.len())];
+        for action in random_legal_actions.iter() {
             let mut next_board = self.now_board.clone();
 
             if action.y() + self.cuts[action.cut_num() as u32].height() as i32
@@ -81,10 +88,14 @@ impl DownFillOne<'_> {
         let mut min_distance: u64 = std::u64::MAX;
         let mut min_action = Action::new(0, 0, 0, Direction::Down);
         let mut min_diff = vec![std::usize::MAX];
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::from_entropy();
+        let random_legal_actions: Vec<Action> = self
+            .down_only_actions
+            .choose_multiple(&mut rng, self.n_simulations)
+            .cloned()
+            .collect();
 
-        for _ in 0..1000 {
-			let action = &self.down_only_actions[rng.gen_range(0..self.down_only_actions.len())];
+        for action in random_legal_actions.iter() {
             let mut next_board = self.now_board.clone();
             if action.y() + self.cuts[action.cut_num() as u32].height() as i32
                 > self.usable_height as i32
@@ -110,6 +121,8 @@ pub fn play<'a>(
     end: &Board,
     legal_actions: &Vec<Action>,
     cuts: &Cuts,
+    max_iterations: usize,
+    n_simulations: usize,
 ) -> Vec<Action> {
     let mut cuts = cuts.clone();
     cuts.delete_only_zero_bottoms();
@@ -120,10 +133,11 @@ pub fn play<'a>(
         &down_only_actions,
         &x_only_actions,
         &cuts,
+        n_simulations,
     );
 
     // TODO: タイムキーパー
-    for _ in 0..MAX_ITERATIONS {
+    for _ in 0..max_iterations {
         println!("{}", down_fillone_game.now_board);
         println!("height: {}", down_fillone_game.usable_height);
 

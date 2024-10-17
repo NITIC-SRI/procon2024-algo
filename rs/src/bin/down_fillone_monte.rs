@@ -1,4 +1,3 @@
-use rs::board::action;
 use rs::board::cut::Cuts;
 use rs::search::down_fillone_montecarlo::play;
 use rs::{board::board::Board, utils};
@@ -24,7 +23,7 @@ fn main() {
     let cuts = Cuts::new(path);
     let legal_actions = utils::read_actions("../data/compress_actions/64*64.json".to_string());
 
-    let actions = play(&start, &end, &legal_actions, &cuts);
+    let actions = play(&start, &end, &legal_actions, &cuts, 1000, 1000);
     let json = utils::export_visualyzer_json(&start, &end, actions.clone());
 
     println!("{}", json);

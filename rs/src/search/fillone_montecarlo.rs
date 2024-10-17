@@ -2,8 +2,12 @@ use super::game::{Game, State};
 use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
-use rand::Rng;
+use rand::seq::SliceRandom;
+use rand::SeedableRng;
+use rand::rngs::SmallRng;
 
+
+pub const N_SIMULATIONS: usize = 10000;
 pub const SCORE_MAX: u64 = 0;
 pub struct MontecarloGame<'a> {
     pub state: State,
@@ -30,27 +34,22 @@ impl<'a> Game<'a> for MontecarloGame<'a> {
     }
 
     fn action(&self, state: &State) -> Action {
-        let mut min_score = state.board.absolute_distance(&self.end);
+        let mut min_score = state.board.get_fillone_action_score(&self.end);
         let mut min_action = Action::new(0, 0, 0, Direction::Up);
 
-        let mut random_legal_actions = vec![];
-        let cnt = 10000;
-        let mut rng = rand::thread_rng();
-        for _ in 0..cnt {
-            let random_action = &self.legal_actions[rng.gen_range(0..self.legal_actions.len())];
-            random_legal_actions.push(random_action);
-        }
-
-        for action in self.legal_actions {
+        let mut rng = SmallRng::from_entropy();
+        let random_legal_actions: Vec<Action> = self.legal_actions.choose_multiple(&mut rng, N_SIMULATIONS).cloned().collect();
+        for action in random_legal_actions {
             let mut board = state.board.clone();
             board.operate(&action, &self.cuts);
-            let score = board.absolute_distance(&self.end);
-            if score > min_score {
+            let score = board.get_fillone_action_score(&self.end);
+            if score < min_score {
                 min_score = score;
                 min_action = action.clone();
             }
         }
 
+        println!("turn: {}, min_score: {}", self.turn, min_score);
         min_action
     }
 
