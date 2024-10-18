@@ -1,7 +1,7 @@
 use super::Board;
 
-use crate::board::action::Action;
-use crate::board::cut::Cut;
+use crate::board::action::{Action,Direction};
+use crate::board::cut::{Cut,Cuts};
 use std::convert::Into;
 use std::fmt::Debug;
 
@@ -20,18 +20,6 @@ where
         }
 
         d
-    }
-
-    #[allow(unused_variables)]
-    pub fn operate_and_absolute_distance(
-        &mut self,
-        cut: &Cut,
-        x: i32,
-        y: i32,
-        direction: u8,
-        end: &Self,
-    ) -> (Action, u64) {
-        unimplemented!()
     }
 
     pub fn weighted_absolute_distance(&self, end: &Self, turn: usize, val: i32, span: i32) -> u64 {
