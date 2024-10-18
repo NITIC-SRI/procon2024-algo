@@ -1,4 +1,4 @@
-use crate::board::action::{Action, Direction};
+use crate::board::action::{self, Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
 use crate::utils;
@@ -13,6 +13,7 @@ pub struct DownFillOne<'a> {
     cuts: &'a Cuts,
     usable_height: usize,
     actions: Vec<Action>,
+    count: Vec<usize>
 }
 
 impl DownFillOne<'_> {
@@ -31,6 +32,7 @@ impl DownFillOne<'_> {
             cuts,
             usable_height: start.height(),
             actions: Vec::new(),
+            count: vec![0; 3] // 0: down, 1: x, 2: fillone
         }
     }
 
@@ -99,21 +101,24 @@ impl DownFillOne<'_> {
     }
 
     pub fn caterpillar_and_line_fillone(&mut self) {
-        println!("caterpillar and line fillone begin:");
-        println!("{}", self.now_board);
-        println!("---");
-        println!("{}", self.end);
+        let mut top_distance = 0;
+        for w in 0..self.now_board.width() {
+            if self.now_board.board()[0][w] != self.end.board()[self.now_board.height() - self.usable_height][w] {
+                top_distance += 1;
+            }
+        }
+
         let actions = self
             .now_board
             .caterpillar_and_line_fillone(&self.end, self.usable_height);
-        for action in actions {
-            self.operate(&action);
+        for action in actions.iter() {
+            self.operate(action);
         }
 
-        println!("caterpillar and line fillone end:");
-        println!("{}", self.now_board);
-        println!("---");
-        println!("{}", self.end);
+        println!("caterpillar fillone: \n actions: {}, distance: {}", actions.len(), top_distance);
+
+        self.count[2] += actions.len();
+
     }
 }
 
@@ -154,6 +159,7 @@ pub fn play<'a>(
                 break;
             }
             down_fillone_game.operate(&action);
+            down_fillone_game.count[0] += 1;
 
             prev_distance = distance;
             last_diff = diff;
@@ -168,6 +174,8 @@ pub fn play<'a>(
             if last_diff.len() == distance as usize {
                 down_fillone_game.caterpillar_and_line_fillone();
             } else {
+                down_fillone_game.count[1] += 1;
+
                 down_fillone_game.operate(&action);
                 continue;
             }
@@ -179,5 +187,8 @@ pub fn play<'a>(
         }
     }
 
+    for (i, &c) in down_fillone_game.count.iter().enumerate() {
+        println!("{}: {}", i, c);
+    }
     down_fillone_game.actions
 }
