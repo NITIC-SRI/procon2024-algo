@@ -661,19 +661,15 @@ fn test_no_op_top_distance(
     action: Action,
     cuts: &Cuts,
 ) {
-    let res_distance = {
-        start
-            .no_op_top_distance(&end, usable_height, cuts, action.clone())
-            .0
-    };
-    let expected_distance = {
+    let res = { start.no_op_top_distance(&end, usable_height, cuts, action.clone()) };
+    let expected = {
         let mut new = start.clone();
         new.operate(&action, cuts);
-        new.top_first_distance(&end, usable_height).0
+        new.top_first_distance(&end, usable_height)
     };
 
     assert_eq!(
-        res_distance, expected_distance,
+        res, expected,
         "action: {:?}, start: {:?} end: {:?}",
         action, start, end
     );
@@ -754,7 +750,7 @@ fn tests_no_op_top_distance() {
             ]),
             3,
             Action::new(-12, 1, 15, Direction::Down),
-        )
+        ),
     ];
 
     let mut rng: StdRng = StdRng::seed_from_u64(42);
