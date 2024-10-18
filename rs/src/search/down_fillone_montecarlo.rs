@@ -6,6 +6,7 @@ use crate::utils;
 use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
+use rayon::prelude::*;
 
 pub struct DownFillOne<'a> {
     now_board: Board,
@@ -37,7 +38,9 @@ impl DownFillOne<'_> {
             }
             if action.direction() == Direction::Down {
                 base_down_only_actions.push(action.clone());
-            } else if action.direction() == Direction::Right || action.direction() == Direction::Left {
+            } else if action.direction() == Direction::Right
+                || action.direction() == Direction::Left
+            {
                 base_x_only_actions.push(action.clone());
             }
         }
@@ -112,9 +115,6 @@ impl DownFillOne<'_> {
     }
 
     pub fn down_greedy_action(&self) -> (Action, u64, Vec<usize>) {
-        let mut min_distance: u64 = std::u64::MAX;
-        let mut min_action = Action::new(0, 0, 0, Direction::Down);
-        let mut min_diff = vec![std::usize::MAX];
         let mut rng = SmallRng::from_entropy();
         let mut random_legal_actions: Vec<Action> = self
             .down_only_actions
@@ -122,23 +122,30 @@ impl DownFillOne<'_> {
             .cloned()
             .collect();
         random_legal_actions.extend(self.base_down_only_actions.clone());
+        let (min_action, min_distance, min_diff) = random_legal_actions
+            .par_iter()
+            .filter_map(|action| {
+                if action.y() + self.cuts[action.cut_num() as u32].height() as i32
+                    > self.usable_height as i32
+                {
+                    return None;
+                }
 
-        for action in random_legal_actions.iter() {
-            let mut next_board = self.now_board.clone();
-            if action.y() + self.cuts[action.cut_num() as u32].height() as i32
-                > self.usable_height as i32
-            {
-                continue;
-            }
-            next_board.operate(action, self.cuts);
-            let (distance, diff) = next_board.top_first_distance(&self.end, self.usable_height);
+                let (distance, diff) = self.now_board.no_op_top_distance(
+                    &self.end,
+                    self.usable_height,
+                    self.cuts,
+                    action,
+                );
 
-            if distance < min_distance {
-                min_distance = distance;
-                min_action = action.clone();
-                min_diff = diff;
-            }
-        }
+                Some((action.clone(), distance, diff))
+            })
+            .min_by_key(|&(_, distance, _)| distance)
+            .unwrap_or((
+                Action::new(0, 0, 0, Direction::Down),
+                std::u64::MAX,
+                vec![std::usize::MAX],
+            ));
 
         (min_action, min_distance, min_diff)
     }

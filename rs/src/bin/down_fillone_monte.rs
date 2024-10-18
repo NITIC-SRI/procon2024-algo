@@ -3,7 +3,7 @@ use rs::search::down_fillone_montecarlo::play;
 use rs::{board::board::Board, utils};
 
 fn main() {
-    let size = 64;
+    let size = 256;
     // let start: Board<u8> = Board::new(vec![
     //     vec![3, 2, 3, 1],
     //     vec![0, 3, 0, 3],
@@ -21,12 +21,12 @@ fn main() {
 
     let path = "../data/formal_cuts.json".to_string();
     let cuts = Cuts::new(path);
-    let legal_actions = utils::read_actions("../data/compress_actions/64*64.json".to_string());
+    let legal_actions = utils::read_actions_by_size(size as usize, size as usize);
 
-    let actions = play(&start, &end, &legal_actions, &cuts, 1000, 1000);
+    let actions = play(&start, &end, &legal_actions, &cuts, 1000, 100000);
     let json = utils::export_visualyzer_json(&start, &end, actions.clone());
 
-    println!("{}", json);
+    // println!("{}", json);
     println!("len: {}", actions.len());
 
     let mut now = start.clone();
@@ -34,8 +34,10 @@ fn main() {
         now.operate(&action, &cuts);
     }
 
-    println!("{}", now);
-    println!("---");
-    println!("{}", end);
+    assert_eq!(now, end);
+
+    // println!("{}", now);
+    // println!("---");
+    // println!("{}", end);
     println!("score: {}", now.absolute_distance(&end));
 }

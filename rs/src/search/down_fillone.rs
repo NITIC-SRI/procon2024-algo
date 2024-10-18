@@ -195,9 +195,9 @@ pub fn play<'a>(
             println!("break");
             break;
         }
-        println!("iter: {}", i);
+        // println!("iter: {}", i);
         // println!("{}", down_fillone_game.now_board);
-        // println!("height: {}", down_fillone_game.usable_height);
+        println!("height: {}", down_fillone_game.usable_height);
 
         // 一番上の行に寄せられるだけ寄せる
         let mut prev_distance = std::u64::MAX;

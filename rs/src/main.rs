@@ -1,17 +1,17 @@
-use rs::client::{get, post};
-use rs::utils::{export_post_json, string_to_board};
+use rs::board::action::Action;
+use rs::board::board::Board;
 use rs::board::cut::Cuts;
+use rs::client::{get, post};
+use rs::search::down_fillone;
+use rs::search::down_fillone_montecarlo;
 use rs::utils;
-use rs::search::down_fillone::play;
+use rs::utils::{export_post_json, string_to_board};
 
 #[tokio::main]
 async fn main() {
     let get_url = String::from("http://localhost:3000/problem");
     let post_url = String::from("http://localhost:3000/answer");
-    let token = "token1".to_string();
-
-
-
+    let token = "ichinoseki3984c30163ebc918a611915851c8a720a5f90924c5754e66020211".to_string();
 
     let data = get(get_url, token.clone()).await;
     let start = string_to_board(data.board.start);
@@ -24,11 +24,25 @@ async fn main() {
 
     let legal_actions = utils::read_actions_by_size(size_w as usize, size_h as usize);
 
-    let actions = play(&start, &end, &legal_actions, &cuts, 1000);
+    let actions = select_algorithm(size_h, size_w, &start, &end, &legal_actions, &cuts);
 
-    // let actions = vec![Action::new(0, 2, 0, Direction::Up)];
     let json = export_post_json(&actions);
     println!("{}", json);
     let res = post(post_url, json, token);
     println!("{:?}", res.await);
+}
+
+fn select_algorithm(
+    h: u32,
+    w: u32,
+    start: &Board,
+    end: &Board,
+    legal_actions: &Vec<Action>,
+    cuts: &Cuts,
+) -> Vec<Action> {
+    if h <= 128 && w <= 128 {
+        return down_fillone::play(start, end, legal_actions, cuts, 1000);
+    } else {
+        return down_fillone_montecarlo::play(start, end, legal_actions, cuts, 1000, 1000000);
+    }
 }
