@@ -217,10 +217,12 @@ where
         let cut = &cuts[action.cut_num() as u32];
 
         for w in 0..self.width() {
-            let cut_flag = if w < action.x() as usize || w >= action.x() as usize + cut.width() {
+            // cutの範囲外の場合はfalse
+            let cut_flag = if (w as i32) < action.x() || w as i32 >= action.x() + cut.width() as i32
+            {
                 false
             } else {
-                cut[0][w - action.x() as usize]
+                cut[0][(w as i32 - action.x()) as usize]
             };
             let now_top_cell = self.board()[0][w];
             let now_midlle_cell = self.board()[action.y() as usize][w];
