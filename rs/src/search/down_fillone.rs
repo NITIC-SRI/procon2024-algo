@@ -126,7 +126,6 @@ impl DownFillOne<'_> {
         println!("caterpillar fillone: \n actions: {}, distance: {}", actions.len(), top_distance);
 
         self.count[2] += actions.len();
-
     }
 }
 

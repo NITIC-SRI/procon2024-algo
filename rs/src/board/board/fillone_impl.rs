@@ -190,7 +190,7 @@ where
                 let col_num = if row_num == y { col_num } else { 0 };
                 'loop_x: for x in col_num..self.width() {
                     // 一番上の行についてのループ
-                    for w in (0..(self.width() - x)).rev() {
+                    for w in 0..(self.width() - x) {
                         if end.board[y][x] == new.board[0][w] {
                             new.op_one_left(w as i32, 0 as i32);
                             count += 1;
@@ -539,7 +539,12 @@ where
             }
         }
 
+        println!("inner caterpillar actions: {}", actions.len());
+
         actions.extend(new.line_fillone(end, end_row_y));
+
+        println!("inner actions len: {}", actions.len());
+        println!("actions sequence: {:?}", actions);
 
         actions
     }
