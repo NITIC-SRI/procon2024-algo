@@ -653,3 +653,103 @@ fn tests_catapillar_and_line_fillone() {
         test_caterpillar_and_line_fillone(start, end, usuable_hegith);
     }
 }
+
+
+
+fn test_no_op_top_distance(
+    start: Board,
+    end: Board,
+    usuable_height: usize,
+    action: Action,
+    cuts: &Cuts,
+) {
+    let (prev_distance, _) = start.top_first_distance(&end, usuable_height);
+    let res_distance = {
+        start.no_op_top_distance(
+            &end,
+            start.height() - usuable_height,
+            prev_distance,
+            cuts,
+            action.clone(),
+        )
+    };
+    let expected_distance = {
+        let mut new = start.clone();
+        new.operate(&action, cuts);
+        new.top_first_distance(&end, usuable_height).0
+    };
+
+    assert_eq!(
+        res_distance, expected_distance,
+        "action: {:?}, start: {:?} end: {:?}",
+        action, start, end
+    );
+}
+
+#[test]
+fn tests_no_op_top_distance() {
+    let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+    let mut test_cases: Vec<(Board, Board, usize, Action)> = vec![
+        (
+            Board::new(vec![
+                vec![2, 3, 1],
+                vec![3, 0, 1],
+                vec![1, 0, 3],
+                vec![1, 2, 3],
+                vec![2, 1, 0],
+            ]),
+            Board::new(vec![
+                vec![1, 2, 3],
+                vec![2, 1, 0],
+                vec![1, 1, 1],
+                vec![2, 0, 3],
+                vec![3, 0, 3],
+            ]),
+            3,
+            Action::new(1, 2, 1, Direction::Down),
+        ),
+        (
+            Board::new(vec![
+                vec![2, 0, 2],
+                vec![3, 1, 0],
+                vec![2, 3, 0],
+                vec![3, 2, 2],
+                vec![3, 1, 3],
+            ]),
+            Board::new(vec![
+                vec![3, 2, 2],
+                vec![3, 1, 3],
+                vec![0, 2, 2],
+                vec![2, 3, 3],
+                vec![0, 1, 0],
+            ]),
+            3,
+            Action::new(0, 2, 1, Direction::Down),
+        ),
+    ];
+
+    let mut rng: StdRng = StdRng::seed_from_u64(42);
+    for _ in 0..64 {
+        let correct_height: u32 = rng.gen_range(1..=128);
+        let incorrect_height: u32 = rng.gen_range(2..=128);
+
+        let w: u32 = rng.gen_range(1..=256);
+
+        let correct: Vec<Vec<u8>> = random_board(correct_height, w);
+        let incorrect: Vec<Vec<u8>> = random_board(incorrect_height, w);
+
+        let start = Board::new([incorrect.clone(), correct.clone()].concat());
+        let end = Board::new([correct, shuffle_board(incorrect, 42)].concat());
+
+        let action = {
+            let x = rng.gen_range(0..w);
+            let y = rng.gen_range(1..incorrect_height);
+            let cut_num = rng.gen_range(1..25);
+            Action::new(x as i32, y as i32, cut_num, Direction::Down)
+        };
+        test_cases.push((start, end, incorrect_height as usize, action));
+    }
+    for (start, end, usuable_height, action) in test_cases {
+        test_no_op_top_distance(start, end, usuable_height, action, &cuts);
+    }
+}
