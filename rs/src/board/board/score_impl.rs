@@ -1,7 +1,7 @@
 use super::Board;
 
-use crate::board::action::{Action,Direction};
-use crate::board::cut::{Cut,Cuts};
+use crate::board::action::Action;
+use crate::board::cut::Cuts;
 use std::convert::Into;
 use std::fmt::Debug;
 
@@ -265,7 +265,6 @@ where
                 }
             }
         }
-
 
         let mut col_count_sum = 0;
         for w in 0..self.width() {

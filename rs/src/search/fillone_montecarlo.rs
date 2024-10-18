@@ -2,10 +2,9 @@ use super::game::{Game, State};
 use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
+use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
-use rand::rngs::SmallRng;
-
 
 pub const N_SIMULATIONS: usize = 10000;
 pub const SCORE_MAX: u64 = 0;
@@ -38,7 +37,11 @@ impl<'a> Game<'a> for MontecarloGame<'a> {
         let mut min_action = Action::new(0, 0, 0, Direction::Up);
 
         let mut rng = SmallRng::from_entropy();
-        let random_legal_actions: Vec<Action> = self.legal_actions.choose_multiple(&mut rng, N_SIMULATIONS).cloned().collect();
+        let random_legal_actions: Vec<Action> = self
+            .legal_actions
+            .choose_multiple(&mut rng, N_SIMULATIONS)
+            .cloned()
+            .collect();
         for action in random_legal_actions {
             let mut board = state.board.clone();
             board.operate(&action, &self.cuts);

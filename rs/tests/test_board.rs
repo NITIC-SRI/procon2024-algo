@@ -3,7 +3,7 @@ use std::vec;
 use rs::board::action::{Action, Direction};
 use rs::board::board::Board;
 use rs::board::cut::{Cut, Cuts};
-use rs::utils::{random_board, shuffle_board, validate_actions};
+use rs::utils::{random_board, shuffle_board};
 
 use rand::rngs::StdRng;
 use rand::{self, Rng, SeedableRng};
@@ -653,8 +653,6 @@ fn tests_catapillar_and_line_fillone() {
         test_caterpillar_and_line_fillone(start, end, usuable_hegith);
     }
 }
-
-
 
 fn test_no_op_top_distance(
     start: Board,

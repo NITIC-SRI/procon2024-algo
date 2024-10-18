@@ -1,4 +1,4 @@
-use crate::board::action::{self, Action, Direction};
+use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
 use crate::utils;
@@ -13,7 +13,7 @@ pub struct DownFillOne<'a> {
     cuts: &'a Cuts,
     usable_height: usize,
     actions: Vec<Action>,
-    count: Vec<usize>
+    count: Vec<usize>,
 }
 
 impl DownFillOne<'_> {
@@ -32,7 +32,7 @@ impl DownFillOne<'_> {
             cuts,
             usable_height: start.height(),
             actions: Vec::new(),
-            count: vec![0; 3] // 0: down, 1: x, 2: fillone
+            count: vec![0; 3], // 0: down, 1: x, 2: fillone
         }
     }
 
@@ -67,7 +67,8 @@ impl DownFillOne<'_> {
 
             next_board.operate(action, self.cuts);
             // let distance = next_board.match_x_direction_score(&self.end, &diff, self.usable_height);
-            let (distance, col_score) = next_board.match_x_direction_and_col_score(&self.end, &diff, self.usable_height);
+            let (distance, col_score) =
+                next_board.match_x_direction_and_col_score(&self.end, &diff, self.usable_height);
 
             if min_distance > distance {
                 min_distance = distance;
@@ -111,7 +112,9 @@ impl DownFillOne<'_> {
     pub fn caterpillar_and_line_fillone(&mut self) {
         let mut top_distance = 0;
         for w in 0..self.now_board.width() {
-            if self.now_board.board()[0][w] != self.end.board()[self.now_board.height() - self.usable_height][w] {
+            if self.now_board.board()[0][w]
+                != self.end.board()[self.now_board.height() - self.usable_height][w]
+            {
                 top_distance += 1;
             }
         }
@@ -123,7 +126,11 @@ impl DownFillOne<'_> {
             self.operate(action);
         }
 
-        println!("caterpillar fillone: \n actions: {}, distance: {}", actions.len(), top_distance);
+        println!(
+            "caterpillar fillone: \n actions: {}, distance: {}",
+            actions.len(),
+            top_distance
+        );
 
         self.count[2] += actions.len();
     }

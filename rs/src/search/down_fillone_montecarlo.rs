@@ -160,7 +160,7 @@ pub fn play<'a>(
 
         // 一番上の行で揃えられないものが存在するなら横に篩う
         if !last_diff.is_empty() {
-            let (action, distance) = down_fillone_game.greedy_match_x_direction_action(&last_diff);
+            let (action, _) = down_fillone_game.greedy_match_x_direction_action(&last_diff);
             down_fillone_game.operate(&action);
             continue;
         }
