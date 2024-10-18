@@ -4,6 +4,7 @@ use crate::board::action::Action;
 use crate::board::cut::Cuts;
 use std::convert::Into;
 use std::fmt::Debug;
+use std::vec;
 
 impl<T> Board<T>
 where
@@ -205,23 +206,17 @@ where
     pub fn no_op_top_distance(
         &self,
         end: &Self,
-        end_row_num: usize,
-        prev_distance: u64,
+        usable_height: usize,
         cuts: &Cuts,
         action: Action,
-    ) -> u64 {
-        let mut distance_diff: i32 = 0;
+    ) -> (u64, Vec<usize>) {
+        let end_row_num = self.height() - usable_height;
+        let mut distance = 0;
         let mut diff = vec![];
 
         let cut = &cuts[action.cut_num() as u32];
-        if cut.width() as i32 + action.x() < 0 {
-            return 0;
-        }
 
         for w in 0..self.width() {
-            if w as i32 > (cut.width() as i32) + action.x() {
-                break;
-            }
             let cut_flag = if w < action.x() as usize || w >= action.x() as usize + cut.width() {
                 false
             } else {
@@ -231,23 +226,14 @@ where
             let now_midlle_cell = self.board()[action.y() as usize][w];
             let end_cell = end.board()[end_row_num][w];
 
-            if cut_flag {
-                if now_top_cell != end_cell && now_midlle_cell == end_cell {
-                    distance_diff -= 1;
-                } else if now_top_cell == end_cell && now_midlle_cell != end_cell {
-                    distance_diff += 1;
-                    diff.push(w);
-                } else if now_top_cell != end_cell && now_midlle_cell != end_cell {
-                    diff.push(w);
-                }
-            } else {
-                if now_top_cell != end_cell {
-                    diff.push(w);
-                }
+            if (cut_flag && now_midlle_cell != end_cell) || (!cut_flag && now_top_cell != end_cell)
+            {
+                distance += 1;
+                diff.push(w);
             }
         }
 
-        ((prev_distance as i32) + distance_diff) as u64
+        (distance, diff)
     }
 
     pub fn match_x_direction_and_col_score(

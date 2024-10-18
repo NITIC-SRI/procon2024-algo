@@ -657,24 +657,19 @@ fn tests_catapillar_and_line_fillone() {
 fn test_no_op_top_distance(
     start: Board,
     end: Board,
-    usuable_height: usize,
+    usable_height: usize,
     action: Action,
     cuts: &Cuts,
 ) {
-    let (prev_distance, _) = start.top_first_distance(&end, usuable_height);
     let res_distance = {
-        start.no_op_top_distance(
-            &end,
-            start.height() - usuable_height,
-            prev_distance,
-            cuts,
-            action.clone(),
-        )
+        start
+            .no_op_top_distance(&end, usable_height, cuts, action.clone())
+            .0
     };
     let expected_distance = {
         let mut new = start.clone();
         new.operate(&action, cuts);
-        new.top_first_distance(&end, usuable_height).0
+        new.top_first_distance(&end, usable_height).0
     };
 
     assert_eq!(
@@ -724,6 +719,24 @@ fn tests_no_op_top_distance() {
             3,
             Action::new(0, 2, 1, Direction::Down),
         ),
+        (
+            Board::new(vec![
+                vec![2, 3, 0, 0, 1],
+                vec![0, 2, 0, 3, 3],
+                vec![0, 1, 2, 3, 0],
+                vec![2, 2, 0, 3, 1],
+                vec![1, 2, 3, 3, 2],
+            ]),
+            Board::new(vec![
+                vec![0, 1, 2, 3, 0],
+                vec![2, 2, 0, 3, 1],
+                vec![1, 2, 3, 3, 2],
+                vec![0, 0, 3, 0, 2],
+                vec![3, 2, 1, 0, 3],
+            ]),
+            2,
+            Action::new(0, 1, 2, Direction::Down),
+        ),
     ];
 
     let mut rng: StdRng = StdRng::seed_from_u64(42);
@@ -747,7 +760,7 @@ fn tests_no_op_top_distance() {
         };
         test_cases.push((start, end, incorrect_height as usize, action));
     }
-    for (start, end, usuable_height, action) in test_cases {
-        test_no_op_top_distance(start, end, usuable_height, action, &cuts);
+    for (start, end, usable_height, action) in test_cases {
+        test_no_op_top_distance(start, end, usable_height, action, &cuts);
     }
 }
