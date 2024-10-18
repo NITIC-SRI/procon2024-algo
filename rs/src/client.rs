@@ -1,8 +1,7 @@
 use crate::utils::Data;
 
 // -H "Procon-Token: token1"
-pub async fn get(url: String) -> Data {
-    let token = "token1";
+pub async fn get(url: String, token: String) -> Data {
     let client = reqwest::Client::new();
     let res = client.get(&url).header("Procon-Token", token).send().await;
     let body = res.unwrap().text().await;
@@ -16,8 +15,7 @@ pub async fn get(url: String) -> Data {
         Err(_) => panic!("Error"),
     }
 }
-pub async fn post(url: String, json_request: String) {
-    let token = "token1";
+pub async fn post(url: String, json_request: String, token: String) {
     let client = reqwest::Client::new();
     match client
         .post(&url)
