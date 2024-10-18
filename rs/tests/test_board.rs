@@ -661,7 +661,7 @@ fn test_no_op_top_distance(
     action: Action,
     cuts: &Cuts,
 ) {
-    let res = { start.no_op_top_distance(&end, usable_height, cuts, action.clone()) };
+    let res = { start.no_op_top_distance(&end, usable_height, cuts, &action) };
     let expected = {
         let mut new = start.clone();
         new.operate(&action, cuts);
