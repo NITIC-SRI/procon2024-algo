@@ -338,8 +338,8 @@ pub fn export_post_json(actions: &Vec<Action>) -> String {
             s: match action.direction() {
                 Direction::Up => 0,
                 Direction::Down => 1,
-                Direction::Right => 2,
-                Direction::Left => 3,
+                Direction::Right => 3,
+                Direction::Left => 2,
             },
         };
         actions_format.ops.push(action_format);
