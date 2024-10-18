@@ -735,8 +735,26 @@ fn tests_no_op_top_distance() {
                 vec![3, 2, 1, 0, 3],
             ]),
             2,
-            Action::new(0, 1, 2, Direction::Down),
+            Action::new(-1, 1, 2, Direction::Down),
         ),
+        (
+            Board::new(vec![
+                vec![2, 3, 1],
+                vec![3, 2, 0],
+                vec![2, 1, 1],
+                vec![2, 0, 2],
+                vec![1, 1, 2],
+            ]),
+            Board::new(vec![
+                vec![2, 1, 1],
+                vec![2, 0, 2],
+                vec![1, 1, 2],
+                vec![2, 2, 0],
+                vec![1, 3, 3],
+            ]),
+            3,
+            Action::new(-12, 1, 15, Direction::Down),
+        )
     ];
 
     let mut rng: StdRng = StdRng::seed_from_u64(42);
@@ -753,9 +771,9 @@ fn tests_no_op_top_distance() {
         let end = Board::new([correct, shuffle_board(incorrect, 42)].concat());
 
         let action = {
-            let x = rng.gen_range(0..w);
+            let x = rng.gen_range(-128..(w as i32));
             let y = rng.gen_range(1..incorrect_height);
-            let cut_num = rng.gen_range(1..25);
+            let cut_num = rng.gen_range(0..25);
             Action::new(x as i32, y as i32, cut_num, Direction::Down)
         };
         test_cases.push((start, end, incorrect_height as usize, action));
