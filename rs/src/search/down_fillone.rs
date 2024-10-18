@@ -13,7 +13,6 @@ pub struct DownFillOne<'a> {
     cuts: &'a Cuts,
     usable_height: usize,
     actions: Vec<Action>,
-    count: usize,
 }
 
 impl DownFillOne<'_> {
@@ -32,12 +31,7 @@ impl DownFillOne<'_> {
             cuts,
             usable_height: start.height(),
             actions: Vec::new(),
-            count: 0,
         }
-    }
-
-    pub fn count(&mut self) {
-        self.count += 1;
     }
 
     pub fn complete_top_row(&mut self) {
@@ -103,6 +97,24 @@ impl DownFillOne<'_> {
 
         (min_action, min_distance, min_diff)
     }
+
+    pub fn caterpillar_and_line_fillone(&mut self) {
+        println!("caterpillar and line fillone begin:");
+        println!("{}", self.now_board);
+        println!("---");
+        println!("{}", self.end);
+        let actions = self
+            .now_board
+            .caterpillar_and_line_fillone(&self.end, self.usable_height);
+        for action in actions {
+            self.operate(&action);
+        }
+
+        println!("caterpillar and line fillone end:");
+        println!("{}", self.now_board);
+        println!("---");
+        println!("{}", self.end);
+    }
 }
 
 pub fn play<'a>(
@@ -124,6 +136,12 @@ pub fn play<'a>(
 
     // TODO: タイムキーパー
     for _ in 0..MAX_ITERATIONS {
+        if down_fillone_game.usable_height == 1 {
+            down_fillone_game.caterpillar_and_line_fillone();
+            down_fillone_game.complete_top_row();
+            println!("break");
+            break;
+        }
         println!("{}", down_fillone_game.now_board);
         println!("height: {}", down_fillone_game.usable_height);
 
@@ -148,12 +166,11 @@ pub fn play<'a>(
         if !last_diff.is_empty() {
             let (action, distance) = down_fillone_game.greedy_match_x_direction_action(&last_diff);
             if last_diff.len() == distance as usize {
-                // down_fillone_game.caterpillar_and_line_fillone();
-                down_fillone_game.count();
+                down_fillone_game.caterpillar_and_line_fillone();
             } else {
                 down_fillone_game.operate(&action);
+                continue;
             }
-            continue;
         }
 
         down_fillone_game.complete_top_row();
@@ -161,8 +178,6 @@ pub fn play<'a>(
             break;
         }
     }
-
-    println!("count: {}", down_fillone_game.count);
 
     down_fillone_game.actions
 }
