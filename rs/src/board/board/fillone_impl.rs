@@ -5,6 +5,7 @@ use super::Board;
 
 use crate::board::action;
 use crate::board::action::Action;
+use crate::board::cut::Cuts;
 use std::convert::Into;
 use std::fmt::Debug;
 use std::vec;
@@ -395,7 +396,12 @@ where
         actions
     }
 
-    pub fn half_caterpillar_move(&self, top_x: usize, target_x: usize, target_y: usize) -> Vec<Action> {
+    pub fn half_caterpillar_move(
+        &self,
+        top_x: usize,
+        target_x: usize,
+        target_y: usize,
+    ) -> Vec<Action> {
         assert_ne!(target_y, 0, "target_y must be greater than 0");
         let mut actions: Vec<Action> = vec![];
 
@@ -473,14 +479,15 @@ impl<T> Board<T>
 where
     T: Copy + PartialEq + Into<usize> + Debug + Eq + Hash,
 {
-    pub fn line_fillone(&self, end: &Self) -> Vec<Action> {
+    pub fn line_fillone(&self, end: &Self, target_row: usize) -> Vec<Action> {
         let start_row = Board::new(vec![self.board()[0].clone()]);
-        let end_row = Board::new(vec![end.board()[0].clone()]);
+        let end_row = Board::new(vec![end.board()[target_row].clone()]);
+
         if cfg!(debug_assertions) {
             let mut counts = HashMap::new();
             for i in 0..self.width() {
-                *counts.entry(self.board()[0][i]).or_insert(0) += 1;
-                *counts.entry(end.board()[0][i]).or_insert(0) -= 1;
+                *counts.entry(start_row.board()[0][i]).or_insert(0) += 1;
+                *counts.entry(end_row.board()[0][i]).or_insert(0) -= 1;
             }
             assert!(
                 counts.values().all(|&x| x == 0),
@@ -488,6 +495,52 @@ where
             );
         }
         let actions = start_row.get_fillone_actions(&end_row, 0, 0, true);
+        actions
+    }
+
+    pub fn caterpillar_and_line_fillone(&self, end: &Self, usable_height: usize) -> Vec<Action> {
+        let end_row_y = self.height() - usable_height;
+        let mut new = self.clone();
+        let mut actions = vec![];
+
+        let mut row_cnt: Vec<i32> = vec![0; 4];
+        // let mut wrongs: Vec<Vec<usize>> = vec![vec![]; 4];
+
+        for w in 0..self.width() {
+            if self.board()[0][w] == end.board()[end_row_y][w] {
+                continue;
+            }
+            row_cnt[self.board()[0][w].into()] += 1;
+            row_cnt[end.board()[end_row_y][w].into()] -= 1;
+        }
+        let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+        // targetnum: ほしい数
+        for (target_num, &cnt) in row_cnt.clone().iter().enumerate() {
+            if cnt >= 0 {
+                continue;
+            }
+
+            for _ in 0..-cnt {
+                'loop1: for source_x in 0..self.width() {
+                    if row_cnt[new.board()[0][source_x].into()] > 0 {
+                        for y in 1..usable_height {
+                            for x in 0..self.width() {
+                                if new.board()[y][x].into() == target_num {
+                                    row_cnt[new.board()[0][source_x].into()] -= 1;
+                                    let tmp = new.half_caterpillar_move(source_x, x, y);
+                                    new.operate_actions(tmp.clone(), &cuts);
+                                    actions.extend(tmp);
+                                    break 'loop1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        actions.extend(new.line_fillone(end, end_row_y));
+
         actions
     }
 }

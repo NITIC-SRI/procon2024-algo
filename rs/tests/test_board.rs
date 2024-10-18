@@ -538,25 +538,118 @@ fn tests_catapillar_move() {
 fn test_line_fillone() {
     let cuts = Cuts::new("../data/formal_cuts.json".to_string());
 
-    let test_cases = vec![];
-    for (start, end) in test_cases {
+    let test_cases = vec![(
+        vec![
+            vec![1, 3, 2, 1, 1, 2],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+        ],
+        vec![
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![0, 0, 0, 0, 0, 0],
+            vec![1, 1, 1, 2, 2, 3],
+            vec![0, 0, 0, 0, 0, 0],
+        ],
+        4,
+    )];
+    for (start, end, target_row) in test_cases {
         let mut start: Board<u8> = Board::new(start);
         let end: Board<u8> = Board::new(end);
-        let actions = start.line_fillone(&end);
-        assert!(validate_actions(&start, &end, &actions, &cuts));
+        let actions = start.line_fillone(&end, target_row);
+        start.operate_actions(actions, &cuts);
+        assert_eq!(start.board()[0], end.board()[target_row]);
     }
 
     let mut rng = StdRng::seed_from_u64(42);
     for _ in 0..16 {
-        let h: u32 = rng.gen_range(1..255);
+        let h: u32 = rng.gen_range(1..127);
         let w: u32 = rng.gen_range(1..256);
         let base: Vec<Vec<u8>> = random_board(h, w);
         let line: Vec<Vec<u8>> = random_board(1, w);
 
-        let start = Board::new([line.clone(), base.clone()].concat());
-        let end = Board::new([shuffle_board(line.clone(), 42), base].concat());
+        let mut start =
+            Board::new([shuffle_board(line.clone(), 42), base.clone(), base.clone()].concat());
+        let end = Board::new([base.clone(), line, base].concat());
 
-        let actions = start.line_fillone(&end);
-        assert!(validate_actions(&start, &end, &actions, &cuts));
+        let actions = start.line_fillone(&end, h as usize);
+        start.operate_actions(actions, &cuts);
+        assert_eq!(start.board()[0], end.board()[h as usize]);
+    }
+}
+
+fn test_caterpillar_and_line_fillone(start: Board, end: Board, usuable_hegith: usize) {
+    let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+    let actions = start.caterpillar_and_line_fillone(&end, usuable_hegith);
+    let mut new = start.clone();
+    new.operate_actions(actions, &cuts);
+    assert_eq!(
+        new.board()[0],
+        end.board()[(end.height() - usuable_hegith) as usize]
+    );
+}
+
+#[test]
+fn tests_catapillar_and_line_fillone() {
+    let mut test_cases: Vec<(Board<u8>, Board<u8>, usize)> = vec![
+        // (
+        // Board::new(vec![
+        //     vec![2, 3, 0, 0, 3],
+        //     vec![0, 0, 1, 0, 2],
+        //     vec![3, 3, 2, 0, 2],
+        //     vec![0, 0, 1, 3, 0],
+        //     vec![3, 3, 2, 3, 2],
+        // ]),
+        // Board::new(vec![
+        //     vec![0, 0, 1, 3, 0],
+        //     vec![3, 3, 2, 3, 2],
+        //     vec![0, 3, 3, 0, 0],
+        //     vec![3, 2, 2, 2, 3],
+        //     vec![2, 0, 0, 1, 0],
+        // ]),
+        // 3,
+        // ),
+        (
+            Board::new(vec![
+                vec![2, 2, 2, 1, 3],
+                vec![0, 1, 0, 0, 2],
+                vec![0, 0, 0, 3, 2],
+                vec![1, 0, 3, 2, 1],
+                vec![1, 0, 2, 1, 2],
+                vec![1, 2, 0, 3, 3],
+            ]),
+            Board::new(vec![
+                vec![1, 0, 3, 2, 1],
+                vec![1, 0, 2, 1, 2],
+                vec![1, 2, 0, 3, 3],
+                vec![3, 2, 0, 0, 0],
+                vec![3, 2, 0, 2, 0],
+                vec![2, 1, 1, 0, 2],
+            ]),
+            3,
+        ),
+    ];
+
+    let mut rng = StdRng::seed_from_u64(42);
+    for _ in 0..1 {
+        let correct_height: u32 = rng.gen_range(256..=256);
+        let incorrect_height: u32 = rng.gen_range(256..=256);
+
+        let w: u32 = rng.gen_range(256..=256);
+
+        let correct: Vec<Vec<u8>> = random_board(correct_height, w);
+        let incorrect: Vec<Vec<u8>> = random_board(incorrect_height, w);
+
+        let start = Board::new([incorrect.clone(), correct.clone()].concat());
+        let end = Board::new([correct, shuffle_board(incorrect, 42)].concat());
+        test_cases.push((start, end, incorrect_height as usize))
+    }
+
+    for (start, end, usuable_hegith) in test_cases {
+        test_caterpillar_and_line_fillone(start, end, usuable_hegith);
     }
 }
