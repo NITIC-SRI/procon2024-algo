@@ -24,7 +24,7 @@ async fn main() {
 
     let legal_actions = utils::read_actions_by_size(size_w as usize, size_h as usize);
 
-    let actions = play(&start, &end, &legal_actions, &cuts);
+    let actions = play(&start, &end, &legal_actions, &cuts, 1000);
 
     // let actions = vec![Action::new(0, 2, 0, Direction::Up)];
     let json = export_post_json(&actions);

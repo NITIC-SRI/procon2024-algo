@@ -3,8 +3,6 @@ use crate::board::board::Board;
 use crate::board::cut::Cuts;
 use crate::utils;
 
-const MAX_ITERATIONS: usize = 100;
-
 pub struct DownFillOne<'a> {
     now_board: Board,
     end: &'a Board,
@@ -145,6 +143,7 @@ pub fn play<'a>(
     end: &Board,
     legal_actions: &Vec<Action>,
     cuts: &Cuts,
+    max_iterations: usize,
 ) -> Vec<Action> {
     let mut cuts = cuts.clone();
     cuts.delete_only_zero_bottoms();
@@ -158,15 +157,16 @@ pub fn play<'a>(
     );
 
     // TODO: タイムキーパー
-    for _ in 0..MAX_ITERATIONS {
+    for i in 0..max_iterations {
         if down_fillone_game.usable_height == 1 {
             down_fillone_game.caterpillar_and_line_fillone();
             down_fillone_game.complete_top_row();
             println!("break");
             break;
         }
-        println!("{}", down_fillone_game.now_board);
-        println!("height: {}", down_fillone_game.usable_height);
+        println!("iter: {}", i);
+        // println!("{}", down_fillone_game.now_board);
+        // println!("height: {}", down_fillone_game.usable_height);
 
         // 一番上の行に寄せられるだけ寄せる
         let mut prev_distance = std::u64::MAX;

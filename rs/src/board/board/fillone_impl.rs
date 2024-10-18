@@ -539,12 +539,12 @@ where
             }
         }
 
-        println!("inner caterpillar actions: {}", actions.len());
+        // println!("inner caterpillar actions: {}", actions.len());
 
         actions.extend(new.line_fillone(end, end_row_y));
 
-        println!("inner actions len: {}", actions.len());
-        println!("actions sequence: {:?}", actions);
+        // println!("inner actions len: {}", actions.len());
+        // println!("actions sequence: {:?}", actions);
 
         actions
     }
