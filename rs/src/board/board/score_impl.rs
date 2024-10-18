@@ -214,13 +214,13 @@ where
         (diff.len() - score) as u64
     }
 
-    pub fn match_x_direction_and_row_score(
+    pub fn match_x_direction_and_col_score(
         self,
         end: &Self,
         diff: &Vec<usize>,
         usable_height: usize,
-    ) -> i64 {
-        let mut score: i64 = 0;
+    ) -> (u64, u64) {
+        let mut score: u64 = 0;
         for &d in diff {
             for h in 1..usable_height {
                 if self.board[h][d] == end.board[self.height() - usable_height][d] {
@@ -230,22 +230,21 @@ where
             }
         }
 
-        if diff.len() as i64 - score == 0 {
-            let mut row_count_sum = 0;
-            for h in 0..self.height() {
-                let mut row_map = vec![0; 4];
-                let mut row_score: i64 = 0;
-                for w in 0..self.width() {
-                    row_map[self.board()[h][w].into()] += 1;
-                    row_map[end.board()[h][w].into()] -= 1;
-                }
-                for i in 0..4 {
-                    row_score += (row_map[i] as i64).abs();
-                }
-                row_count_sum += row_score;
+
+        let mut col_count_sum = 0;
+        for w in 0..self.width() {
+            let mut col_map = vec![0; 4];
+            let mut col_score = 0;
+            for h in 1..usable_height {
+                col_map[self.board()[h][w].into()] += 1;
+                col_map[end.board()[h][w].into()] -= 1;
             }
-            return row_count_sum - (self.height() * self.width()) as i64;
+            for i in 0..4 {
+                col_score += (col_map[i] as i32).abs();
+            }
+            col_count_sum += col_score as u64;
         }
-        diff.len() as i64 - score
+
+        (diff.len() as u64 - score, col_count_sum)
     }
 }

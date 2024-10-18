@@ -54,6 +54,7 @@ impl DownFillOne<'_> {
     pub fn greedy_match_x_direction_action(&self, diff: &Vec<usize>) -> (Action, u64) {
         let mut min_distance: u64 = std::u64::MAX;
         let mut min_action = Action::new(0, 0, 0, Direction::Down);
+        let mut min_distance_col_distance = std::u64::MAX;
 
         for action in self.x_only_actions {
             let mut next_board = self.now_board.clone();
@@ -65,9 +66,16 @@ impl DownFillOne<'_> {
             }
 
             next_board.operate(action, self.cuts);
-            let distance = next_board.match_x_direction_score(&self.end, &diff, self.usable_height);
+            // let distance = next_board.match_x_direction_score(&self.end, &diff, self.usable_height);
+            let (distance, col_score) = next_board.match_x_direction_and_col_score(&self.end, &diff, self.usable_height);
+
             if min_distance > distance {
                 min_distance = distance;
+                min_action = action.clone();
+            }
+
+            if min_distance == distance && min_distance_col_distance > col_score {
+                min_distance_col_distance = col_score;
                 min_action = action.clone();
             }
         }
