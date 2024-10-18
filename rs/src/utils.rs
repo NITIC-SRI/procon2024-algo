@@ -266,7 +266,7 @@ pub struct TestBoard {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct TestGeneral {
     pub n: u32,
-    pub pattern: Vec<Pattern>,
+    pub patterns: Vec<Pattern>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -300,4 +300,50 @@ pub fn validate_actions(start: &Board, end: &Board, actions: &Vec<Action>, cuts:
     }
 
     now == *end
+}
+
+pub fn string_to_board(board_str: Vec<String>) -> Board {
+    let mut board = Vec::new();
+    for row_str in board_str {
+        let row = row_str.chars().map(|c| c.to_digit(10).unwrap() as u8).collect();
+        board.push(row);
+    }
+    Board::new(board)
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PostActionFormat {
+    p: u16,
+    x: i32,
+    y: i32,
+    s: u8,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct PostData {
+    pub n: usize,
+    pub ops: Vec<PostActionFormat>,
+}
+
+pub fn export_post_json(actions: &Vec<Action>) -> String {
+    let mut actions_format = PostData {
+        n: actions.len(),
+        ops: Vec::new(),
+    };
+    for action in actions {
+        let action_format = PostActionFormat {
+            p: action.cut_num(),
+            x: action.x(),
+            y: action.y(),
+            s: match action.direction() {
+                Direction::Up => 0,
+                Direction::Down => 1,
+                Direction::Right => 2,
+                Direction::Left => 3,
+            },
+        };
+        actions_format.ops.push(action_format);
+    }
+    let json = serde_json::to_string(&actions_format).unwrap();
+    json
 }

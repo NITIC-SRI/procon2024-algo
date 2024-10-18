@@ -36,7 +36,7 @@ fn main() {
                 },
                 general: TestGeneral {
                     n: num_general_cuts,
-                    pattern: general_cuts,
+                    patterns: general_cuts,
                 },
             };
 
