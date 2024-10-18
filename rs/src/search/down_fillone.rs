@@ -2,6 +2,7 @@ use crate::board::action::{Action, Direction};
 use crate::board::board::Board;
 use crate::board::cut::Cuts;
 use crate::utils;
+use rayon::prelude::*;
 
 pub struct DownFillOne<'a> {
     now_board: Board,
@@ -82,31 +83,61 @@ impl DownFillOne<'_> {
         (min_action, min_distance)
     }
 
+    // pub fn down_greedy_action(&self) -> (Action, u64, Vec<usize>) {
+    //     let mut min_distance: u64 = std::u64::MAX;
+    //     let mut min_action = Action::new(0, 0, 0, Direction::Down);
+    //     let mut min_diff = vec![std::usize::MAX];
+
+    //     for action in self.down_only_actions {
+    //         if action.y() + self.cuts[action.cut_num() as u32].height() as i32
+    //             > self.usable_height as i32
+    //         {
+    //             continue;
+    //         }
+
+    //         let (distance, diff) = self.now_board.no_op_top_distance(
+    //             &self.end,
+    //             self.usable_height,
+    //             self.cuts,
+    //             &action,
+    //         );
+
+    //         if distance < min_distance {
+    //             min_distance = distance;
+    //             min_action = action.clone();
+    //             min_diff = diff;
+    //         }
+    //     }
+
+    //     (min_action, min_distance, min_diff)
+    // }
+
     pub fn down_greedy_action(&self) -> (Action, u64, Vec<usize>) {
-        let mut min_distance: u64 = std::u64::MAX;
-        let mut min_action = Action::new(0, 0, 0, Direction::Down);
-        let mut min_diff = vec![std::usize::MAX];
+        let (min_action, min_distance, min_diff) = self
+            .down_only_actions
+            .par_iter()
+            .filter_map(|action| {
+                if action.y() + self.cuts[action.cut_num() as u32].height() as i32
+                    > self.usable_height as i32
+                {
+                    return None;
+                }
 
-        for action in self.down_only_actions {
-            if action.y() + self.cuts[action.cut_num() as u32].height() as i32
-                > self.usable_height as i32
-            {
-                continue;
-            }
+                let (distance, diff) = self.now_board.no_op_top_distance(
+                    &self.end,
+                    self.usable_height,
+                    self.cuts,
+                    action,
+                );
 
-            let (distance, diff) = self.now_board.no_op_top_distance(
-                &self.end,
-                self.usable_height,
-                self.cuts,
-                &action,
-            );
-
-            if distance < min_distance {
-                min_distance = distance;
-                min_action = action.clone();
-                min_diff = diff;
-            }
-        }
+                Some((action.clone(), distance, diff))
+            })
+            .min_by_key(|&(_, distance, _)| distance)
+            .unwrap_or((
+                Action::new(0, 0, 0, Direction::Down),
+                std::u64::MAX,
+                vec![std::usize::MAX],
+            ));
 
         (min_action, min_distance, min_diff)
     }
