@@ -90,19 +90,32 @@ impl DownFillOne<'_> {
         let mut min_diff = vec![std::usize::MAX];
 
         for action in self.down_only_actions {
-            let mut next_board = self.now_board.clone();
             if action.y() + self.cuts[action.cut_num() as u32].height() as i32
                 > self.usable_height as i32
             {
                 continue;
             }
+            let mut next_board = self.now_board.clone();
             next_board.operate(action, self.cuts);
-            let (distance, diff) = next_board.top_first_distance(&self.end, self.usable_height);
 
-            if distance < min_distance {
-                min_distance = distance;
+            let (distance1, diff1) = next_board.top_first_distance(&self.end, self.usable_height);
+
+            // let (distance2, diff2) = self.now_board.no_op_top_distance(
+            //     &self.end,
+            //     self.usable_height,
+            //     self.cuts,
+            //     &action,
+            // );
+            // println!("{:?}, \n{:?}", self.now_board, self.end);
+
+            // assert_eq!(distance1, distance2);
+            // println!("action: {:?}", action);
+            // assert_eq!(diff1, diff2);
+
+            if distance1 < min_distance {
+                min_distance = distance1;
                 min_action = action.clone();
-                min_diff = diff;
+                min_diff = diff1;
             }
         }
 

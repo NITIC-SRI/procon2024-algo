@@ -208,7 +208,7 @@ where
         end: &Self,
         usable_height: usize,
         cuts: &Cuts,
-        action: Action,
+        action: &Action,
     ) -> (u64, Vec<usize>) {
         let end_row_num = self.height() - usable_height;
         let mut distance = 0;

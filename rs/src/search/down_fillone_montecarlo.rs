@@ -16,6 +16,8 @@ pub struct DownFillOne<'a> {
     usable_height: usize,
     actions: Vec<Action>,
     n_simulations: usize,
+    base_down_only_actions: Vec<Action>,
+    base_x_only_actions: Vec<Action>,
 }
 
 impl DownFillOne<'_> {
@@ -27,6 +29,19 @@ impl DownFillOne<'_> {
         cuts: &'a Cuts,
         n_simulations: usize,
     ) -> DownFillOne<'a> {
+        let mut base_down_only_actions = vec![];
+        let mut base_x_only_actions = vec![];
+        for action in down_only_actions.iter() {
+            if action.cut_num() != 0 {
+                continue;
+            }
+            if action.direction() == Direction::Down {
+                base_down_only_actions.push(action.clone());
+            } else if action.direction() == Direction::Right || action.direction() == Direction::Left {
+                base_x_only_actions.push(action.clone());
+            }
+        }
+
         DownFillOne {
             now_board: start.clone(),
             end,
@@ -36,6 +51,8 @@ impl DownFillOne<'_> {
             usable_height: start.height(),
             actions: Vec::new(),
             n_simulations,
+            base_down_only_actions,
+            base_x_only_actions,
         }
     }
 
@@ -57,12 +74,14 @@ impl DownFillOne<'_> {
     pub fn greedy_match_x_direction_action(&self, diff: &Vec<usize>) -> (Action, u64) {
         let mut min_distance: u64 = std::u64::MAX;
         let mut min_action = Action::new(0, 0, 0, Direction::Down);
+        let mut min_distance_col_distance = std::u64::MAX;
         let mut rng = SmallRng::from_entropy();
-        let random_legal_actions: Vec<Action> = self
+        let mut random_legal_actions: Vec<Action> = self
             .x_only_actions
             .choose_multiple(&mut rng, self.n_simulations)
             .cloned()
             .collect();
+        random_legal_actions.extend(self.base_x_only_actions.clone());
 
         for action in random_legal_actions.iter() {
             let mut next_board = self.now_board.clone();
@@ -74,9 +93,17 @@ impl DownFillOne<'_> {
             }
 
             next_board.operate(action, self.cuts);
-            let distance = next_board.match_x_direction_score(&self.end, &diff, self.usable_height);
+            // let distance = next_board.match_x_direction_score(&self.end, &diff, self.usable_height);
+            let (distance, col_score) =
+                next_board.match_x_direction_and_col_score(&self.end, &diff, self.usable_height);
+
             if min_distance > distance {
                 min_distance = distance;
+                min_action = action.clone();
+            }
+
+            if min_distance == distance && min_distance_col_distance > col_score {
+                min_distance_col_distance = col_score;
                 min_action = action.clone();
             }
         }
@@ -89,11 +116,12 @@ impl DownFillOne<'_> {
         let mut min_action = Action::new(0, 0, 0, Direction::Down);
         let mut min_diff = vec![std::usize::MAX];
         let mut rng = SmallRng::from_entropy();
-        let random_legal_actions: Vec<Action> = self
+        let mut random_legal_actions: Vec<Action> = self
             .down_only_actions
             .choose_multiple(&mut rng, self.n_simulations)
             .cloned()
             .collect();
+        random_legal_actions.extend(self.base_down_only_actions.clone());
 
         for action in random_legal_actions.iter() {
             let mut next_board = self.now_board.clone();
@@ -114,6 +142,30 @@ impl DownFillOne<'_> {
 
         (min_action, min_distance, min_diff)
     }
+
+    pub fn caterpillar_and_line_fillone(&mut self) {
+        let mut top_distance = 0;
+        for w in 0..self.now_board.width() {
+            if self.now_board.board()[0][w]
+                != self.end.board()[self.now_board.height() - self.usable_height][w]
+            {
+                top_distance += 1;
+            }
+        }
+
+        let actions = self
+            .now_board
+            .caterpillar_and_line_fillone(&self.end, self.usable_height);
+        for action in actions.iter() {
+            self.operate(action);
+        }
+
+        println!(
+            "caterpillar fillone: \n actions: {}, distance: {}",
+            actions.len(),
+            top_distance
+        );
+    }
 }
 
 pub fn play<'a>(
@@ -121,8 +173,8 @@ pub fn play<'a>(
     end: &Board,
     legal_actions: &Vec<Action>,
     cuts: &Cuts,
-    max_iterations: usize,
     n_simulations: usize,
+    max_iterations: usize,
 ) -> Vec<Action> {
     let mut cuts = cuts.clone();
     cuts.delete_only_zero_bottoms();
@@ -138,6 +190,12 @@ pub fn play<'a>(
 
     // TODO: タイムキーパー
     for _ in 0..max_iterations {
+        if down_fillone_game.usable_height == 1 {
+            down_fillone_game.caterpillar_and_line_fillone();
+            down_fillone_game.complete_top_row();
+            println!("break");
+            break;
+        }
         println!("{}", down_fillone_game.now_board);
         println!("height: {}", down_fillone_game.usable_height);
 
@@ -160,9 +218,13 @@ pub fn play<'a>(
 
         // 一番上の行で揃えられないものが存在するなら横に篩う
         if !last_diff.is_empty() {
-            let (action, _) = down_fillone_game.greedy_match_x_direction_action(&last_diff);
-            down_fillone_game.operate(&action);
-            continue;
+            let (action, distance) = down_fillone_game.greedy_match_x_direction_action(&last_diff);
+            if last_diff.len() == distance as usize {
+                down_fillone_game.caterpillar_and_line_fillone();
+            } else {
+                down_fillone_game.operate(&action);
+                continue;
+            }
         }
 
         down_fillone_game.complete_top_row();
@@ -170,6 +232,5 @@ pub fn play<'a>(
             break;
         }
     }
-
     down_fillone_game.actions
 }
