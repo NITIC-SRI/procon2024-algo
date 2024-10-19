@@ -163,6 +163,56 @@ pub fn get_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Action> {
     actions
 }
 
+pub fn get_general_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Action> {
+    let mut actions = Vec::with_capacity(10000); // 容量を事前に確保
+    let mut saw = HashSet::with_capacity(10000); // HashSetの容量も事前確保
+
+    let mut board_vec: Vec<Vec<usize>> = vec![vec![0; w_size]; h_size];
+    for h in 0..h_size {
+        for w in 0..w_size {
+            board_vec[h][w] = w + h * w_size;
+        }
+    }
+    let board: Board<usize> = Board::new(board_vec);
+
+    for i in 0..cuts.len() {
+        if i >= 3 && i < 25 {
+            let cut = &cuts[i as u32 - 3];
+            if cut.width() >= w_size || cut.height() >= h_size {
+                continue;
+            }
+        }
+
+        let cut = &cuts[i as u32];
+        let cut_w = cut.width() as i32;
+        let cut_h = cut.height() as i32;
+
+        for w in (1 - cut_w)..(w_size as i32) {
+            for h in (1 - cut_h)..(h_size as i32) {
+                for d in vec![
+                    Direction::Left,
+                    Direction::Right,
+                    Direction::Up,
+                    Direction::Down,
+                ] {
+                    let action = Action::new(w, h, i as u16, d);
+                    let mut new_board = board.clone();
+
+                    new_board.operate(&action, cuts);
+                    let new_board_hash = calculate_hash(&new_board);
+                    if new_board == board || saw.contains(&new_board_hash) {
+                        continue;
+                    }
+
+                    saw.insert(new_board_hash);
+                    actions.push(action);
+                }
+            }
+        }
+    }
+    actions
+}
+
 pub fn read_actions(path: String) -> Vec<Action> {
     let file = std::fs::File::open(path).unwrap();
     let reader = std::io::BufReader::new(file);
@@ -284,7 +334,7 @@ pub fn get_action_by_direction(legal_actions: &Vec<Action>) -> (Vec<Action>, Vec
         if action.y() < 1 {
             continue;
         }
-        if action.direction() == Direction::Down {
+        if action.direction() == Direction::Down && action.cut_num() < 25 {
             down_only.push(action.clone());
         } else if action.direction() == Direction::Left || action.direction() == Direction::Right {
             x_only.push(action.clone());
