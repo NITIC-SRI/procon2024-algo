@@ -1,18 +1,34 @@
 use crate::utils::Data;
+use std::{thread, time};
 
 // -H "Procon-Token: token1"
 pub async fn get(url: String, token: String) -> Data {
     let client = reqwest::Client::new();
-    let res = client.get(&url).header("Procon-Token", token).send().await;
+    let millis = time::Duration::from_millis(1000);
+    loop {
+        thread::sleep(millis);
 
-    let body = res.unwrap().text().await;
-    match body {
-        Ok(body) => {
-            println!("Successfully got from {}", body);
-            let data: Data = serde_json::from_str(&body).unwrap();
-            data
+        let res = client
+            .get(&url)
+            .header("Procon-Token", token.clone())
+            .send()
+            .await;
+
+        let body = res.unwrap().text().await;
+
+        match body {
+            Ok(body) => {
+                println!("Successfully got from {}", body);
+                if body == "AccessTimeError" {
+                    continue;
+                }
+
+                let data: Data = serde_json::from_str(&body).unwrap();
+
+                return data;
+            }
+            Err(_) => continue,
         }
-        Err(_) => panic!("Error"),
     }
 }
 
