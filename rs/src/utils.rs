@@ -335,12 +335,14 @@ pub fn get_action_by_direction(legal_actions: &Vec<Action>) -> (Vec<Action>, Vec
     let mut down_only = Vec::new();
     let mut x_only = Vec::new();
     for action in legal_actions {
+        if action.direction() == Direction::Down && action.cut_num() < 25 {
+            down_only.push(action.clone());
+        }
         if action.y() < 1 {
             continue;
         }
-        if action.direction() == Direction::Down && action.cut_num() < 25 {
-            down_only.push(action.clone());
-        } else if action.direction() == Direction::Left || action.direction() == Direction::Right {
+
+        if action.direction() == Direction::Left || action.direction() == Direction::Right {
             x_only.push(action.clone());
         }
     }
