@@ -187,6 +187,10 @@ pub fn get_general_actions(h_size: usize, w_size: usize, cuts: &Cuts) -> Vec<Act
         let cut_w = cut.width() as i32;
         let cut_h = cut.height() as i32;
 
+        if i > 25 && (cut_h >= 64 || cut_w >= 64) {
+            continue;
+        }
+
         for w in (1 - cut_w)..(w_size as i32) {
             for h in (1 - cut_h)..(h_size as i32) {
                 for d in vec![
