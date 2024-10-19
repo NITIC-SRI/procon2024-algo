@@ -1,5 +1,5 @@
 use rs::board::board::Board;
-use rs::utils;
+// use rs::utils;
 
 fn main() {
     let start: Board<u8> = Board::new(vec![
@@ -263,12 +263,12 @@ fn main() {
         ],
     ]);
 
-	for h in 0..start.height() {
-		print!("\"");
-		for w in 0..start.width() {
-			print!("{}", end.board()[h][w]);
-		}
-		// ダブルクウォーテーションで囲む
-		println!("\",");
-	}
+    for h in 0..start.height() {
+        print!("\"");
+        for w in 0..start.width() {
+            print!("{}", end.board()[h][w]);
+        }
+        // ダブルクウォーテーションで囲む
+        println!("\",");
+    }
 }

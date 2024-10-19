@@ -14,6 +14,7 @@ pub async fn get(url: String, token: String) -> Data {
         }
         Err(_) => panic!("Error"),
     }
+}
 
 pub async fn post(url: String, json_request: String, token: String) {
     let client = reqwest::Client::new();

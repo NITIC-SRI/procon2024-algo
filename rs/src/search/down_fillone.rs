@@ -188,7 +188,7 @@ pub fn play<'a>(
     );
 
     // TODO: タイムキーパー
-    for i in 0..max_iterations {
+    for _i in 0..max_iterations {
         if down_fillone_game.usable_height == 1 {
             down_fillone_game.caterpillar_and_line_fillone();
             down_fillone_game.complete_top_row();

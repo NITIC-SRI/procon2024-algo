@@ -24,7 +24,7 @@ fn main() {
     let legal_actions = utils::read_actions_by_size(size as usize, size as usize);
 
     let actions = play(&start, &end, &legal_actions, &cuts, 1000, 100000);
-    let json = utils::export_visualyzer_json(&start, &end, actions.clone());
+    // let json = utils::export_visualyzer_json(&start, &end, actions.clone());
 
     // println!("{}", json);
     println!("len: {}", actions.len());
