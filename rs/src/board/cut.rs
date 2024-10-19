@@ -37,6 +37,22 @@ impl Cut {
             self.cut.pop();
         }
     }
+
+    pub fn parse_cut_string(cells: &Vec<String>) -> Self {
+        let mut cut: Vec<Vec<bool>> = Vec::new();
+        for cell in cells {
+            let mut row = Vec::new();
+            for c in cell.chars() {
+                if c == '1' {
+                    row.push(true);
+                } else {
+                    row.push(false);
+                }
+            }
+            cut.push(row);
+        }
+        Cut::new(cut)
+    }
 }
 
 impl Index<usize> for Cut {
@@ -74,6 +90,13 @@ impl Cuts {
             cuts.push(cut);
         }
         Cuts { cuts }
+    }
+
+    pub fn parse_cuts_string(&mut self, cells: &Vec<Vec<String>>) {
+        for cell in cells {
+            let cut = Cut::parse_cut_string(cell);
+            self.push(cut);
+        }
     }
 
     pub fn push(&mut self, cut: Cut) {
