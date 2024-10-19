@@ -548,4 +548,31 @@ where
 
         actions
     }
+
+    pub fn try_only_caterpillar(&self, end: &Self, usable_height: usize) -> (bool, Vec<Action>) {
+        let end_row_y = self.height() - usable_height;
+        let mut new = self.clone();
+        let mut actions = vec![];
+
+        let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+        // let mut wrongs: Vec<Vec<usize>> = vec![vec![]; 4];
+
+        'loop_w: for w in 0..self.width() {
+            if self.board()[0][w] == end.board()[end_row_y][w] {
+                continue;
+            }
+            for y in 1..usable_height {
+                for x in 0..self.width() {
+                    if new.board()[y][x] == end.board()[end_row_y][w] {
+                        let caterpillar_actions = new.caterpillar_move(w, x, y);
+                        new.operate_actions(caterpillar_actions.clone(), &cuts);
+                        actions.extend(caterpillar_actions);
+                        continue 'loop_w;
+                    }
+                }
+            }
+            return (false, vec![]);
+        }
+        return (true, actions);
+    }
 }
