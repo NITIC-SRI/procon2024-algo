@@ -1,19 +1,21 @@
+use std::process::exit;
+
 use rs::board::action::Action;
 use rs::board::board::Board;
 use rs::board::cut::{Cut, Cuts};
 use rs::client::{get, post};
 use rs::search::down_fillone;
 use rs::search::down_fillone_montecarlo;
-use rs::utils;
+use rs::utils::{self, validate_actions};
 use rs::utils::{export_post_json, string_to_board};
 
 #[tokio::main]
 async fn main() {
-    let get_url = String::from("http://localhost:3000/problem");
-    let post_url = String::from("http://localhost:3000/answer");
+    // let get_url = String::from("http://localhost:3000/problem");
+    // let post_url = String::from("http://localhost:3000/answer");
 
-    // let get_url = String::from("http://172.29.1.2:80/problem");
-    // let post_url = String::from("http://172.29.1.2:80/answer");
+    let get_url = String::from("http://172.29.1.2:80/problem");
+    let post_url = String::from("http://172.29.1.2:80/answer");
 
     let token = "ichinoseki3984c30163ebc918a611915851c8a720a5f90924c5754e66020211".to_string();
 
@@ -21,11 +23,13 @@ async fn main() {
     let start = string_to_board(data.board.start);
     let end = string_to_board(data.board.goal);
 
-    {
+    let fillone_score = {
         let actions = start.get_fillone_actions(&end, 0, 0, true);
+        println!("fillone actions len {}", actions.len());
         let json = export_post_json(&actions);
         post(post_url.clone(), json, token.clone()).await;
-    }
+        actions.len()
+    };
 
     let size_h = data.board.height;
     let size_w = data.board.width;
@@ -43,6 +47,19 @@ async fn main() {
     println!("legal_actions len {:}", legal_actions.len());
 
     let actions = select_algorithm(size_h, size_w, &start, &end, &legal_actions, &cuts);
+    {
+        if !validate_actions(&start, &end, &actions, &cuts) {
+            println!("new != end");
+            exit(1);
+        }
+    }
+    {
+        if fillone_score < actions.len() {
+            println!("fillone_score < actions.len()");
+            exit(1);
+        }
+    }
+
     println!("actions len {}", actions.len());
 
     let json = export_post_json(&actions);
