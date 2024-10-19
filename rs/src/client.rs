@@ -18,7 +18,7 @@ pub async fn get(url: String, token: String) -> Data {
 
         match body {
             Ok(body) => {
-                println!("Successfully got from {}", body);
+                println!("Successfully got from {}", body.len());
                 if body == "AccessTimeError" {
                     continue;
                 }
