@@ -221,7 +221,17 @@ pub fn play<'a>(
         if !last_diff.is_empty() {
             let (action, distance) = down_fillone_game.greedy_match_x_direction_action(&last_diff);
             if last_diff.len() == distance as usize {
-                down_fillone_game.caterpillar_and_line_fillone();
+                let (res, actions) = down_fillone_game
+                    .now_board
+                    .try_only_caterpillar(down_fillone_game.end, down_fillone_game.usable_height);
+                if res {
+                    for action in actions.iter() {
+                        down_fillone_game.operate(action);
+                    }
+                    down_fillone_game.count[2] += actions.len();
+                } else {
+                    down_fillone_game.caterpillar_and_line_fillone();
+                }
             } else {
                 down_fillone_game.count[1] += 1;
 

@@ -778,3 +778,79 @@ fn tests_no_op_top_distance() {
         test_no_op_top_distance(start, end, usable_height, action, &cuts);
     }
 }
+
+fn test_try_caterpillar(start: Board, end: Board, usable_height: usize, expected_res: bool) {
+    let cuts = Cuts::new("../data/formal_cuts.json".to_string());
+    let mut new = start.clone();
+    let (res, actions) = start.try_only_caterpillar(&end, usable_height);
+    assert_eq!(res, expected_res);
+
+    if res {
+        new.operate_actions(actions, &cuts);
+        assert_eq!(new.board()[0], end.board()[end.height() - usable_height]);
+    }
+}
+
+#[test]
+fn tests_try_caterpillar() {
+    let test_cases: Vec<(Board, Board, usize, bool)> = vec![
+        (
+            Board::new(vec![
+                vec![2, 3, 1],
+                vec![3, 0, 1],
+                vec![1, 0, 3],
+                vec![1, 2, 3],
+                vec![2, 1, 0],
+            ]),
+            Board::new(vec![
+                vec![1, 2, 3],
+                vec![2, 1, 0],
+                vec![1, 1, 1],
+                vec![2, 0, 3],
+                vec![3, 0, 3],
+            ]),
+            3,
+            true,
+        ),
+        (
+            Board::new(vec![
+                vec![0, 3, 3, 3, 1],
+                vec![1, 2, 1, 2, 0],
+                vec![2, 3, 1, 0, 1],
+                vec![2, 3, 1, 2, 0],
+                vec![2, 1, 2, 1, 3],
+            ]),
+            Board::new(vec![
+                vec![2, 3, 1, 0, 1],
+                vec![2, 3, 1, 2, 0],
+                vec![2, 1, 2, 1, 3],
+                vec![2, 3, 0, 1, 2],
+                vec![1, 0, 1, 3, 3],
+            ]),
+            2,
+            true,
+        ),
+        (
+            Board::new(vec![
+                vec![0, 3, 3, 3, 1],
+                vec![1, 2, 1, 2, 0],
+                vec![2, 3, 1, 0, 1],
+                vec![2, 3, 1, 2, 0],
+                vec![2, 1, 2, 1, 3],
+            ]),
+            Board::new(vec![
+                vec![2, 3, 1, 0, 1],
+                vec![2, 3, 1, 2, 0],
+                vec![2, 1, 2, 1, 3],
+                vec![3, 0, 3, 1, 3],
+                vec![1, 2, 1, 2, 0],
+            ]),
+            2,
+            false,
+        ),
+    ];
+
+    for (start, end, usable_height, expected_res) in test_cases {
+        test_try_caterpillar(start, end, usable_height, expected_res);
+    }
+}
