@@ -1,6 +1,6 @@
 use rs::board::action::Action;
 use rs::board::board::Board;
-use rs::board::cut::Cuts;
+use rs::board::cut::{Cut, Cuts};
 use rs::client::{get, post};
 use rs::search::down_fillone;
 use rs::search::down_fillone_montecarlo;
@@ -20,7 +20,12 @@ async fn main() {
     let size_w = data.board.width;
 
     let path = "../data/formal_cuts.json".to_string();
-    let cuts = Cuts::new(path);
+    let mut cuts = Cuts::new(path);
+    for pat in data.general.patterns {
+        let cut = pat.cells;
+        let cut = Cut::parse_cut_string(&cut);
+        cuts.push(cut);
+    }
 
     let legal_actions = utils::read_actions_by_size(size_w as usize, size_h as usize);
 
