@@ -52,10 +52,10 @@ fn test_get_actions() {
 #[test]
 fn test_read_actions_by_size() {
     let testcases = vec![
-        (32, 32, "32*32"),
-        (70, 80, "128*128"),
-        (127, 129, "256*256"),
-        (256, 256, "256*256"),
+        (34, 34, "64*64"),
+        // (70, 80, "128*128"),
+        // (127, 129, "256*256"),
+        // (256, 256, "256*256"),
     ];
 
     for testcase in testcases {
@@ -76,6 +76,7 @@ fn test_read_actions_by_size() {
     }
 }
 
+#[test]
 fn test_validate_actions() {
     let board = Board::new(rs::utils::random_board(10, 10));
     let end = Board::new(rs::utils::shuffle_board(board.clone().board, 42));

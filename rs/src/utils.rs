@@ -305,7 +305,10 @@ pub fn validate_actions(start: &Board, end: &Board, actions: &Vec<Action>, cuts:
 pub fn string_to_board(board_str: Vec<String>) -> Board {
     let mut board = Vec::new();
     for row_str in board_str {
-        let row = row_str.chars().map(|c| c.to_digit(10).unwrap() as u8).collect();
+        let row = row_str
+            .chars()
+            .map(|c| c.to_digit(10).unwrap() as u8)
+            .collect();
         board.push(row);
     }
     Board::new(board)

@@ -15,5 +15,8 @@ fn main() {
     let mut game = fillone_montecarlo::MontecarloGame::new(start, &cuts, &end, &legal_actions);
     let result = play(&mut game, 10, true);
 
-    println!("{:?}", result);
+    println!(
+        "{:?}",
+        result.len() + game.state.board.get_fillone_action_score(&end)
+    );
 }
