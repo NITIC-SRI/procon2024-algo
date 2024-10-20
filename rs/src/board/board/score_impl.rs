@@ -218,18 +218,49 @@ where
 
         for w in 0..self.width() {
             // cutの範囲外の場合はfalse
-            let cut_flag = if (w as i32) < action.x() || w as i32 >= action.x() + cut.width() as i32
-            {
-                false
-            } else {
-                cut[0][(w as i32 - action.x()) as usize]
-            };
+            let cut_flags =
+                if (w as i32) < action.x() || w as i32 >= action.x() + cut.width() as i32 {
+                    [false, false]
+                } else if cut.width() == 1 {
+                    [true, false]
+                } else {
+                    let cut_w = (w as i32 - action.x()) as usize;
+
+                    let cut_row_num = if action.y() >= 0 {
+                        0
+                    } else {
+                        -action.y() as usize
+                    };
+
+                    if cut_row_num + 1 >= cut.height() {
+                        [cut[cut_row_num][cut_w], true]
+                    } else {
+                        [
+                            cut[cut_row_num + 0][(w as i32 - action.x()) as usize],
+                            cut[cut_row_num + 1][(w as i32 - action.x()) as usize],
+                        ]
+                    }
+                };
             let now_top_cell = self.board()[0][w];
-            let now_midlle_cell = self.board()[action.y() as usize][w];
+
+            let next_top_cell = if action.y() >= 0 {
+                self.board()[action.y() as usize][w]
+            } else {
+                // 初期化する値が思いつかない
+                let mut next_top_cell: T = now_top_cell.clone();
+
+                for h in 0..1 {
+                    if cut_flags[h] {
+                        next_top_cell = self.board()[h][w];
+                    }
+                }
+                next_top_cell
+            };
             let end_cell = end.board()[end_row_num][w];
 
-            if (cut_flag && now_midlle_cell != end_cell) || (!cut_flag && now_top_cell != end_cell)
-            {
+            let cut_flag = cut_flags[0] || cut_flags[1];
+
+            if (cut_flag && next_top_cell != end_cell) || (!cut_flag && now_top_cell != end_cell) {
                 distance += 1;
                 diff.push(w);
             }
