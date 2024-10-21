@@ -785,9 +785,9 @@ fn tests_no_op_top_distance() {
         let end = Board::new([correct, shuffle_board(incorrect, 42)].concat());
 
         let action = {
-            // let cut_num = rng.gen_range(0..25);
+            let cut_num = rng.gen_range(0..25);
 
-            let cut_size = if cut_num == 0 { 0 } else { 1 << (cut_num / 3) };
+            let cut_size = if cut_num == 0 { 1 } else { 2 << ((cut_num-1) / 3) };
             let x = rng.gen_range(-(cut_size - 1)..(w as i32));
             let y = rng.gen_range(-(cut_size - 1)..(incorrect_height as i32));
             Action::new(x as i32, y as i32, cut_num, Direction::Down)
