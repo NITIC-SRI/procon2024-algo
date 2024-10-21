@@ -203,6 +203,8 @@ where
         (diff.len() - score) as u64
     }
 
+    // TODO:
+    // 抜き型の適用位置が負の場合に対応する
     pub fn no_op_top_distance(
         &self,
         end: &Self,
@@ -232,17 +234,15 @@ where
                         -action.y() as usize
                     };
 
-                    if cut_row_num + 1 >= cut.height() {
-                        [cut[cut_row_num][cut_w], true]
+                    if cut_row_num >= cut.height() - 1 {
+                        [cut[cut_row_num][cut_w], false]
                     } else {
-                        [
-                            cut[cut_row_num + 0][(w as i32 - action.x()) as usize],
-                            cut[cut_row_num + 1][(w as i32 - action.x()) as usize],
-                        ]
+                        [cut[cut_row_num + 0][cut_w], cut[cut_row_num + 1][cut_w]]
                     }
                 };
             let now_top_cell = self.board()[0][w];
 
+            let middle_row: usize = if action.y() >=0 {action.y() as usize} else {0};
             let next_top_cell = if action.y() >= 0 {
                 self.board()[action.y() as usize][w]
             } else {
@@ -251,7 +251,8 @@ where
 
                 for h in 0..1 {
                     if cut_flags[h] {
-                        next_top_cell = self.board()[h][w];
+                        next_top_cell = self.board()[middle_row+h][w];
+                        break;
                     }
                 }
                 next_top_cell
