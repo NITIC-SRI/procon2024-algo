@@ -49,6 +49,172 @@ where
         score
     }
 
+    //TODO:テストをする
+
+    pub fn operate_and_absolute_distance(&mut self, prev_distance: i32, action: &Action, end: &Self, cuts: &Cuts) -> u64 {
+        let cut = &cuts[action.cut_num() as u32];
+        let mut before_distance = 0;
+        let mut after_distance = 0;
+        let mut pos = 0;
+        match action.direction() {
+            Direction::Up => {
+                // 列ごとに2周して計算する
+                for i in action.x()..(action.x() + cut.width() as i32) {
+
+                    if !(0 <= i && i < self.width as i32) {
+                        continue;
+                    }
+
+                    for j in action.y()..(action.y() + cut.height() as i32) {
+
+                        if !(0 <= j && j < self.height as i32){
+                            continue;
+                        }
+                        
+                        if cut[j as usize][i as usize] == true {
+                            
+                            if self.board()[j as usize][i as usize] != end.board()[pos][i as usize] {
+                                after_distance += 1;
+                            }
+                            pos += 1;
+                        }
+                    }
+                    for j in 0..self.height() as i32{
+
+                        if self.board()[j as usize][i as usize] != end.board()[j as usize][i as usize] {
+                            before_distance += 1;
+                        }
+                        if cut.cut[j as usize][i as usize] != true {
+                            if self.board()[j as usize][i as usize] != end.board()[pos][i as usize] {
+                                after_distance += 1;
+                                
+                            }
+                            pos += 1;
+                        }
+                    }
+                }
+            }
+            
+            Direction::Down => {
+                // 列ごとに2周して計算する
+                for i in action.x()..(action.x() + cut.width() as i32) {
+
+                    if !(0 <= i && i < self.width as i32) {
+                        continue;
+                    }
+                    for j in 0..self.height() as i32{
+
+                        if self.board()[j as usize][i as usize] != end.board()[j as usize][i as usize] {
+                            before_distance += 1;
+                        }
+                        if cut.cut[j as usize][i as usize] != true {
+                            if self.board()[j as usize][i as usize] != end.board()[pos][i as usize] {
+                                after_distance += 1;
+                                
+                            }
+                            pos += 1;
+                        }
+                    }
+                    
+                    for j in action.y()..(action.y() + cut.height() as i32) {
+
+                        if !(0 <= j && j < self.height as i32){
+                            continue;
+                        }
+                        
+                        if cut[j as usize][i as usize] == true {
+                            
+                            if self.board()[j as usize][i as usize] != end.board()[pos][i as usize] {
+                                after_distance += 1;
+                            }
+                            pos += 1;
+                        }
+                    }
+                    
+                }
+            }
+            
+            Direction::Left => {
+                // 行ごとに2周して計算する
+                for i in action.y()..(cut.height() as i32) {
+
+                    if !(0 <= i && i < self.height as i32) {
+                        continue;
+                    }
+                    
+                    for j in 0..self.width() as i32{
+
+                        if self.board()[i as usize][j as usize] != end.board()[i as usize][j as usize] {
+                            before_distance += 1;
+                        }
+                        if cut.cut[i as usize][j as usize] != true {
+                            if self.board()[i as usize][j as usize] != end.board()[i as usize][pos] {
+                                after_distance += 1;
+                            }
+                            pos += 1;
+                        }
+                    }
+
+                    for j in action.x()..(action.x() + cut.width() as i32) {
+
+                        if !(0 <= j && j < self.width as i32){
+                            continue;
+                        }
+                        
+                        if cut[i as usize][j as usize] == true {
+                            
+                            if self.board()[i as usize][j as usize] != end.board()[i as usize][pos] {
+                                after_distance += 1;
+                            }
+                            pos += 1;
+                        }
+                    }
+                }
+            }
+            
+            Direction::Right => {
+                // 行ごとに2周して計算する
+                for i in action.y()..(action.y() + cut.height() as i32) {
+
+                    if !(0 <= i && i < self.height as i32) {
+                        continue;
+                    }
+
+                    for j in action.x()..(action.x() + cut.width() as i32) {
+
+                        if !(0 <= j && j < self.width as i32){
+                            continue;
+                        }
+                        
+                        if cut[i as usize][j as usize] == true {
+                            
+                            if self.board()[i as usize][j as usize] != end.board()[i as usize][pos] {
+                                after_distance += 1;
+                            }
+                            pos += 1;
+                        }
+                    }
+                    for j in 0..self.width() as i32{
+
+                        if self.board()[i as usize][j as usize] != end.board()[i as usize][j as usize] {
+                            before_distance += 1;
+                        }
+                        if cut.cut[i as usize][j as usize] != true {
+                            if self.board()[i as usize][j as usize] != end.board()[i as usize][pos] {
+                                after_distance += 1;
+                                
+                            }
+                            pos += 1;
+                        }
+                    }
+                }
+            }
+        }
+        let distance = prev_distance - before_distance + after_distance;
+        return distance as u64;
+    }
+
+
     // 行ごとに、列外れていても同じ数字があればスコアを加算
     pub fn row_score(&self, end: &Self) -> u64 {
         let mut score = 0;
